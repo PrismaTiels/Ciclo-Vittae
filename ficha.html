@@ -2,286 +2,510 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Ciclo Vitae - Ficha Final v2</title>
+    <title>Ciclo Vitae - Ficha Final v3</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Outfit:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
     <style>
-        body { background-color: #030305; color: #a1a1aa; font-family: 'Inter', sans-serif; min-height: 100vh; margin: 0; display: flex; }
-        .font-title { font-family: 'Outfit', sans-serif; }
+        :root {
+            --bg-color: #050507;
+            --panel-bg: #0a0a0f;
+            --accent: #8b5cf6;
+            --accent-rgb: 139, 92, 246;
+            --text-muted: #71717a;
+        }
+
+        /* TEMA DINÂMICO */
         .tema-vivo { --accent: #8b5cf6; --accent-rgb: 139, 92, 246; }
         .tema-morto { --accent: #10b981; --accent-rgb: 16, 185, 129; }
 
+        body { background-color: var(--bg-color); color: #e4e4e7; font-family: 'Inter', sans-serif; min-height: 100vh; margin: 0; display: flex; overflow: hidden; }
+        .font-title { font-family: 'Outfit', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
         .sidebar { 
-            width: 420px; background: #07070a; border-right: 1px solid rgba(255, 255, 255, 0.05); 
-            height: 100vh; position: sticky; top: 0; padding: 40px; overflow-y: auto; flex-shrink: 0;
+            width: 380px; background: var(--panel-bg); border-right: 1px solid rgba(255, 255, 255, 0.05); 
+            height: 100vh; position: sticky; top: 0; padding: 30px; overflow-y: auto; flex-shrink: 0;
+            display: flex; flex-direction: column; gap: 2rem;
         }
+
+        .input-glass {
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+            color: white; border-radius: 6px; padding: 8px; outline: none; transition: 0.3s;
+        }
+        .input-glass:focus { border-color: var(--accent); box-shadow: 0 0 10px rgba(var(--accent-rgb), 0.2); }
+
+        /* BARRAS DE PROGRESSO */
+        .progress-container { display: flex; flex-direction: column; gap: 4px; }
+        .progress-bg { background: rgba(0,0,0,0.4); height: 28px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); position: relative; }
+        .progress-fill { height: 100%; transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); position: relative; }
+        .progress-text { position: absolute; inset: 0; display: flex; justify-content: center; align-items: center; font-size: 12px; font-weight: 700; text-shadow: 0 1px 2px black; z-index: 2; pointer-events: none; }
+        .progress-inputs { position: absolute; inset: 0; display: flex; justify-content: space-between; opacity: 0; transition: 0.2s; z-index: 3; }
+        .progress-bg:hover .progress-inputs { opacity: 1; }
+        .bar-btn { width: 30px; height: 100%; border: none; background: rgba(0,0,0,0.5); color: white; cursor: pointer; font-weight: bold; }
+        .bar-btn:hover { background: var(--accent); }
+
+        /* TABS */
+        .tabs-nav { display: flex; background: rgba(0,0,0,0.2); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .tab-btn { padding: 20px 30px; cursor: pointer; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); transition: 0.3s; border-bottom: 2px solid transparent; }
+        .tab-active { color: white; border-bottom-color: var(--accent); background: linear-gradient(to top, rgba(var(--accent-rgb), 0.05), transparent); }
+
+        main { flex-grow: 1; height: 100vh; overflow-y: auto; background-image: radial-gradient(circle at 50% 0%, rgba(var(--accent-rgb), 0.08), transparent 70%); }
+        .content-area { padding: 40px; max-width: 1200px; margin: 0 auto; }
+
+        .skills-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+        .skill-card {
+            background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 8px;
+            transition: all 0.2s; position: relative; overflow: hidden;
+        }
+        .skill-card:hover { transform: translateY(-2px); border-color: var(--accent); background: rgba(var(--accent-rgb), 0.05); }
+        .skill-top { display: flex; justify-content: space-between; align-items: flex-start; }
+        .skill-name { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
+        .skill-attr { font-size: 9px; opacity: 0.4; font-weight: 600; margin-top: 2px; }
+        .skill-val { font-size: 18px; font-family: 'JetBrains Mono'; font-weight: 700; color: var(--accent); }
         
-        main { flex-grow: 1; min-height: 100vh; overflow-y: visible; }
+        .btn-roll { 
+            flex-grow: 1; background: var(--accent); color: #000; border: none; border-radius: 4px; 
+            padding: 4px; font-size: 10px; font-weight: 800; cursor: pointer; text-transform: uppercase;
+            transition: 0.2s;
+        }
+        .btn-roll:hover { filter: brightness(1.2); box-shadow: 0 0 10px var(--accent); }
 
-        .progress-bg { background: rgba(0, 0, 0, 0.6); height: 36px; border-radius: 8px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); position: relative; }
-        .progress-fill { height: 100%; transition: width 0.4s ease-out; }
-        .progress-inputs { position: absolute; inset: 0; display: flex; justify-content: center; align-items: center; gap: 8px; z-index: 10; }
-
-        .bar-input { background: transparent; border: none; color: white; font-weight: 800; font-size: 16px; text-align: center; width: 45px; outline: none; text-shadow: 1px 1px 2px black; }
-        .btn-ciclo { width: 100%; padding: 18px; border-radius: 12px; border: 2px solid var(--accent); color: var(--accent); font-weight: 700; text-transform: uppercase; background: rgba(var(--accent-rgb), 0.05); cursor: pointer; transition: 0.3s; }
-        .btn-ciclo:hover { background: var(--accent); color: black; box-shadow: 0 0 20px var(--accent); }
-
-        .tab-btn { padding: 20px; cursor: pointer; font-weight: 600; text-transform: uppercase; font-size: 11px; border-bottom: 2px solid transparent; transition: 0.2s; }
-        .tab-active { border-color: var(--accent); color: white; background: rgba(var(--accent-rgb), 0.05); }
+        .item-list { display: flex; flex-direction: column; gap: 8px; }
+        .item-row { 
+            display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 10px; align-items: center;
+            background: rgba(255,255,255,0.02); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);
+        }
+        .combat-row { grid-template-columns: 2fr 1fr 1fr auto auto; }
         
-        .glass-card { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 24px; }
-        .hidden { display: none; }
-        input, textarea { background: transparent; outline: none; color: white; border-bottom: 1px solid transparent; }
-        input:focus { border-bottom-color: var(--accent); }
+        .btn-icon { background: transparent; border: 1px solid rgba(255,255,255,0.1); color: #ef4444; border-radius: 4px; width: 24px; height: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .btn-icon:hover { background: #ef4444; color: white; }
+        .btn-add { width: 100%; padding: 10px; border: 1px dashed rgba(255,255,255,0.2); background: transparent; color: rgba(255,255,255,0.5); cursor: pointer; border-radius: 8px; margin-top: 10px; }
+        .btn-add:hover { border-color: var(--accent); color: var(--accent); background: rgba(var(--accent-rgb), 0.05); }
 
-        .btn-remove { color: #444; transition: 0.3s; font-size: 10px; text-transform: uppercase; margin-top: 10px; cursor: pointer; }
-        .btn-remove:hover { color: #ef4444; }
-
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #030305; }
-        ::-webkit-scrollbar-thumb { background: #1f1f23; border-radius: 10px; }
+        #pop-container { position: fixed; bottom: 30px; right: 30px; display: flex; flex-direction: column; gap: 10px; pointer-events: none; z-index: 999; }
+        .pop-card { 
+            width: 260px; background: #0e0e12; border-left: 3px solid var(--accent); border-radius: 6px; 
+            padding: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); pointer-events: auto;
+            animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1); position: relative;
+        }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        
+        .crit-gold { color: #f59e0b; text-shadow: 0 0 10px rgba(245, 158, 11, 0.4); }
+        .crit-blue { color: #3b82f6; text-shadow: 0 0 10px rgba(59, 130, 246, 0.4); }
+        
+        .hidden { display: none !important; }
+        .text-overload { color: #ef4444; text-shadow: 0 0 10px rgba(239, 68, 68, 0.5); }
     </style>
 </head>
 <body class="tema-vivo" id="body-tag">
 
-<aside class="sidebar space-y-8">
-    <div class="mb-8">
-        <h1 id="info-nome-topo" class="text-4xl font-title font-bold text-white uppercase italic tracking-tighter mb-2">
-            CARREGANDO...
-        </h1>
-        <div class="flex justify-between items-center">
-            <p class="text-[10px] uppercase tracking-[0.4em] opacity-30">Status: <span id="span-estado" class="text-white">...</span></p>
-            <button onclick="alternarEstado()" class="text-[10px] text-purple-400 hover:text-white transition uppercase font-bold">[ Alternar Ciclo ]</button>
+<div id="pop-container"></div>
+
+<aside class="sidebar">
+    <div>
+        <div class="flex justify-between items-end mb-2">
+            <h1 id="char-name-display" class="text-3xl font-title font-bold text-white uppercase italic tracking-tighter leading-none">...</h1>
+            <span id="char-state-display" class="text-[9px] bg-white/10 px-2 py-1 rounded text-white font-mono uppercase">VIVO</span>
         </div>
+        <button onclick="toggleEstado()" class="text-[9px] w-full text-center text-white/30 hover:text-[var(--accent)] transition uppercase tracking-widest border-t border-white/5 pt-2">Alterar Estado Vital</button>
     </div>
 
-    <div class="grid grid-cols-2 gap-4 text-[10px] uppercase tracking-widest font-bold">
-        <div class="flex flex-col">
-            <span class="opacity-30 mb-1">Nome</span>
-            <input id="info-nome" onchange="updateInfo('nome', this.value)" placeholder="Nome" class="bg-white/5 border border-white/10 rounded p-2 text-white text-xs outline-none focus:border-purple-500">
+    <div class="space-y-3">
+        <div>
+            <label class="text-[9px] uppercase tracking-widest text-white/40 font-bold">Nome</label>
+            <input id="inp-nome" onchange="saveInfo('nome', this.value)" class="input-glass w-full text-sm font-bold">
         </div>
-        <div class="flex flex-col">
-            <span class="opacity-30 mb-1">Player</span>
-            <input id="info-player" onchange="updateInfo('player', this.value)" placeholder="Player" class="bg-white/5 border border-white/10 rounded p-2 text-white text-xs outline-none focus:border-purple-500">
-        </div>
-        <div class="flex flex-col">
-            <span class="opacity-30 mb-1">Idade</span>
-            <input id="info-idade" onchange="updateInfo('idade', this.value)" placeholder="Idade" class="bg-white/5 border border-white/10 rounded p-2 text-white text-xs outline-none focus:border-purple-500">
-        </div>
-        <div class="flex flex-col">
-            <span class="opacity-30 mb-1">Altura</span>
-            <input id="info-altura" onchange="updateInfo('altura', this.value)" placeholder="Altura" class="bg-white/5 border border-white/10 rounded p-2 text-white text-xs outline-none focus:border-purple-500">
-        </div>
-        <div class="flex flex-col col-span-2">
-            <span class="opacity-30 mb-1">Profissão</span>
-            <input id="info-profissao" onchange="updateInfo('profissao', this.value)" placeholder="Profissão" class="bg-white/5 border border-white/10 rounded p-2 text-white text-xs outline-none focus:border-purple-500">
-        </div>
-    </div>
-
-    <hr class="border-white/5">
-
-    <div id="barras-container" class="space-y-6">
-        </div>
-
-    <hr class="border-white/5">
-
-    <div class="space-y-4">
-        <h3 class="text-[10px] uppercase tracking-[0.3em] font-black opacity-30">Atributos Base</h3>
-        <div id="atributos-grid" class="space-y-2">
+        <div class="flex gap-2">
+            <div class="flex-1">
+                <label class="text-[9px] uppercase tracking-widest text-white/40 font-bold">Idade</label>
+                <input id="inp-idade" onchange="saveInfo('idade', this.value)" class="input-glass w-full text-sm text-center">
             </div>
+            <div class="flex-1">
+                <label class="text-[9px] uppercase tracking-widest text-white/40 font-bold">Altura</label>
+                <input id="inp-altura" onchange="saveInfo('altura', this.value)" class="input-glass w-full text-sm text-center">
+            </div>
+        </div>
+    </div>
+
+    <div id="bars-container" class="space-y-4"></div>
+
+    <div>
+        <h3 class="text-[10px] uppercase tracking-[0.3em] font-black text-white/20 mb-3 border-b border-white/5 pb-2">Atributos</h3>
+        <div id="attrs-list" class="space-y-2"></div>
     </div>
 </aside>
 
-    <main>
-        <nav class="flex border-b border-white/5 bg-[#07070a] sticky top-0 z-50">
-            <div onclick="showTab('pericias')" id="t-pericias" class="tab-btn tab-active">Perícias</div>
-            <div onclick="showTab('habilidades')" id="t-habilidades" class="tab-btn">Habilidades</div>
-            <div onclick="showTab('combate')" id="t-combate" class="tab-btn">Combate</div>
-            <div onclick="showTab('inventario')" id="t-inventario" class="tab-btn">Inventário</div>
-            <div onclick="showTab('anotacoes')" id="t-anotacoes" class="tab-btn">Anotações</div>
-        </nav>
+<main>
+    <nav class="tabs-nav sticky top-0 z-50">
+        <div onclick="setTab('pericias')" id="tab-pericias" class="tab-btn tab-active">Perícias</div>
+        <div onclick="setTab('combate')" id="tab-combate" class="tab-btn">Combate</div>
+        <div onclick="setTab('inventario')" id="tab-inventario" class="tab-btn">Inventário</div>
+        <div onclick="setTab('anotacoes')" id="tab-anotacoes" class="tab-btn">Anotações</div>
+    </nav>
 
-        <div class="p-10 max-w-6xl">
-            <section id="tab-pericias" class="tab-content grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3"></section>
+    <div class="content-area">
+        <section id="view-pericias" class="skills-grid"></section>
 
-            <section id="tab-habilidades" class="tab-content hidden space-y-6">
-                <div class="flex justify-between items-center">
-                    <h2 class="text-2xl font-title text-white uppercase italic">Habilidades</h2>
-                    <button onclick="addHabilidade()" class="text-[10px] bg-white/5 px-4 py-2 rounded-full hover:bg-white/10 transition uppercase tracking-widest">+ Adicionar</button>
-                </div>
-                <div id="lista-habilidades" class="grid grid-cols-1 gap-4"></div>
-            </section>
+        <section id="view-combate" class="hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-title text-white uppercase italic">Arsenal</h2>
+                <span class="text-[10px] text-white/30 font-mono">DANO EXEMPLO: 1d8+2</span>
+            </div>
+            <div id="combat-list" class="item-list"></div>
+            <button onclick="addCombatItem()" class="btn-add">+ ADICIONAR ARMA / HABILIDADE</button>
+        </section>
 
-            <section id="tab-combate" class="tab-content hidden space-y-6">
-                <div class="flex justify-between items-center">
-                    <h2 class="text-2xl font-title text-white uppercase italic">Ações de Combate</h2>
-                    <button onclick="addAtaque()" class="text-[10px] bg-white/5 px-4 py-2 rounded-full hover:bg-white/10 transition uppercase tracking-widest">+ Novo Ataque</button>
-                </div>
-                <div class="glass-card">
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left">
-                            <thead class="text-[10px] uppercase opacity-30">
-                                <tr><th class="pb-4">Arma/Poder</th><th class="pb-4 text-center">Teste</th><th class="pb-4 text-center">Dano</th><th class="pb-4 text-center">Crítico</th><th class="pb-4"></th></tr>
-                            </thead>
-                            <tbody id="lista-combate"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </section>
+        <section id="view-inventario" class="hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-title text-white uppercase italic">Mochila</h2>
+                <span id="inv-weight-display" class="text-xs font-mono font-bold text-[var(--accent)] border border-[var(--accent)] px-3 py-1 rounded">PESO: 0 / 0</span>
+            </div>
+            <div id="inventory-list" class="item-list"></div>
+            <button onclick="addInventoryItem()" class="btn-add">+ ADICIONAR ITEM</button>
+        </section>
 
-            <section id="tab-inventario" class="tab-content hidden space-y-6">
-                <div class="flex justify-between items-center">
-                    <h2 class="text-2xl font-title text-white uppercase italic">Mochila</h2>
-                    <button onclick="addItem()" class="text-[10px] bg-white/5 px-4 py-2 rounded-full hover:bg-white/10 transition uppercase tracking-widest">+ Novo Item</button>
-                </div>
-                <div class="glass-card">
-                    <div class="text-[10px] uppercase opacity-40 mb-4">Carga total calculada automaticamente</div>
-                    <div id="lista-inventario" class="space-y-3"></div>
-                </div>
-            </section>
+        <section id="view-anotacoes" class="hidden">
+            <textarea id="txt-notes" onchange="saveNotes(this.value)" 
+                class="w-full h-[75vh] bg-black/20 border border-white/10 rounded-xl p-8 text-gray-300 outline-none resize-none leading-relaxed font-mono text-sm focus:border-[var(--accent)] transition"
+                placeholder="Registro de missão..."></textarea>
+        </section>
+    </div>
+</main>
 
-            <section id="tab-anotacoes" class="tab-content hidden">
-                <div class="glass-card">
-                    <textarea class="w-full h-[600px] bg-transparent outline-none text-white resize-none leading-relaxed" placeholder="Escreva aqui a sua história..."></textarea>
-                </div>
-            </section>
-        </div>
-    </main>
-
-
-    
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, doc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, onSnapshot, doc, updateDoc, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-const firebaseConfig = {
-    apiKey: "AIzaSyAzDHaOYApynTHqdvhWy4FhUvwLXr5zfuc",
-    authDomain: "ciclo-vittae.firebaseapp.com",
-    projectId: "ciclo-vittae",
-    storageBucket: "ciclo-vittae.firebasestorage.app",
-    messagingSenderId: "595476111730",
-    appId: "1:595476111730:web:a04d2d53f3d5f9c902fdeb"
-};
+    const firebaseConfig = {
+        apiKey: "AIzaSyAzDHaOYApynTHqdvhWy4FhUvwLXr5zfuc",
+        authDomain: "ciclo-vittae.firebaseapp.com",
+        projectId: "ciclo-vittae",
+        storageBucket: "ciclo-vittae.firebasestorage.app",
+        messagingSenderId: "595476111730",
+        appId: "1:595476111730:web:a04d2d53f3d5f9c902fdeb"
+    };
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const charID = localStorage.getItem('ciclo_char_id');
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const charID = localStorage.getItem('ciclo_char_id') || 'amiga';
 
-if (!charID) window.location.href = 'index.html';
+    let charData = { estado: 'vivo', info: {}, status: {}, atributos: {}, pericias: {}, combate: [], inventario: [], anotacoes: '' };
 
-let estado = 'vivo';
-const atributosBase = ["Vitalidade", "Projeção", "Conhecimento", "Encantamento", "Influencia"];
-const periciasLista = ["Acrobacia", "Adestramento", "Atletismo", "Atuação", "Cura", "Diplomacia", "Enganação", "Fortitude", "Furtividade", "Iniciativa", "Intimidação", "Intuição", "Investigação", "Ladinagem", "Luta", "Misticismo", "Percepção", "Pilotagem", "Pontaria", "Reflexos", "Religião", "Sobrevivência", "Vontade"];
+    const skillsMap = {
+        "Acrobacia": "Projeção", "Adestramento": "Encantamento", "Atletismo": "Influencia",
+        "Atuação": "Encantamento", "Cura": "Conhecimento", "Diplomacia": "Encantamento",
+        "Enganação": "Encantamento", "Fortitude": "Vitalidade", "Furtividade": "Projeção",
+        "Iniciativa": "Projeção", "Intimidação": "Encantamento", "Intuição": "Espiritualidade",
+        "Investigação": "Conhecimento", "Ladinagem": "Projeção", "Luta": "Influencia",
+        "Misticismo": "Espiritualidade", "Percepção": "Projeção", "Pilotagem": "Projeção",
+        "Pontaria": "Projeção", "Reflexos": "Projeção", "Religião": "Conhecimento",
+        "Sobrevivência": "Conhecimento", "Vontade": "Espiritualidade"
+    };
 
-let statusValues = { 'Vida': { a: 10, m: 10 }, 'Sanidade': { a: 10, m: 10 }, 'Metafísica': { a: 10, m: 10 }, 'Opacidade': { a: 100, m: 100 } };
-let atributosValues = {};
-let periciasValues = {};
-
-// FUNÇÃO PARA SALVAR QUALQUER CAMPO
-window.saveData = async function(path, value) {
-    const charRef = doc(db, "personagens", charID);
-    await updateDoc(charRef, { [path]: value });
-};
-
-// FUNÇÃO ESPECÍFICA PARA OS CAMPOS DE TEXTO (INFO)
-window.updateInfo = function(field, value) {
-    saveData(`info.${field}`, value);
-};
-
-window.render = function() {
-    document.getElementById('body-tag').className = `tema-${estado}`;
-    document.getElementById('span-estado').innerText = estado.toUpperCase();
-    
-    // ATRIBUTOS
-    const curAttrs = estado === 'morto' ? [...atributosBase, "Espiritualidade"] : atributosBase;
-    const attrGrid = document.getElementById('atributos-grid');
-    if (attrGrid) {
-        attrGrid.innerHTML = curAttrs.map(a => `
-            <div class="flex justify-between items-center bg-white/5 p-4 rounded-xl border border-white/5">
-                <span class="text-[10px] uppercase font-bold tracking-widest text-white/60">${a}</span>
-                <input type="number" value="${atributosValues[a] || 0}" 
-                    onchange="saveData('atributos.${a}', this.value)" 
-                    class="w-10 text-center text-xl font-bold text-white bg-transparent outline-none">
-            </div>`).join('');
+    // LOGS E ROLAGEM
+    async function logRoll(acao, dados, total) {
+        await addDoc(collection(db, "logs_rolagens"), {
+            charNome: charData.info.nome || "Desconhecido",
+            pericia: acao, dados: dados, total: total, timestamp: Date.now()
+        });
     }
 
-    // BARRAS
-    const bars = estado === 'vivo' ? ['Vida', 'Sanidade'] : ['Vida', 'Metafísica', 'Opacidade'];
-    const colors = { 'Vida': '#ef4444', 'Sanidade': '#3b82f6', 'Metafísica': '#a855f7', 'Opacidade': '#10b981' };
-    const barsContainer = document.getElementById('barras-container');
-    if (barsContainer) {
-        barsContainer.innerHTML = bars.map(name => {
-            const val = statusValues[name] || {a: 10, m: 10};
-            const pct = (val.a / val.m) * 100;
+async function rollPool(nome, qtdDados, valorAtributo, bonusSoma) {
+    let results = [];
+    let total = 0;
+    
+    // Define a quantidade mínima de 1 dado, mas trata o 0 ou menor como desvantagem
+    const poolEfetiva = Math.max(Math.abs(qtdDados), 1);
+
+    if (qtdDados <= 0) {
+        // Desvantagem: Rola 2 e pega o menor
+        for (let i = 0; i < 2; i++) results.push(Math.floor(Math.random() * 20) + 1);
+        // Soma: Atributo + Bonus + Menor Dado
+        total = Math.min(...results) + valorAtributo + bonusSoma;
+        nome += " (Desvantagem)";
+    } else {
+        // Pool normal: Rola X e pega o maior
+        for (let i = 0; i < qtdDados; i++) results.push(Math.floor(Math.random() * 20) + 1);
+        // Soma: Atributo + Bonus + Maior Dado
+        total = Math.max(...results) + valorAtributo + bonusSoma;
+    }
+
+    await logRoll(nome, results, total);
+    
+    // O dadoBase para o Popup será o dado puro (sem somas) para brilhar se for 20
+    const dadoPuro = qtdDados <= 0 ? Math.min(...results) : Math.max(...results);
+    showPopup(nome, total, results, dadoPuro); 
+}
+
+// Para rolar Atributo puro: (Atrib)d20 + Atrib
+window.rollAttr = (nome, valor) => {
+    rollPool(`Atributo: ${nome}`, valor, valor, 0);
+};
+
+// Para rolar Perícia: (Atrib)d20 + Atrib + Bonus + Treino
+window.rollCheck = (nome, valorAtrib, bonusSoma) => {
+    rollPool(nome, valorAtrib, valorAtrib, bonusSoma);
+};
+
+    window.rollDamage = async (nomeItem, formula) => {
+        const regex = /(\d+)d(\d+)([\+\-]\d+)?/i;
+        const match = formula.match(regex);
+        let total = 0, results = [];
+        
+        if (match) {
+            const qtd = parseInt(match[1]), faces = parseInt(match[2]);
+            const mod = match[3] ? parseInt(match[3]) : 0;
+            for(let i=0; i<qtd; i++) { let r = Math.floor(Math.random() * faces) + 1; results.push(r); total += r; }
+            total += mod;
+            await logRoll(`Dano: ${nomeItem}`, results, total);
+            showPopup(`Dano: ${nomeItem}`, total, results, null);
+        } else {
+            const val = parseInt(formula);
+            if(!isNaN(val)) { await logRoll(`Dano: ${nomeItem}`, [], val); showPopup(nomeItem, val, [], null); }
+        }
+    };
+
+    function showPopup(titulo, total, dados, dadoBase) {
+        const container = document.getElementById('pop-container');
+        const el = document.createElement('div');
+        el.className = 'pop-card';
+        let colorClass = 'text-white';
+        if(dadoBase === 20) colorClass = 'crit-gold';
+        if(dadoBase === 1) colorClass = 'crit-blue';
+
+        el.innerHTML = `
+            <div class="text-[9px] uppercase font-bold text-white/40 tracking-wider mb-1">${titulo}</div>
+            <div class="text-4xl font-black italic ${colorClass}">${total}</div>
+            ${dados.length > 0 ? `<div class="text-[10px] font-mono mt-2 text-white/20">Dados: [${dados.join(', ')}]</div>` : ''}
+        `;
+        container.appendChild(el);
+        setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 300); }, 4000);
+    }
+
+    // --- NOVA LÓGICA DE STATUS AUTOMÁTICO ---
+    function recalculateStats() {
+        const getAttr = (n) => parseFloat(charData.atributos[n]) || 0;
+        const vit = getAttr("Vitalidade");
+        const inf = getAttr("Influencia");
+        const con = getAttr("Conhecimento");
+
+        let vidaMax = 10;
+        
+        // FÓRMULA DE VIDA
+        if (charData.estado === 'vivo') {
+            vidaMax = (vit + inf) + (vit * inf) + 5;
+        } else {
+            vidaMax = (vit + con) + (vit * con) + 5;
+        }
+
+        // Verifica se mudou para evitar loop infinito de updates
+        const currentMax = charData.status?.Vida?.m;
+        if (vidaMax !== currentMax) {
+            // Mantém a vida atual (a), muda a máxima (m)
+            const vidaAtual = charData.status?.Vida?.a || 10;
+            updateDoc(doc(db, "personagens", charID), { 'status.Vida': { a: vidaAtual, m: vidaMax } });
+        }
+    }
+
+    // RENDERIZAÇÃO
+    function renderAll() {
+        document.body.className = `tema-${charData.estado}`;
+        document.getElementById('char-name-display').innerText = charData.info.nome || "SEM NOME";
+        document.getElementById('char-state-display').innerText = charData.estado.toUpperCase();
+        
+        ['nome','idade','altura'].forEach(k => document.getElementById(`inp-${k}`).value = charData.info[k] || "");
+        document.getElementById('txt-notes').value = charData.anotacoes || "";
+
+        renderBars();
+        renderAttrs();
+        renderSkills();
+        renderCombat();
+        renderInventory();
+    }
+
+    function renderBars() {
+        const bars = charData.estado === 'vivo' ? ['Vida', 'Sanidade'] : ['Vida', 'Metafísica', 'Opacidade'];
+        const colors = { 'Vida': '#ef4444', 'Sanidade': '#3b82f6', 'Metafísica': '#a855f7', 'Opacidade': '#10b981' };
+        
+        document.getElementById('bars-container').innerHTML = bars.map(k => {
+            const v = charData.status[k] || { a: 10, m: 10 };
+            const pct = Math.min(100, Math.max(0, (v.a / v.m) * 100));
             return `
-            <div class="space-y-2">
-                <label class="text-[9px] uppercase font-black tracking-[0.2em] text-white/30">${name}</label>
+            <div class="progress-container">
+                <div class="flex justify-between text-[9px] font-bold uppercase tracking-wider text-white/60"><span>${k}</span><span>${v.a} / ${v.m}</span></div>
                 <div class="progress-bg">
-                    <div id="fill-${name}" class="progress-fill" style="width: ${pct}%; background-color: ${colors[name]};"></div>
+                    <div class="progress-fill" style="width: ${pct}%; background: ${colors[k]}"></div>
                     <div class="progress-inputs">
-                        <input type="number" value="${val.a}" onchange="syncBar('${name}', this.value, null)" class="bar-input">
-                        <span class="divisor">/</span>
-                        <input type="number" value="${val.m}" onchange="syncBar('${name}', null, this.value)" class="bar-input opacity-40 text-sm">
+                        <button class="bar-btn" onclick="modStatus('${k}', -1)">-</button>
+                        <button class="bar-btn" onclick="modStatus('${k}', 1)">+</button>
                     </div>
                 </div>
             </div>`;
         }).join('');
     }
 
-    // PERÍCIAS
-    const periciasTab = document.getElementById('tab-pericias');
-    if (periciasTab) {
-        periciasTab.innerHTML = periciasLista.map(p => `
-            <div class="bg-white/5 p-4 flex justify-between items-center rounded-xl border border-white/5 hover:border-white/20 transition">
-                <span class="text-xs font-semibold text-white/70">${p}</span>
-                <input type="number" value="${periciasValues[p] || 0}" 
-                    onchange="saveData('pericias.${p}', this.value)" 
-                    class="w-8 text-center text-lg font-bold text-white bg-transparent outline-none border-b border-white/10">
-            </div>`).join('');
-    }
-};
+function renderAttrs() {
+    let currentAttrs = ["Vitalidade", "Projeção", "Conhecimento", "Encantamento", "Influencia"];
+    if (charData.estado === 'morto') currentAttrs.push("Espiritualidade");
 
-window.syncBar = function(name, a, m) {
-    if (a !== null) statusValues[name].a = parseFloat(a) || 0;
-    if (m !== null) statusValues[name].m = parseFloat(m) || 1;
-    saveData('status', statusValues);
-};
+    document.getElementById('attrs-list').innerHTML = currentAttrs.map(attr => {
+        const val = charData.atributos[attr] || 0;
+        return `
+        <div class="flex justify-between items-center bg-white/5 px-3 py-2 rounded border border-white/5 hover:border-[var(--accent)] transition-all group">
+            <span onclick="rollAttr('${attr}', ${val})" class="text-[10px] font-bold uppercase text-white/50 tracking-wider cursor-pointer hover:text-[var(--accent)] transition-colors">
+    ${attr} 🎲
+</span>
+            <input type="number" value="${val}" 
+                onchange="saveAttr('${attr}', this.value)"
+                class="bg-transparent text-right text-white font-bold w-10 outline-none border-b border-transparent focus:border-[var(--accent)]">
+        </div>`;
+    }).join('');
+}
 
-window.alternarEstado = function() {
-    const novo = estado === 'vivo' ? 'morto' : 'vivo';
-    saveData('estado', novo);
-};
-
-window.showTab = function(t) {
-    document.querySelectorAll('.tab-content').forEach(x => x.classList.add('hidden'));
-    document.querySelectorAll('.tab-btn').forEach(x => x.classList.remove('tab-active'));
-    document.getElementById('tab-'+t).classList.remove('hidden');
-    document.getElementById('t-'+t).classList.add('tab-active');
-};
-
-// ESCUTAR MUDANÇAS EM TEMPO REAL
-onSnapshot(doc(db, "personagens", charID), (snap) => {
-    if (snap.exists()) {
-        const d = snap.data();
-        estado = d.estado || 'vivo';
-        statusValues = d.status || statusValues;
-        atributosValues = d.atributos || {};
-        periciasValues = d.pericias || {};
+function renderSkills() {
+    document.getElementById('view-pericias').innerHTML = Object.keys(skillsMap).map(skill => {
+        const attrKey = skillsMap[skill];
+        const attrVal = charData.atributos[attrKey] || 0;
+        const skillData = (charData.pericias && charData.pericias[skill]) || { b: 0, t: false };
         
-        // Atualiza os campos de Info (Nome, Idade, etc)
-        if(d.info) {
-            const nomeTopo = document.getElementById('info-nome-topo');
-            if(nomeTopo) nomeTopo.innerText = d.info.nome || "SEM NOME";
+        // Treinamento (+2) e Bônus de campo
+        const treino = skillData.t ? 2 : 0;
+        const bonusExtra = parseFloat(skillData.b) || 0;
+        const somaSemAtributo = treino + bonusExtra;
 
-            const fields = ['nome', 'player', 'idade', 'altura', 'profissao'];
-            fields.forEach(f => {
-                const el = document.getElementById('info-' + f);
-                if(el) el.value = d.info[f] || "";
-            });
-        }
-        render();
+        return `
+        <div class="skill-card">
+            <div class="skill-top">
+                <div>
+                    <div class="skill-name">${skill}</div>
+                    <div class="skill-attr text-[var(--accent)]">${attrKey.substring(0,3)}</div>
+                </div>
+                <div class="skill-val text-[10px] opacity-60">
+                    ${attrVal}d20 + ${attrVal + somaSemAtributo}
+                </div>
+            </div>
+            
+            <div class="flex gap-2 items-center mt-2 bg-black/20 p-1 rounded">
+                <input type="checkbox" ${skillData.t ? 'checked' : ''} onchange="saveSkill('${skill}', 't', this.checked)" class="accent-[var(--accent)] w-3 h-3 cursor-pointer">
+                <span class="text-[9px] uppercase opacity-40 font-bold">Treino</span>
+                <input type="number" value="${skillData.b}" onchange="saveSkill('${skill}', 'b', this.value)" class="w-full bg-transparent text-right text-xs text-white/70 outline-none font-mono pr-1" placeholder="Bônus">
+            </div>
+
+            <button onclick="rollCheck('${skill}', ${attrVal}, ${somaSemAtributo})" class="btn-roll mt-2">
+                Rolar
+            </button>
+        </div>`;
+    }).join('');
+}
+
+    function renderCombat() {
+        const list = document.getElementById('combat-list');
+        list.innerHTML = '';
+        (charData.combate || []).forEach((item, idx) => {
+            const el = document.createElement('div');
+            el.className = 'item-row combat-row';
+            el.innerHTML = `
+                <input value="${item.nome}" onchange="updateCombat(${idx}, 'nome', this.value)" class="input-glass text-xs font-bold" placeholder="Nome">
+                <input type="number" value="${item.bonus}" onchange="updateCombat(${idx}, 'bonus', this.value)" class="input-glass text-xs text-center font-mono" placeholder="Atq">
+                <input value="${item.dano}" onchange="updateCombat(${idx}, 'dano', this.value)" class="input-glass text-xs text-center font-mono" placeholder="Dano">
+                <div class="flex gap-1">
+                    <button onclick="rollCheck('Ataque ${item.nome}', ${parseInt(item.bonus)||0})" class="bg-[var(--accent)] text-black font-bold text-[9px] px-2 rounded hover:brightness-110">ATQ</button>
+                    <button onclick="rollDamage('${item.nome}', '${item.dano}')" class="border border-[var(--accent)] text-[var(--accent)] font-bold text-[9px] px-2 rounded hover:bg-[var(--accent)] hover:text-black">DMG</button>
+                </div>
+                <button onclick="rollPool('Ataque: ${item.nome}', 1, ${parseInt(item.bonus)||0})" 
+                    class="bg-[var(--accent)] text-black font-bold text-[9px] px-2 rounded hover:brightness-110">
+                    ATQ
+                </button>
+            `;
+            list.appendChild(el);
+        });
     }
-});
+
+    function renderInventory() {
+        const list = document.getElementById('inventory-list');
+        list.innerHTML = '';
+        let totalWeight = 0;
+
+        (charData.inventario || []).forEach((item, idx) => {
+            const peso = parseFloat(item.peso) || 1;
+            const qtd = parseFloat(item.qtd) || 1;
+            totalWeight += (peso * qtd);
+
+            const el = document.createElement('div');
+            el.className = 'item-row';
+            el.innerHTML = `
+                <input value="${item.nome}" onchange="updateInv(${idx}, 'nome', this.value)" class="input-glass text-sm font-bold" placeholder="Item">
+                <input type="number" value="${item.qtd}" onchange="updateInv(${idx}, 'qtd', this.value)" class="input-glass text-sm text-center font-mono" placeholder="Qtd">
+                <input type="number" value="${item.peso}" onchange="updateInv(${idx}, 'peso', this.value)" class="input-glass text-sm text-center font-mono" placeholder="Kg">
+                <button onclick="removeInv(${idx})" class="btn-icon">×</button>
+            `;
+            list.appendChild(el);
+        });
+
+        // Calculo de Carga (Influencia * 3)
+        const influencia = parseFloat(charData.atributos['Influencia']) || 0;
+        const maxWeight = influencia * 3;
+        const weightDisplay = document.getElementById('inv-weight-display');
+        weightDisplay.innerText = `PESO: ${totalWeight.toFixed(1)} / ${maxWeight}`;
+        
+        if(totalWeight > maxWeight) {
+            weightDisplay.className = "text-xs font-mono font-bold text-overload border border-red-500 px-3 py-1 rounded bg-red-900/20";
+            weightDisplay.innerText += " [SOBRECARGA]";
+        } else {
+            weightDisplay.className = "text-xs font-mono font-bold text-[var(--accent)] border border-[var(--accent)] px-3 py-1 rounded";
+        }
+    }
+
+    // --- FUNÇÕES DE UPDATE ---
+    window.saveInfo = (k, v) => updateDoc(doc(db, "personagens", charID), { [`info.${k}`]: v });
+    window.saveNotes = (v) => updateDoc(doc(db, "personagens", charID), { anotacoes: v });
+    
+    window.modStatus = async (key, delta) => {
+        const cur = charData.status[key] || { a: 10, m: 10 };
+        const novo = Math.min(cur.m, Math.max(0, cur.a + delta));
+        await updateDoc(doc(db, "personagens", charID), { [`status.${key}.a`]: novo });
+    };
+
+    window.saveAttr = (attr, val) => {
+        updateDoc(doc(db, "personagens", charID), { [`atributos.${attr}`]: parseFloat(val) })
+        .then(() => recalculateStats()); // RECALCULA VIDA QUANDO MUDA ATRIBUTO
+    };
+    
+    window.saveSkill = (s, f, v) => updateDoc(doc(db, "personagens", charID), { [`pericias.${s}.${f}`]: f==='t'?v:parseFloat(v) });
+    
+    window.toggleEstado = () => {
+        const novo = charData.estado === 'vivo' ? 'morto' : 'vivo';
+        updateDoc(doc(db, "personagens", charID), { estado: novo })
+        .then(() => recalculateStats()); // RECALCULA VIDA QUANDO MUDA ESTADO
+    };
+
+    // COMBAT & INV HELPERS
+    window.addCombatItem = () => updateDoc(doc(db, "personagens", charID), { combate: [...(charData.combate||[]), {nome:'Nova Arma', bonus:0, dano:'1d6'}] });
+    window.updateCombat = (i, f, v) => { let l=[...charData.combate]; l[i][f]=v; updateDoc(doc(db,"personagens",charID), {combate:l}); };
+    window.removeCombat = (i) => { let l=[...charData.combate]; l.splice(i,1); updateDoc(doc(db,"personagens",charID), {combate:l}); };
+
+    window.addInventoryItem = () => updateDoc(doc(db, "personagens", charID), { inventario: [...(charData.inventario||[]), {nome:'Novo Item', qtd:1, peso:1}] });
+    window.updateInv = (i, f, v) => { let l=[...charData.inventario]; l[i][f]=v; updateDoc(doc(db,"personagens",charID), {inventario:l}); };
+    window.removeInv = (i) => { let l=[...charData.inventario]; l.splice(i,1); updateDoc(doc(db,"personagens",charID), {inventario:l}); };
+
+    window.setTab = (t) => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('tab-active'));
+        document.getElementById(`tab-${t}`).classList.add('tab-active');
+        ['pericias','combate','inventario','anotacoes'].forEach(x => {
+            const el = document.getElementById(`view-${x}`);
+            if(x===t) el.classList.remove('hidden'); else el.classList.add('hidden');
+        });
+    };
+
+    onSnapshot(doc(db, "personagens", charID), (snap) => {
+        if (snap.exists()) { charData = { ...charData, ...snap.data() }; renderAll(); }
+    });
 </script>
 </body>
 </html>
