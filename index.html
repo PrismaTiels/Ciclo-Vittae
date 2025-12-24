@@ -4,34 +4,122 @@
     <meta charset="UTF-8">
     <title>Ciclo Vitae - Despertar</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@700;900&family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        body { background-color: #030305; color: #a1a1aa; font-family: 'Inter', sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        :root {
+            --accent: #8b5cf6;
+            --bg-deep: #030305;
+        }
+
+        body { 
+            background-color: var(--bg-deep); 
+            color: #a1a1aa; 
+            font-family: 'Inter', sans-serif; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            height: 100vh; 
+            margin: 0; 
+            overflow: hidden;
+        }
+
         .font-title { font-family: 'Outfit', sans-serif; }
-        .glass-card { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px; padding: 40px; width: 100%; max-width: 400px; text-align: center; backdrop-filter: blur(10px); }
-        input { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px; width: 100%; color: white; outline: none; transition: 0.3s; margin-top: 5px; }
-        input:focus { border-color: #8b5cf6; }
-        .btn-entrar { background: #8b5cf6; color: black; font-weight: 800; text-transform: uppercase; width: 100%; padding: 15px; border-radius: 12px; margin-top: 25px; cursor: pointer; transition: 0.3s; }
-        .btn-entrar:hover { box-shadow: 0 0 20px rgba(139, 92, 246, 0.5); transform: translateY(-2px); }
+
+        .glass-card { 
+            background: rgba(255, 255, 255, 0.01); 
+            border: 1px solid rgba(255, 255, 255, 0.05); 
+            border-radius: 32px; 
+            padding: 50px 40px; 
+            width: 100%; 
+            max-width: 400px; 
+            text-align: center; 
+            backdrop-filter: blur(20px);
+        }
+
+        /* Centralização dos Labels e Inputs */
+        .input-group label {
+            display: block;
+            text-align: center; /* Centralizado */
+            font-size: 10px;
+            text-transform: uppercase;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            color: var(--accent);
+            margin-bottom: 8px;
+            opacity: 0.8;
+        }
+
+        input { 
+            background: rgba(255, 255, 255, 0.03); 
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+            border-radius: 16px; 
+            padding: 14px; 
+            width: 100%; 
+            color: white; 
+            outline: none; 
+            transition: all 0.3s;
+            font-size: 14px;
+            text-align: center; /* Texto digitado centralizado */
+        }
+
+        input:focus { 
+            border-color: var(--accent); 
+            background: rgba(139, 92, 246, 0.05);
+        }
+
+        .btn-entrar { 
+            background: var(--accent); 
+            color: white; 
+            font-weight: 900; 
+            text-transform: uppercase; 
+            letter-spacing: 0.1em;
+            width: 100%; 
+            padding: 16px; 
+            border-radius: 16px; 
+            margin-top: 30px; 
+            cursor: pointer; 
+            transition: 0.3s; 
+            border: none;
+        }
+
+        .btn-entrar:hover { 
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.3); 
+            filter: brightness(1.1);
+        }
+
+        .subtitle {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: #52525b;
+            margin-bottom: 8px;
+            display: block;
+        }
     </style>
 </head>
 <body>
 
     <div class="glass-card">
-        <h1 class="text-3xl font-title text-white font-bold italic uppercase mb-8">Ciclo Vitae</h1>
+        <h1 class="text-4xl font-title text-white font-black italic uppercase mb-2 tracking-tighter">
+            Ciclo <span style="color: var(--accent);">Vitae</span>
+        </h1>
+        <span class="subtitle mb-10">o pós vida lhe aguarda</span>
         
-        <div class="space-y-4 text-left">
-            <div>
-                <label class="text-[10px] uppercase font-bold opacity-50 ml-2">Nome do Personagem</label>
-                <input type="text" id="charName" placeholder="Ex: Arthur Morgan">
+        <div class="space-y-6">
+            <div class="input-group">
+                <label>Personagem</label>
+                <input type="text" id="charName" placeholder="Nome do Personagem" autocomplete="off">
             </div>
-            <div>
-                <label class="text-[10px] uppercase font-bold opacity-50 ml-2">Seu Nome (Player)</label>
-                <input type="text" id="playerName" placeholder="Sua arroba ou nome">
+            
+            <div class="input-group">
+                <label>Player</label>
+                <input type="text" id="playerName" placeholder="Seu nome" autocomplete="off">
             </div>
         </div>
 
-        <button onclick="iniciar()" class="btn-entrar">Entrar no Ciclo</button>
+        <button onclick="iniciar()" class="btn-entrar">
+            Entrar
+        </button>
     </div>
 
 <script type="module">
@@ -55,35 +143,31 @@
         const playerName = document.getElementById('playerName').value.trim();
 
         if (!charName || !playerName) {
-            alert("Preencha o nome do Personagem e do Player!");
+            alert("Preencha os campos para continuar.");
             return;
         }
 
-        // Criar ID único (ex: Tiel -> tiel)
         const charID = charName.toLowerCase().replace(/\s+/g, '-');
         const docRef = doc(db, "personagens", charID);
         
         try {
             const docSnap = await getDoc(docRef);
             if (!docSnap.exists()) {
-                // Cria os dados iniciais se for novo
                 await setDoc(docRef, {
                     info: { nome: charName, player: playerName, idade: "", altura: "", profissao: "" },
                     estado: "vivo",
                     status: { 
                         Vida: {a: 10, m: 10}, Sanidade: {a: 10, m: 10}, 
                         Metafisica: {a: 10, m: 10}, Opacidade: {a: 100, m: 100} 
-                    }
+                    },
+                    atributos: { Vitalidade: 0, Projeção: 0, Conhecimento: 0, Encantamento: 0, Influencia: 0 }
                 });
             }
-            
-            // Salva o ID para a ficha saber qual carregar
             localStorage.setItem('ciclo_char_id', charID);
-            // REDIRECIONAMENTO
             window.location.href = 'ficha.html'; 
         } catch (e) {
-            console.error("Erro ao conectar: ", e);
-            alert("Erro de conexão com o Firebase. Verifique as Regras no Console.");
+            console.error(e);
+            alert("Erro de conexão.");
         }
     };
 </script>
