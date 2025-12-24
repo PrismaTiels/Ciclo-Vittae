@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Ciclo Vitae - Despertar</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body { background-color: #030305; color: #a1a1aa; font-family: 'Inter', sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        .font-title { font-family: 'Outfit', sans-serif; }
+        .glass-card { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px; padding: 40px; width: 100%; max-width: 400px; text-align: center; backdrop-filter: blur(10px); }
+        input { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px; width: 100%; color: white; outline: none; transition: 0.3s; margin-top: 5px; }
+        input:focus { border-color: #8b5cf6; }
+        .btn-entrar { background: #8b5cf6; color: black; font-weight: 800; text-transform: uppercase; width: 100%; padding: 15px; border-radius: 12px; margin-top: 25px; cursor: pointer; transition: 0.3s; }
+        .btn-entrar:hover { box-shadow: 0 0 20px rgba(139, 92, 246, 0.5); transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+
+    <div class="glass-card">
+        <h1 class="text-3xl font-title text-white font-bold italic uppercase mb-8">Ciclo Vitae</h1>
+        
+        <div class="space-y-4 text-left">
+            <div>
+                <label class="text-[10px] uppercase font-bold opacity-50 ml-2">Nome do Personagem</label>
+                <input type="text" id="charName" placeholder="Ex: Arthur Morgan">
+            </div>
+            <div>
+                <label class="text-[10px] uppercase font-bold opacity-50 ml-2">Seu Nome (Player)</label>
+                <input type="text" id="playerName" placeholder="Sua arroba ou nome">
+            </div>
+        </div>
+
+        <button onclick="iniciar()" class="btn-entrar">Entrar no Ciclo</button>
+    </div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyAzDHaOYApynTHqdvhWy4FhUvwLXr5zfuc",
+        authDomain: "ciclo-vittae.firebaseapp.com",
+        projectId: "ciclo-vittae",
+        storageBucket: "ciclo-vittae.firebasestorage.app",
+        messagingSenderId: "595476111730",
+        appId: "1:595476111730:web:a04d2d53f3d5f9c902fdeb"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    window.iniciar = async () => {
+        const charName = document.getElementById('charName').value.trim();
+        const playerName = document.getElementById('playerName').value.trim();
+
+        if (!charName || !playerName) {
+            alert("Preencha o nome do Personagem e do Player!");
+            return;
+        }
+
+        // Criar ID único (ex: Tiel -> tiel)
+        const charID = charName.toLowerCase().replace(/\s+/g, '-');
+        const docRef = doc(db, "personagens", charID);
+        
+        try {
+            const docSnap = await getDoc(docRef);
+            if (!docSnap.exists()) {
+                // Cria os dados iniciais se for novo
+                await setDoc(docRef, {
+                    info: { nome: charName, player: playerName, idade: "", altura: "", profissao: "" },
+                    estado: "vivo",
+                    status: { 
+                        Vida: {a: 10, m: 10}, Sanidade: {a: 10, m: 10}, 
+                        Metafisica: {a: 10, m: 10}, Opacidade: {a: 100, m: 100} 
+                    }
+                });
+            }
+            
+            // Salva o ID para a ficha saber qual carregar
+            localStorage.setItem('ciclo_char_id', charID);
+            // REDIRECIONAMENTO
+            window.location.href = 'ficha.html'; 
+        } catch (e) {
+            console.error("Erro ao conectar: ", e);
+            alert("Erro de conexão com o Firebase. Verifique as Regras no Console.");
+        }
+    };
+</script>
+</body>
+</html>

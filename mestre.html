@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Ciclo Vitae - Master Control</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Outfit:wght@700&display=swap" rel="stylesheet">
+    <style>
+        body { background-color: #030305; color: #a1a1aa; font-family: 'Inter', sans-serif; min-height: 100vh; margin: 0; display: flex; }
+        .font-title { font-family: 'Outfit', sans-serif; }
+        :root { --accent: #8b5cf6; --accent-rgb: 139, 92, 246; }
+
+        .sidebar-master { 
+            width: 420px; background: #07070a; border-right: 1px solid rgba(255, 255, 255, 0.05); 
+            height: 100vh; position: sticky; top: 0; padding: 40px; display: flex; flex-direction: column; flex-shrink: 0;
+        }
+        
+        main { flex-grow: 1; padding: 40px; overflow-y: auto; }
+
+        .btn-dice { 
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);
+            padding: 12px; border-radius: 8px; color: white; font-weight: bold; font-size: 14px;
+            transition: 0.3s; cursor: pointer; text-align: center;
+        }
+        .btn-dice:hover { background: var(--accent); color: black; box-shadow: 0 0 15px var(--accent); border-color: var(--accent); }
+        
+        .result-box { 
+            background: rgba(var(--accent-rgb), 0.1); border: 1px solid var(--accent); 
+            padding: 20px; border-radius: 12px; text-align: center; margin-top: 15px;
+        }
+
+        .player-card { 
+            background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); 
+            border-radius: 16px; padding: 20px; transition: 0.3s;
+        }
+        .mini-bar-bg { background: rgba(0, 0, 0, 0.4); height: 8px; border-radius: 10px; overflow: hidden; position: relative; }
+        .mini-bar-fill { height: 100%; transition: width 0.4s; }
+
+        .mestre-input { background: transparent; border: none; color: white; width: 35px; text-align: center; font-size: 11px; font-weight: bold; outline: none; border-bottom: 1px solid transparent; }
+        .mestre-input:focus { border-bottom-color: var(--accent); background: rgba(255,255,255,0.05); }
+
+        textarea { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; resize: none; color: white; outline: none; padding: 15px; font-size: 13px; }
+        textarea:focus { border-color: var(--accent); }
+
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-thumb { background: #1f1f23; border-radius: 10px; }
+    </style>
+</head>
+<body class="flex">
+
+    <aside class="sidebar-master space-y-8">
+        <div>
+            <h1 class="text-xl font-title font-bold text-white mb-6 uppercase italic tracking-[0.2em] border-b border-white/10 pb-4">Master Deck</h1>
+            
+            <div class="space-y-4">
+                <h3 class="text-[10px] uppercase font-black text-white/40 tracking-widest">Rolador de Dados</h3>
+                <div class="grid grid-cols-3 gap-2">
+                    <button onclick="rollDice(4)" class="btn-dice">d4</button>
+                    <button onclick="rollDice(6)" class="btn-dice">d6</button>
+                    <button onclick="rollDice(8)" class="btn-dice">d8</button>
+                    <button onclick="rollDice(10)" class="btn-dice">d10</button>
+                    <button onclick="rollDice(12)" class="btn-dice">d12</button>
+                    <button onclick="rollDice(20)" class="btn-dice">d20</button>
+                </div>
+                <div id="dice-result" class="result-box">
+                    <span class="text-[10px] uppercase block opacity-50 mb-1">Resultado</span>
+                    <span id="die-value" class="text-3xl font-bold text-white font-title">--</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex-grow flex flex-col space-y-4 overflow-hidden">
+            <h3 class="text-[10px] uppercase font-black text-white/40 tracking-widest">Anotações do Mestre</h3>
+            <textarea id="master-notes" class="flex-grow w-full" placeholder="Iniciativa, NPCs, Pistas..."></textarea>
+        </div>
+        
+        <div class="pt-4 opacity-20 text-[9px] uppercase tracking-widest text-center">
+            Ciclo Vitae Engine v1.0
+        </div>
+    </aside>
+
+    <main>
+        <div class="flex justify-between items-center mb-10">
+            <h2 class="text-3xl font-title text-white font-bold uppercase italic tracking-tighter">Jogadores Ativos</h2>
+            <div id="status-sessao" class="text-[10px] uppercase bg-white/5 border border-white/10 px-4 py-2 rounded-full font-bold">
+                Conectando ao Ciclo...
+            </div>
+        </div>
+
+        <div id="grid-players" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+            </div>
+    </main>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAzDHaOYApynTHqdvhWy4FhUvwLXr5zfuc",
+            authDomain: "ciclo-vittae.firebaseapp.com",
+            projectId: "ciclo-vittae",
+            storageBucket: "ciclo-vittae.firebasestorage.app",
+            messagingSenderId: "595476111730",
+            appId: "1:595476111730:web:a04d2d53f3d5f9c902fdeb"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Funções Globais para o HTML
+        window.rollDice = function(faces) {
+            const result = Math.floor(Math.random() * faces) + 1;
+            const display = document.getElementById('die-value');
+            display.innerText = result;
+            display.parentElement.classList.add('animate-pulse');
+            setTimeout(() => display.parentElement.classList.remove('animate-pulse'), 500);
+        };
+
+        window.updatePlayerStat = async (id, path, val) => {
+            const ref = doc(db, "personagens", id);
+            await updateDoc(ref, { [path]: parseFloat(val) || 0 });
+        };
+
+        window.toggleEstadoMestre = async (id, atual) => {
+            const novo = atual === 'vivo' ? 'morto' : 'vivo';
+            await updateDoc(doc(db, "personagens", id), { estado: novo });
+        };
+
+        // Escuta o Banco de Dados
+        onSnapshot(collection(db, "personagens"), (snap) => {
+            const grid = document.getElementById('grid-players');
+            const statusSessao = document.getElementById('status-sessao');
+            grid.innerHTML = '';
+            
+            statusSessao.innerHTML = `Sessão Online: <span class="text-green-500 font-bold">● ${snap.size} Entidades</span>`;
+
+            snap.forEach(docSnap => {
+                const p = docSnap.data();
+                const id = docSnap.id;
+                const estado = p.estado || 'vivo';
+                
+                // Definições de Cores
+                const borderClass = estado === 'vivo' ? 'border-purple-500' : 'border-emerald-500';
+                const tagClass = estado === 'vivo' ? 'bg-purple-500/10 text-purple-400 border-purple-500/30' : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30';
+                
+                // Lógica de Barras
+                const b1_nome = 'Vida';
+                const b2_nome = estado === 'vivo' ? 'Sanidade' : 'Metafísica';
+                const b3_nome = 'Opacidade';
+
+                const b1 = p.status?.[b1_nome] || {a:0, m:10};
+                const b2 = p.status?.[b2_nome] || {a:0, m:10};
+                const b3 = p.status?.[b3_nome] || {a:0, m:100};
+
+                const pct1 = (b1.a / b1.m) * 100;
+                const pct2 = (b2.a / b2.m) * 100;
+                const pct3 = (b3.a / b3.m) * 100;
+
+                grid.innerHTML += `
+                    <div class="player-card border-l-4 ${borderClass} space-y-4">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h4 class="text-white font-bold uppercase text-sm">${p.info?.nome || id}</h4>
+                                <p class="text-[8px] opacity-30 uppercase tracking-widest">${p.info?.player || 'Sem Player'}</p>
+                            </div>
+                            <button onclick="toggleEstadoMestre('${id}', '${estado}')" class="text-[8px] font-bold px-2 py-1 rounded border ${tagClass} uppercase transition hover:scale-105">
+                                ${estado}
+                            </button>
+                        </div>
+
+                        <div class="space-y-3">
+                            <div class="space-y-1">
+                                <div class="flex justify-between text-[9px] uppercase font-bold tracking-tighter">
+                                    <span class="opacity-50">${b1_nome}</span>
+                                    <span>
+                                        <input class="mestre-input" value="${b1.a}" onchange="updatePlayerStat('${id}', 'status.${b1_nome}.a', this.value)"> / 
+                                        <input class="mestre-input opacity-40" value="${b1.m}" onchange="updatePlayerStat('${id}', 'status.${b1_nome}.m', this.value)">
+                                    </span>
+                                </div>
+                                <div class="mini-bar-bg"><div class="mini-bar-fill bg-red-500" style="width: ${pct1}%"></div></div>
+                            </div>
+
+                            <div class="space-y-1">
+                                <div class="flex justify-between text-[9px] uppercase font-bold tracking-tighter">
+                                    <span class="opacity-50">${b2_nome}</span>
+                                    <span>
+                                        <input class="mestre-input" value="${b2.a}" onchange="updatePlayerStat('${id}', 'status.${b2_nome}.a', this.value)"> / 
+                                        <input class="mestre-input opacity-40" value="${b2.m}" onchange="updatePlayerStat('${id}', 'status.${b2_nome}.m', this.value)">
+                                    </span>
+                                </div>
+                                <div class="mini-bar-bg"><div class="mini-bar-fill ${estado === 'vivo' ? 'bg-blue-500' : 'bg-purple-600'}" style="width: ${pct2}%"></div></div>
+                            </div>
+
+                            <div class="space-y-1">
+                                <div class="flex justify-between text-[9px] uppercase font-bold tracking-tighter">
+                                    <span class="opacity-50">${b3_nome}</span>
+                                    <span>
+                                        <input class="mestre-input" value="${b3.a}" onchange="updatePlayerStat('${id}', 'status.${b3_nome}.a', this.value)"> %
+                                    </span>
+                                </div>
+                                <div class="mini-bar-bg border border-emerald-500/10"><div class="mini-bar-fill bg-emerald-500" style="width: ${pct3}%"></div></div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-5 gap-1 pt-2 border-t border-white/5">
+                            ${Object.entries(p.atributos || {}).map(([at, val]) => `
+                                <div class="bg-white/5 rounded py-1 text-center">
+                                    <p class="text-[7px] opacity-20 uppercase font-black">${at.substring(0,3)}</p>
+                                    <p class="text-[10px] text-white font-bold">${val}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+        });
+
+        // Notas Locais
+        const notes = document.getElementById('master-notes');
+        notes.value = localStorage.getItem('ciclo_mestre_notes') || "";
+        notes.addEventListener('input', () => localStorage.setItem('ciclo_mestre_notes', notes.value));
+    </script>
+</body>
+</html>

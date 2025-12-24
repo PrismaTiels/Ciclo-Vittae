@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Ciclo Vitae - Ficha Final v2</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Outfit:wght@700&display=swap" rel="stylesheet">
+    <style>
+        body { background-color: #030305; color: #a1a1aa; font-family: 'Inter', sans-serif; min-height: 100vh; margin: 0; display: flex; }
+        .font-title { font-family: 'Outfit', sans-serif; }
+        .tema-vivo { --accent: #8b5cf6; --accent-rgb: 139, 92, 246; }
+        .tema-morto { --accent: #10b981; --accent-rgb: 16, 185, 129; }
+
+        .sidebar { 
+            width: 420px; background: #07070a; border-right: 1px solid rgba(255, 255, 255, 0.05); 
+            height: 100vh; position: sticky; top: 0; padding: 40px; overflow-y: auto; flex-shrink: 0;
+        }
+        
+        main { flex-grow: 1; min-height: 100vh; overflow-y: visible; }
+
+        .progress-bg { background: rgba(0, 0, 0, 0.6); height: 36px; border-radius: 8px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); position: relative; }
+        .progress-fill { height: 100%; transition: width 0.4s ease-out; }
+        .progress-inputs { position: absolute; inset: 0; display: flex; justify-content: center; align-items: center; gap: 8px; z-index: 10; }
+
+        .bar-input { background: transparent; border: none; color: white; font-weight: 800; font-size: 16px; text-align: center; width: 45px; outline: none; text-shadow: 1px 1px 2px black; }
+        .btn-ciclo { width: 100%; padding: 18px; border-radius: 12px; border: 2px solid var(--accent); color: var(--accent); font-weight: 700; text-transform: uppercase; background: rgba(var(--accent-rgb), 0.05); cursor: pointer; transition: 0.3s; }
+        .btn-ciclo:hover { background: var(--accent); color: black; box-shadow: 0 0 20px var(--accent); }
+
+        .tab-btn { padding: 20px; cursor: pointer; font-weight: 600; text-transform: uppercase; font-size: 11px; border-bottom: 2px solid transparent; transition: 0.2s; }
+        .tab-active { border-color: var(--accent); color: white; background: rgba(var(--accent-rgb), 0.05); }
+        
+        .glass-card { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 24px; }
+        .hidden { display: none; }
+        input, textarea { background: transparent; outline: none; color: white; border-bottom: 1px solid transparent; }
+        input:focus { border-bottom-color: var(--accent); }
+
+        .btn-remove { color: #444; transition: 0.3s; font-size: 10px; text-transform: uppercase; margin-top: 10px; cursor: pointer; }
+        .btn-remove:hover { color: #ef4444; }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #030305; }
+        ::-webkit-scrollbar-thumb { background: #1f1f23; border-radius: 10px; }
+    </style>
+</head>
+<body class="tema-vivo" id="body-tag">
+
+<aside class="sidebar space-y-8">
+    <div class="mb-8">
+        <h1 id="info-nome-topo" class="text-4xl font-title font-bold text-white uppercase italic tracking-tighter mb-2">
+            CARREGANDO...
+        </h1>
+        <div class="flex justify-between items-center">
+            <p class="text-[10px] uppercase tracking-[0.4em] opacity-30">Status: <span id="span-estado" class="text-white">...</span></p>
+            <button onclick="alternarEstado()" class="text-[10px] text-purple-400 hover:text-white transition uppercase font-bold">[ Alternar Ciclo ]</button>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4 text-[10px] uppercase tracking-widest font-bold">
+        <div class="flex flex-col">
+            <span class="opacity-30 mb-1">Nome</span>
+            <input id="info-nome" onchange="updateInfo('nome', this.value)" placeholder="Nome" class="bg-white/5 border border-white/10 rounded p-2 text-white text-xs outline-none focus:border-purple-500">
+        </div>
+        <div class="flex flex-col">
+            <span class="opacity-30 mb-1">Player</span>
+            <input id="info-player" onchange="updateInfo('player', this.value)" placeholder="Player" class="bg-white/5 border border-white/10 rounded p-2 text-white text-xs outline-none focus:border-purple-500">
+        </div>
+        <div class="flex flex-col">
+            <span class="opacity-30 mb-1">Idade</span>
+            <input id="info-idade" onchange="updateInfo('idade', this.value)" placeholder="Idade" class="bg-white/5 border border-white/10 rounded p-2 text-white text-xs outline-none focus:border-purple-500">
+        </div>
+        <div class="flex flex-col">
+            <span class="opacity-30 mb-1">Altura</span>
+            <input id="info-altura" onchange="updateInfo('altura', this.value)" placeholder="Altura" class="bg-white/5 border border-white/10 rounded p-2 text-white text-xs outline-none focus:border-purple-500">
+        </div>
+        <div class="flex flex-col col-span-2">
+            <span class="opacity-30 mb-1">Profissão</span>
+            <input id="info-profissao" onchange="updateInfo('profissao', this.value)" placeholder="Profissão" class="bg-white/5 border border-white/10 rounded p-2 text-white text-xs outline-none focus:border-purple-500">
+        </div>
+    </div>
+
+    <hr class="border-white/5">
+
+    <div id="barras-container" class="space-y-6">
+        </div>
+
+    <hr class="border-white/5">
+
+    <div class="space-y-4">
+        <h3 class="text-[10px] uppercase tracking-[0.3em] font-black opacity-30">Atributos Base</h3>
+        <div id="atributos-grid" class="space-y-2">
+            </div>
+    </div>
+</aside>
+
+    <main>
+        <nav class="flex border-b border-white/5 bg-[#07070a] sticky top-0 z-50">
+            <div onclick="showTab('pericias')" id="t-pericias" class="tab-btn tab-active">Perícias</div>
+            <div onclick="showTab('habilidades')" id="t-habilidades" class="tab-btn">Habilidades</div>
+            <div onclick="showTab('combate')" id="t-combate" class="tab-btn">Combate</div>
+            <div onclick="showTab('inventario')" id="t-inventario" class="tab-btn">Inventário</div>
+            <div onclick="showTab('anotacoes')" id="t-anotacoes" class="tab-btn">Anotações</div>
+        </nav>
+
+        <div class="p-10 max-w-6xl">
+            <section id="tab-pericias" class="tab-content grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3"></section>
+
+            <section id="tab-habilidades" class="tab-content hidden space-y-6">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-2xl font-title text-white uppercase italic">Habilidades</h2>
+                    <button onclick="addHabilidade()" class="text-[10px] bg-white/5 px-4 py-2 rounded-full hover:bg-white/10 transition uppercase tracking-widest">+ Adicionar</button>
+                </div>
+                <div id="lista-habilidades" class="grid grid-cols-1 gap-4"></div>
+            </section>
+
+            <section id="tab-combate" class="tab-content hidden space-y-6">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-2xl font-title text-white uppercase italic">Ações de Combate</h2>
+                    <button onclick="addAtaque()" class="text-[10px] bg-white/5 px-4 py-2 rounded-full hover:bg-white/10 transition uppercase tracking-widest">+ Novo Ataque</button>
+                </div>
+                <div class="glass-card">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead class="text-[10px] uppercase opacity-30">
+                                <tr><th class="pb-4">Arma/Poder</th><th class="pb-4 text-center">Teste</th><th class="pb-4 text-center">Dano</th><th class="pb-4 text-center">Crítico</th><th class="pb-4"></th></tr>
+                            </thead>
+                            <tbody id="lista-combate"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section id="tab-inventario" class="tab-content hidden space-y-6">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-2xl font-title text-white uppercase italic">Mochila</h2>
+                    <button onclick="addItem()" class="text-[10px] bg-white/5 px-4 py-2 rounded-full hover:bg-white/10 transition uppercase tracking-widest">+ Novo Item</button>
+                </div>
+                <div class="glass-card">
+                    <div class="text-[10px] uppercase opacity-40 mb-4">Carga total calculada automaticamente</div>
+                    <div id="lista-inventario" class="space-y-3"></div>
+                </div>
+            </section>
+
+            <section id="tab-anotacoes" class="tab-content hidden">
+                <div class="glass-card">
+                    <textarea class="w-full h-[600px] bg-transparent outline-none text-white resize-none leading-relaxed" placeholder="Escreva aqui a sua história..."></textarea>
+                </div>
+            </section>
+        </div>
+    </main>
+
+
+    
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, doc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyAzDHaOYApynTHqdvhWy4FhUvwLXr5zfuc",
+    authDomain: "ciclo-vittae.firebaseapp.com",
+    projectId: "ciclo-vittae",
+    storageBucket: "ciclo-vittae.firebasestorage.app",
+    messagingSenderId: "595476111730",
+    appId: "1:595476111730:web:a04d2d53f3d5f9c902fdeb"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const charID = localStorage.getItem('ciclo_char_id');
+
+if (!charID) window.location.href = 'index.html';
+
+let estado = 'vivo';
+const atributosBase = ["Vitalidade", "Projeção", "Conhecimento", "Encantamento", "Influencia"];
+const periciasLista = ["Acrobacia", "Adestramento", "Atletismo", "Atuação", "Cura", "Diplomacia", "Enganação", "Fortitude", "Furtividade", "Iniciativa", "Intimidação", "Intuição", "Investigação", "Ladinagem", "Luta", "Misticismo", "Percepção", "Pilotagem", "Pontaria", "Reflexos", "Religião", "Sobrevivência", "Vontade"];
+
+let statusValues = { 'Vida': { a: 10, m: 10 }, 'Sanidade': { a: 10, m: 10 }, 'Metafísica': { a: 10, m: 10 }, 'Opacidade': { a: 100, m: 100 } };
+let atributosValues = {};
+let periciasValues = {};
+
+// FUNÇÃO PARA SALVAR QUALQUER CAMPO
+window.saveData = async function(path, value) {
+    const charRef = doc(db, "personagens", charID);
+    await updateDoc(charRef, { [path]: value });
+};
+
+// FUNÇÃO ESPECÍFICA PARA OS CAMPOS DE TEXTO (INFO)
+window.updateInfo = function(field, value) {
+    saveData(`info.${field}`, value);
+};
+
+window.render = function() {
+    document.getElementById('body-tag').className = `tema-${estado}`;
+    document.getElementById('span-estado').innerText = estado.toUpperCase();
+    
+    // ATRIBUTOS
+    const curAttrs = estado === 'morto' ? [...atributosBase, "Espiritualidade"] : atributosBase;
+    const attrGrid = document.getElementById('atributos-grid');
+    if (attrGrid) {
+        attrGrid.innerHTML = curAttrs.map(a => `
+            <div class="flex justify-between items-center bg-white/5 p-4 rounded-xl border border-white/5">
+                <span class="text-[10px] uppercase font-bold tracking-widest text-white/60">${a}</span>
+                <input type="number" value="${atributosValues[a] || 0}" 
+                    onchange="saveData('atributos.${a}', this.value)" 
+                    class="w-10 text-center text-xl font-bold text-white bg-transparent outline-none">
+            </div>`).join('');
+    }
+
+    // BARRAS
+    const bars = estado === 'vivo' ? ['Vida', 'Sanidade'] : ['Vida', 'Metafísica', 'Opacidade'];
+    const colors = { 'Vida': '#ef4444', 'Sanidade': '#3b82f6', 'Metafísica': '#a855f7', 'Opacidade': '#10b981' };
+    const barsContainer = document.getElementById('barras-container');
+    if (barsContainer) {
+        barsContainer.innerHTML = bars.map(name => {
+            const val = statusValues[name] || {a: 10, m: 10};
+            const pct = (val.a / val.m) * 100;
+            return `
+            <div class="space-y-2">
+                <label class="text-[9px] uppercase font-black tracking-[0.2em] text-white/30">${name}</label>
+                <div class="progress-bg">
+                    <div id="fill-${name}" class="progress-fill" style="width: ${pct}%; background-color: ${colors[name]};"></div>
+                    <div class="progress-inputs">
+                        <input type="number" value="${val.a}" onchange="syncBar('${name}', this.value, null)" class="bar-input">
+                        <span class="divisor">/</span>
+                        <input type="number" value="${val.m}" onchange="syncBar('${name}', null, this.value)" class="bar-input opacity-40 text-sm">
+                    </div>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    // PERÍCIAS
+    const periciasTab = document.getElementById('tab-pericias');
+    if (periciasTab) {
+        periciasTab.innerHTML = periciasLista.map(p => `
+            <div class="bg-white/5 p-4 flex justify-between items-center rounded-xl border border-white/5 hover:border-white/20 transition">
+                <span class="text-xs font-semibold text-white/70">${p}</span>
+                <input type="number" value="${periciasValues[p] || 0}" 
+                    onchange="saveData('pericias.${p}', this.value)" 
+                    class="w-8 text-center text-lg font-bold text-white bg-transparent outline-none border-b border-white/10">
+            </div>`).join('');
+    }
+};
+
+window.syncBar = function(name, a, m) {
+    if (a !== null) statusValues[name].a = parseFloat(a) || 0;
+    if (m !== null) statusValues[name].m = parseFloat(m) || 1;
+    saveData('status', statusValues);
+};
+
+window.alternarEstado = function() {
+    const novo = estado === 'vivo' ? 'morto' : 'vivo';
+    saveData('estado', novo);
+};
+
+window.showTab = function(t) {
+    document.querySelectorAll('.tab-content').forEach(x => x.classList.add('hidden'));
+    document.querySelectorAll('.tab-btn').forEach(x => x.classList.remove('tab-active'));
+    document.getElementById('tab-'+t).classList.remove('hidden');
+    document.getElementById('t-'+t).classList.add('tab-active');
+};
+
+// ESCUTAR MUDANÇAS EM TEMPO REAL
+onSnapshot(doc(db, "personagens", charID), (snap) => {
+    if (snap.exists()) {
+        const d = snap.data();
+        estado = d.estado || 'vivo';
+        statusValues = d.status || statusValues;
+        atributosValues = d.atributos || {};
+        periciasValues = d.pericias || {};
+        
+        // Atualiza os campos de Info (Nome, Idade, etc)
+        if(d.info) {
+            const nomeTopo = document.getElementById('info-nome-topo');
+            if(nomeTopo) nomeTopo.innerText = d.info.nome || "SEM NOME";
+
+            const fields = ['nome', 'player', 'idade', 'altura', 'profissao'];
+            fields.forEach(f => {
+                const el = document.getElementById('info-' + f);
+                if(el) el.value = d.info[f] || "";
+            });
+        }
+        render();
+    }
+});
+</script>
+</body>
+</html>
