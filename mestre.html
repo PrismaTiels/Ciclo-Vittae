@@ -6,8 +6,61 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Outfit:wght@700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        :root { --accent: #8b5cf6; --bg: #030305; }
-        body { background-color: var(--bg); color: #a1a1aa; font-family: 'Inter', sans-serif; height: 100vh; margin: 0; overflow: hidden; }
+:root { 
+    --accent: #8b5cf6; 
+    --bg: #030305; /* Cor ultra escura */
+}
+
+body { 
+    background-color: #030305;
+    color: white;
+    margin: 0;
+    height: 100vh;
+    overflow: hidden; /* Impede a página inteira de rolar */
+}
+
+.master-grid { 
+    display: grid; 
+    grid-template-columns: 320px 1fr 320px; 
+    height: 100vh; 
+    width: 100vw; 
+    opacity: 0; 
+    transition: opacity 1s;
+}
+
+/* Configuração de Scroll Independente */
+.sidebar, main {
+    height: 100vh;
+    overflow-y: auto;
+    padding: 25px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent) #111;
+}
+
+/* Estilização da Scrollbar para Chrome/Edge */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #07070a; }
+::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; }
+#cards-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+    padding: 20px;
+    /* Adicione estas linhas para a barra de rolagem interna */
+    max-height: 85vh; 
+    overflow-y: auto; 
+    padding-right: 10px;
+}
+
+/* Estilização da barra de rolagem para combinar com o tema */
+#cards-container::-webkit-scrollbar { width: 6px; }
+#cards-container::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; }
+
+/* Classe para destacar sobrecarga */
+.card-overload {
+    border: 2px solid #ef4444 !important;
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
+}
         .font-title { font-family: 'Outfit', sans-serif; }
         .font-mono { font-family: 'JetBrains Mono', monospace; }
 
@@ -48,9 +101,32 @@
             background: linear-gradient(90deg, rgba(139, 92, 246, 0.05) 0%, transparent 100%);
             border-left: 3px solid var(--accent); padding: 12px; margin-bottom: 10px; border-radius: 0 8px 8px 0;
         }
+        #cards-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    padding: 1rem;
+    overflow-y: auto; /* Ativa a barra de rolagem */
+    max-height: calc(100vh - 100px); /* Ajusta a altura para não sumir */
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent) #111;
+}
+
+/* Estilo do indicador de sobrecarga */
+.overload-warning {
+    border: 1px solid #ef4444 !important;
+    background: rgba(239, 68, 68, 0.1) !important;
+    animation: pulse-red 2s infinite;
+}
+
+@keyframes pulse-red {
+    0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
     </style>
 </head>
-<body>
+<body class="bg-[#030305] text-white">
 
     <div id="lock-screen">
         <div class="scan-line"></div>
@@ -157,6 +233,22 @@
             document.getElementById('dice-command').value = '';
         };
 
+window.deletarFicha = async (id, nome) => {
+    if(confirm(`Deseja apagar permanentemente a ficha de ${nome}?`)) {
+        try {
+            await deleteDoc(doc(db, "personagens", id));
+            alert("Ficha removida.");
+        } catch (e) { console.error("Erro ao deletar:", e); }
+    }
+};
+
+// Função para mudar o valor MÁXIMO (m)
+window.updateMax = async (id, tipo, valor) => {
+    const v = parseInt(valor) || 0;
+    const path = `status.${tipo}.m`;
+    await updateDoc(doc(db, "personagens", id), { [path]: v });
+};
+
         onSnapshot(query(collection(db, "logs_rolagens"), orderBy("timestamp", "desc"), limit(20)), (snap) => {
             const b = document.getElementById('bandeja-dados');
             b.innerHTML = snap.docs.map(d => {
@@ -168,59 +260,89 @@
             }).join('');
         });
 
-        onSnapshot(collection(db, "personagens"), (snap) => {
-            const grid = document.getElementById('grid-players');
-            grid.innerHTML = snap.docs.map(d => {
-                const p = d.data();
-                const id = d.id;
-                const est = p.estado || 'vivo';
-                const accent = est === 'vivo' ? '#8b5cf6' : '#10b981';
+       onSnapshot(collection(db, "personagens"), (snap) => {
+    const grid = document.getElementById('grid-players');
+    grid.innerHTML = snap.docs.map(docSnap => {
+        const p = docSnap.data();
+        const id = docSnap.id;
+        const est = p.estado || 'vivo';
+        
+        const accentColor = est === 'vivo' ? '#8b5cf6' : '#10b981';
+        const stateBg = est === 'vivo' ? 'rgba(139, 92, 246, 0.05)' : 'rgba(16, 185, 129, 0.05)';
+
+        const v = p.status?.['Vida'] || {a:0, m:10};
+        const s_n = est === 'vivo' ? 'Sanidade' : 'Metafísica';
+        const s = p.status?.[s_n] || {a:0, m:10};
+        const o = p.status?.['Opacidade'] || {a:0, m:100};
+
+        const pesoTotal = (p.inventario || []).reduce((acc, item) => acc + (parseFloat(item.peso||0) * parseFloat(item.qtd||1)), 0);
+        const pesoMax = (parseFloat(p.atributos?.Influencia) || 0) * 3;
+        const sobrecarregado = pesoTotal > pesoMax;
+
+        return `
+            <div class="player-card transition-all duration-500 ${sobrecarregado ? 'overload-warning' : ''}" 
+                 style="border-top: 4px solid ${accentColor}; background: ${stateBg}">
                 
-                const v = p.status?.['Vida'] || {a:0, m:10};
-                const s_n = est === 'vivo' ? 'Sanidade' : 'Metafísica';
-                const s = p.status?.[s_n] || {a:0, m:10};
-                const o = p.status?.['Opacidade'] || {a:0, m:100};
-
-                const percVida = Math.min(Math.max((v.a / v.m) * 100, 0), 100);
-                const percSan = Math.min(Math.max((s.a / s.m) * 100, 0), 100);
-                const percOpa = Math.min(Math.max((o.a / o.m) * 100, 0), 100);
-
-                return `
-                    <div class="player-card border-b-2" style="border-color: ${accent}">
-                        <div class="flex justify-between items-start mb-6">
-                            <div><h3 class="text-white font-bold text-base uppercase">${p.info?.nome || id}</h3><p class="text-[9px] opacity-30 uppercase font-mono">${p.info?.profissao || 'Entidade'}</p></div>
-                            <button onclick="toggleEstado('${id}', '${est}')" class="text-[9px] px-3 py-1 rounded-full border border-white/10 uppercase font-bold" style="color: ${accent}">${est}</button>
-                        </div>
-
-                        <div class="space-y-4 mb-6">
-                            <div>
-                                <div class="flex justify-between text-[9px] font-black uppercase mb-1"><span class="opacity-40">Vida</span><span><input class="status-input" value="${v.a}" onchange="quickUpdate('${id}', 'Vida', this.value)"> / ${v.m}</span></div>
-                                <div class="bar-bg"><div class="bar-fill bg-red-600" style="width: ${percVida}%; color: #dc2626"></div></div>
-                            </div>
-
-                            <div>
-                                <div class="flex justify-between text-[9px] font-black uppercase mb-1"><span class="opacity-40">${s_n}</span><span><input class="status-input" value="${s.a}" onchange="quickUpdate('${id}', '${s_n}', this.value)"> / ${s.m}</span></div>
-                                <div class="bar-bg"><div class="bar-fill" style="width: ${percSan}%; background: ${accent}; color: ${accent}"></div></div>
-                            </div>
-
-                            ${est === 'morto' ? `
-                            <div class="pt-2">
-                                <div class="flex justify-between text-[9px] font-black uppercase mb-1 text-emerald-400/60"><span class="opacity-80">Opacidade</span><span><input class="status-input" style="color:#10b981" value="${o.a}" onchange="quickUpdate('${id}', 'Opacidade', this.value)"> / ${o.m}</span></div>
-                                <div class="bar-bg"><div class="bar-fill bg-emerald-500" style="width: ${percOpa}%; color: #10b981"></div></div>
-                            </div>
-                            ` : ''}
-                        </div>
-
-                        <div class="grid grid-cols-5 gap-2 border-t border-white/5 pt-4">
-                            ${Object.entries(p.atributos || {}).map(([at, val]) => `
-                                <div class="text-center bg-white/5 rounded-lg py-2"><p class="text-[7px] opacity-30 uppercase font-bold">${at.substring(0,3)}</p><p class="text-[11px] text-white font-bold font-mono">${val}</p></div>
-                            `).join('')}
-                        </div>
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h3 class="font-title text-xl text-white mb-1">${p.info?.nome || 'Sem Nome'}</h3>
+                        <span class="text-[9px] font-mono px-2 py-0.5 rounded-full border border-white/10" style="color: ${accentColor}">
+                            ${est.toUpperCase()}
+                        </span>
                     </div>
-                `;
-            }).join('');
-        });
+                    <button onclick="toggleEstado('${id}', '${est}')" class="text-[10px] opacity-30 hover:opacity-100 transition-opacity uppercase font-bold text-white">
+                        Alternar
+                    </button>
+                </div>
 
+                <div class="space-y-4">
+                    <div>
+                        <div class="flex justify-between text-[10px] font-mono mb-1 text-red-400">
+                            <span>VITALIDADE</span>
+                            <span>
+                                <input class="status-input" value="${v.a}" onchange="quickUpdate('${id}', 'Vida', this.value)"> / 
+                                <input class="status-input opacity-40" value="${v.m}" onchange="updateMax('${id}', 'Vida', this.value)">
+                            </span>
+                        </div>
+                        <div class="bar-bg"><div class="bar-fill bg-red-600" style="width: ${(v.a/v.m)*100}%"></div></div>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between text-[10px] font-mono mb-1" style="color: ${accentColor}">
+                            <span>${s_n.toUpperCase()}</span>
+                            <span>
+                                <input class="status-input" value="${s.a}" onchange="quickUpdate('${id}', '${s_n}', this.value)"> / 
+                                <input class="status-input opacity-40" value="${s.m}" onchange="updateMax('${id}', '${s_n}', this.value)">
+                            </span>
+                        </div>
+                        <div class="bar-bg"><div class="bar-fill" style="width: ${(s.a/s.m)*100}%; background-color: ${accentColor}"></div></div>
+                    </div>
+
+                    ${est === 'morto' ? `
+                    <div>
+                        <div class="flex justify-between text-[10px] font-mono mb-1 text-white/40">
+                            <span>OPACIDADE</span>
+                            <span><input class="status-input" value="${o.a}" onchange="quickUpdate('${id}', 'Opacidade', this.value)">%</span>
+                        </div>
+                        <div class="bar-bg" style="height: 2px;"><div class="bar-fill bg-white/40" style="width: ${o.a}%"></div></div>
+                    </div>
+                    ` : ''}
+                </div>
+
+                <div class="mt-4 pt-4 border-t border-white/5 flex justify-between items-center">
+                    <div class="text-[9px] font-mono ${sobrecarregado ? 'text-red-500 animate-pulse' : 'text-white/20'}">
+                        CARGA: ${pesoTotal.toFixed(1)}/${pesoMax}KG
+                    </div>
+                    <button onclick="deletarFicha('${id}', '${p.info?.nome}')" class="text-white/10 hover:text-red-500 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join('');
+});
         const nt = document.getElementById('master-notes');
         nt.value = localStorage.getItem('ciclo_m_notes') || "";
         nt.addEventListener('input', () => localStorage.setItem('ciclo_m_notes', nt.value));
