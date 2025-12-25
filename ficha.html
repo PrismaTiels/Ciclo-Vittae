@@ -766,119 +766,100 @@ window.playerMasterRoll = async () => {
 };
 
     // --- FUNÇÕES DE UPDATE ---
-    window.saveInfo = (k, v) => updateDoc(doc(db, "personagens", charID), { [`info.${k}`]: v });
-    window.saveNotes = (v) => updateDoc(doc(db, "personagens", charID), { anotacoes: v });
-    window.updateHab = (id, campo, valor) => {
-    const lista = charData.habilidades.map(h => h.id === id ? {...h, [campo]: valor} : h);
-    updateDoc(doc(db, "personagens", charID), { habilidades: lista });
+window.setTab = (t) => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('tab-active'));
+    document.getElementById(`tab-${t}`).classList.add('tab-active');
+    const tabs = ['pericias', 'combate', 'habilidades', 'inventario', 'anotacoes'];
+    tabs.forEach(x => {
+        const el = document.getElementById(`view-${x}`);
+        if (el) x === t ? el.classList.remove('hidden') : el.classList.add('hidden');
+    });
 };
-    window.modStatus = async (key, delta) => {
-        const cur = charData.status[key] || { a: 10, m: 10 };
-        const novo = Math.min(cur.m, Math.max(0, cur.a + delta));
-        await updateDoc(doc(db, "personagens", charID), { [`status.${key}.a`]: novo });
-    };
 
-    window.saveAttr = (attr, val) => {
-        updateDoc(doc(db, "personagens", charID), { [`atributos.${attr}`]: parseFloat(val) })
-        .then(() => recalculateStats()); // RECALCULA VIDA QUANDO MUDA ATRIBUTO
-    };
-    
-    window.saveSkill = (s, f, v) => updateDoc(doc(db, "personagens", charID), { [`pericias.${s}.${f}`]: f==='t'?v:parseFloat(v) });
-    
-    window.toggleEstado = () => {
-        const novo = charData.estado === 'vivo' ? 'morto' : 'vivo';
-        updateDoc(doc(db, "personagens", charID), { estado: novo })
-        .then(() => recalculateStats()); // RECALCULA VIDA QUANDO MUDA ESTADO
-    };
+window.saveInfo = (k, v) => updateDoc(doc(db, "personagens", charID), { [`info.${k}`]: v });
 
-    window.saveAnotacoes = (valor) => {
-        updateDoc(doc(db, "personagens", charID), { anotacoes: valor });
-    };
+window.saveNotes = (v) => updateDoc(doc(db, "personagens", charID), { anotacoes: v });
 
-    window.changeVal = async (path, delta) => {
-    // Separa o caminho (ex: "atributos.Vitalidade" vira ["atributos", "Vitalidade"])
+window.saveAnotacoes = (v) => updateDoc(doc(db, "personagens", charID), { anotacoes: v });
+
+window.toggleEstado = () => {
+    const novo = charData.estado === 'vivo' ? 'morto' : 'vivo';
+    updateDoc(doc(db, "personagens", charID), { estado: novo }).then(() => recalculateStats());
+};
+
+window.changeVal = async (path, delta) => {
     const parts = path.split('.');
     let currentVal = 0;
-
     if (parts.length === 2) {
         currentVal = parseFloat(charData[parts[0]][parts[1]]) || 0;
     } else if (parts.length === 3) {
         currentVal = parseFloat(charData[parts[0]][parts[1]][parts[2]]) || 0;
     }
-
     const newVal = currentVal + delta;
-    
-    // Salva no Firebase
     await updateDoc(doc(db, "personagens", charID), { [path]: newVal });
-    
-    // Se for atributo, recalcula a vida
     if (parts[0] === 'atributos') recalculateStats();
 };
-    
-// --- LÓGICA DE HABILIDADES ---
+
 window.addHabilidade = () => {
     const nova = { id: String(Date.now()), nome: '', desc: '' };
-    updateDoc(doc(db, "personagens", charID), { 
-        habilidades: [...(charData.habilidades || []), nova] 
-    });
+    updateDoc(doc(db, "personagens", charID), { habilidades: [...(charData.habilidades || []), nova] });
 };
 
-// Remove sem aviso
+window.updateHab = (id, campo, valor) => {
+    const lista = (charData.habilidades || []).map(h => h.id === id ? { ...h, [campo]: valor } : h);
+    updateDoc(doc(db, "personagens", charID), { habilidades: lista });
+};
+
 window.removeHab = (id) => {
     const lista = (charData.habilidades || []).filter(h => h.id !== id);
     updateDoc(doc(db, "personagens", charID), { habilidades: lista });
 };
 
-// Atualização genérica
-window.updateHab = (id, campo, valor) => {
-    const lista = (charData.habilidades || []).map(h => 
-        h.id === id ? { ...h, [campo]: valor } : h
-    );
-    updateDoc(doc(db, "personagens", charID), { habilidades: lista });
+window.modStatus = async (key, delta) => {
+    const cur = charData.status[key] || { a: 10, m: 10 };
+    const novo = Math.min(cur.m, Math.max(0, cur.a + delta));
+    await updateDoc(doc(db, "personagens", charID), { [`status.${key}.a`]: novo });
 };
 
-    // COMBAT & INV HELPERS
-    window.updateCombat = (i, f, v) => { let l=[...charData.combate]; l[i][f]=v; updateDoc(doc(db,"personagens",charID), {combate:l}); };
-    window.removeCombat = (i) => { let l=[...charData.combate]; l.splice(i,1); updateDoc(doc(db,"personagens",charID), {combate:l}); };
+window.saveSkill = (s, f, v) => updateDoc(doc(db, "personagens", charID), { [`pericias.${s}.${f}`]: f==='t'?v:parseFloat(v) });
 
-    window.addInventoryItem = () => updateDoc(doc(db, "personagens", charID), { inventario: [...(charData.inventario||[]), {nome:'Novo Item', qtd:1, peso:1}] });
-    window.updateInv = (i, f, v) => { let l=[...charData.inventario]; l[i][f]=v; updateDoc(doc(db,"personagens",charID), {inventario:l}); };
-    window.removeInv = (i) => { let l=[...charData.inventario]; l.splice(i,1); updateDoc(doc(db,"personagens",charID), {inventario:l}); };
-
-window.setTab = (t) => {
-    // Remove a classe ativa de todos os botões
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('tab-active'));
-    // Adiciona ao botão clicado
-    document.getElementById(`tab-${t}`).classList.add('tab-active');
-    
-    // Lista de todas as seções de conteúdo
-    const tabs = ['pericias', 'combate', 'habilidades', 'inventario', 'anotacoes'];
-    
-    tabs.forEach(x => {
-        const el = document.getElementById(`view-${x}`);
-        if (el) {
-            if (x === t) {
-                el.classList.remove('hidden');
-            } else {
-                el.classList.add('hidden');
-            }
-        }
-    });
+window.addCombatItem = () => {
+    const novo = { nome: 'Nova Arma', pericia: 'Luta', dano: '1d6', tipo: 'corpo' };
+    updateDoc(doc(db, "personagens", charID), { combate: [...(charData.combate || []), novo] });
 };
+
+window.updateCombat = (i, f, v) => { let l=[...charData.combate]; l[i][f]=v; updateDoc(doc(db,"personagens",charID), {combate:l}); };
+window.removeCombat = (i) => { let l=[...charData.combate]; l.splice(i,1); updateDoc(doc(db,"personagens",charID), {combate:l}); };
+
+window.addInventoryItem = () => updateDoc(doc(db, "personagens", charID), { inventario: [...(charData.inventario||[]), {nome:'Novo Item', qtd:1, peso:1}] });
+window.updateInv = (i, f, v) => { let l=[...charData.inventario]; l[i][f]=v; updateDoc(doc(db,"personagens",charID), {inventario:l}); };
+window.removeInv = (i) => { let l=[...charData.inventario]; l.splice(i,1); updateDoc(doc(db,"personagens",charID), {inventario:l}); };
+
+// Torne o charID global para o HTML encontrar
+window.charID = charID; 
 
 onSnapshot(doc(db, "personagens", charID), async (snap) => {
     if (snap.exists()) { 
-        charData = { ...charData, ...snap.data() }; 
+        // Pega os dados do Firebase e completa o que estiver faltando com o default
+        const data = snap.data();
+        charData = { ...getDefaultData(), ...data };
+        // Garante que sub-objetos não venham nulos
+        charData.info = { ...getDefaultData().info, ...data.info };
+        charData.atributos = { ...getDefaultData().atributos, ...data.atributos };
+        
         renderAll();
     } else {
-        // Pega o ID da URL e transforma em Nome (ex: "pedro-silva" vira "Pedro Silva")
+        console.log("Ficha não encontrada. Criando dados iniciais...");
         const nomeDaURL = charID.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+        const dataNova = getDefaultData(nomeDaURL);
         
-        console.log("Inicializando ficha nova para:", nomeDaURL);
-        const dataInicial = getDefaultData(nomeDaURL);
-        
-        await setDoc(doc(db, "personagens", charID), dataInicial);
+        // Tenta gravar. Se falhar aqui, o problema é conexão ou configuração do Firebase.
+        await setDoc(doc(db, "personagens", charID), dataNova);
+        charData = dataNova;
+        renderAll();
     }
+}, (error) => {
+    console.error("Erro no Firebase Snapshot:", error);
 });
 </script>
 </body>
