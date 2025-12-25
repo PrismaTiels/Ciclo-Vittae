@@ -193,6 +193,57 @@
     }
     .hab-card:hover { border-color: var(--accent); }
 
+/* Container Principal */
+#inventory-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+}
+
+/* Cada Item do Inventário */
+.inventory-item {
+    display: flex;
+    flex-wrap: wrap; /* Permite quebrar linha no celular */
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 10px;
+    border-radius: 12px;
+    align-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Estilo dos inputs dentro do inventário */
+.inventory-item input {
+    background: rgba(0, 0, 0, 0.3) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 8px !important;
+    color: white !important;
+    padding: 8px !important;
+}
+
+/* O nome do item ocupa o espaço que sobrar */
+.inv-name { flex: 2; min-width: 150px; }
+/* Qtd e Peso ficam menores */
+.inv-small { width: 70px; text-align: center; }
+/* Botão de excluir */
+.inv-del { 
+    width: 32px; 
+    height: 32px; 
+    color: #ef4444; 
+    font-size: 20px; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    cursor: pointer;
+}
+
+/* Ajuste específico para Telas Pequenas */
+@media (max-width: 480px) {
+    .inv-name { flex: 1 1 100%; } /* Nome ocupa a linha toda */
+    .inv-small { flex: 1; } /* Qtd e Peso dividem a segunda linha */
+}
+
 </style>
 </head>
 <body class="tema-vivo" id="body-tag">
@@ -655,40 +706,49 @@ function renderHabilidades() {
 
 // Função para atualizar e salvar no Firebase
 
-    function renderInventory() {
-        const list = document.getElementById('inventory-list');
-        list.innerHTML = '';
-        let totalWeight = 0;
+function renderInventory() {
+    const list = document.getElementById('inventory-list');
+    if (!list) return;
+    list.innerHTML = '';
+    let totalWeight = 0;
 
-        (charData.inventario || []).forEach((item, idx) => {
-            const peso = parseFloat(item.peso) || 1;
-            const qtd = parseFloat(item.qtd) || 1;
-            totalWeight += (peso * qtd);
+    (charData.inventario || []).forEach((item, idx) => {
+        const q = parseFloat(item.qtd) || 0;
+        const p = parseFloat(item.peso) || 0;
+        totalWeight += (q * p);
 
-            const el = document.createElement('div');
-            el.className = 'item-row';
-            el.innerHTML = `
-                <input value="${item.nome}" onchange="updateInv(${idx}, 'nome', this.value)" class="input-glass text-sm font-bold" placeholder="Item">
-                <input type="number" value="${item.qtd}" onchange="updateInv(${idx}, 'qtd', this.value)" class="input-glass text-sm text-center font-mono" placeholder="Qtd">
-                <input type="number" value="${item.peso}" onchange="updateInv(${idx}, 'peso', this.value)" class="input-glass text-sm text-center font-mono" placeholder="Kg">
-                <button onclick="removeInv(${idx})" class="btn-icon">×</button>
-            `;
-            list.appendChild(el);
-        });
+        const div = document.createElement('div');
+        div.className = 'inventory-item';
+        div.innerHTML = `
+            <input type="text" value="${item.nome}" 
+                class="inv-name" placeholder="Item"
+                onchange="updateInv(${idx}, 'nome', this.value)">
+            
+            <input type="number" value="${item.qtd}" 
+                class="inv-small" placeholder="Qtd" title="Quantidade"
+                onchange="updateInv(${idx}, 'qtd', parseFloat(this.value))">
+            
+            <input type="number" value="${item.peso}" 
+                class="inv-small" placeholder="Kg" title="Peso Unitário"
+                onchange="updateInv(${idx}, 'peso', parseFloat(this.value))">
+            
+            <div class="inv-del" onclick="removeInv(${idx})">×</div>
+        `;
+        list.appendChild(div);
+    });
 
-        // Calculo de Carga (Influencia * 3)
-        const influencia = parseFloat(charData.atributos['Influencia']) || 0;
-        const maxWeight = influencia * 3;
-        const weightDisplay = document.getElementById('inv-weight-display');
-        weightDisplay.innerText = `PESO: ${totalWeight.toFixed(1)} / ${maxWeight}`;
-        
-        if(totalWeight > maxWeight) {
-            weightDisplay.className = "text-xs font-mono font-bold text-overload border border-red-500 px-3 py-1 rounded bg-red-900/20";
-            weightDisplay.innerText += " [SOBRECARGA]";
-        } else {
-            weightDisplay.className = "text-xs font-mono font-bold text-[var(--accent)] border border-[var(--accent)] px-3 py-1 rounded";
-        }
+    // Atualização da Carga (Influência * 3)
+    const inf = parseFloat(charData.atributos?.Influencia) || 0;
+    const maxW = inf * 3;
+    const display = document.getElementById('inv-weight-display');
+    
+    if (display) {
+        display.innerText = `CARGA: ${totalWeight.toFixed(1)} / ${maxW}kg`;
+        display.className = totalWeight > maxW 
+            ? "text-[10px] font-bold text-red-500 border border-red-500/50 px-2 py-1 rounded bg-red-900/20"
+            : "text-[10px] font-bold text-[var(--accent)] border border-[var(--accent)]/30 px-2 py-1 rounded";
     }
+}
 
     // No seu HTML ou função de renderização das anotações
 function renderAnotacoes() {

@@ -2,6 +2,7 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ciclo Vitae - Despertar</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@700;900&family=Inter:wght@400;600&display=swap" rel="stylesheet">
@@ -13,58 +14,67 @@
 
         body { 
             background-color: var(--bg-deep); 
+            background: radial-gradient(circle at center, #0a0a15 0%, #030305 100%);
             color: #a1a1aa; 
             font-family: 'Inter', sans-serif; 
             display: flex; 
             align-items: center; 
             justify-content: center; 
-            height: 100vh; 
+            min-height: 100vh; 
             margin: 0; 
-            overflow: hidden;
+            padding: 20px; /* Evita que o card toque as bordas no mobile */
         }
 
         .font-title { font-family: 'Outfit', sans-serif; }
 
         .glass-card { 
-            background: rgba(255, 255, 255, 0.01); 
+            background: rgba(255, 255, 255, 0.02); 
             border: 1px solid rgba(255, 255, 255, 0.05); 
             border-radius: 32px; 
-            padding: 50px 40px; 
+            padding: 40px 30px; 
             width: 100%; 
             max-width: 400px; 
             text-align: center; 
             backdrop-filter: blur(20px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.8s ease-out;
         }
 
-        /* Centralização dos Labels e Inputs */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         .input-group label {
             display: block;
-            text-align: center; /* Centralizado */
+            text-align: center;
             font-size: 10px;
             text-transform: uppercase;
             font-weight: 800;
-            letter-spacing: 0.1em;
+            letter-spacing: 0.15em;
             color: var(--accent);
             margin-bottom: 8px;
             opacity: 0.8;
         }
 
         input { 
-            background: rgba(255, 255, 255, 0.03); 
+            background: rgba(0, 0, 0, 0.2); 
             border: 1px solid rgba(255, 255, 255, 0.08); 
             border-radius: 16px; 
-            padding: 14px; 
+            padding: 16px; 
             width: 100%; 
             color: white; 
             outline: none; 
-            transition: all 0.3s;
-            font-size: 14px;
-            text-align: center; /* Texto digitado centralizado */
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 15px;
+            text-align: center;
         }
 
         input:focus { 
             border-color: var(--accent); 
             background: rgba(139, 92, 246, 0.05);
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.1);
+            transform: scale(1.02);
         }
 
         .btn-entrar { 
@@ -74,26 +84,37 @@
             text-transform: uppercase; 
             letter-spacing: 0.1em;
             width: 100%; 
-            padding: 16px; 
+            padding: 18px; 
             border-radius: 16px; 
-            margin-top: 30px; 
+            margin-top: 20px; 
             cursor: pointer; 
-            transition: 0.3s; 
+            transition: all 0.4s; 
             border: none;
+            position: relative;
+            overflow: hidden;
         }
 
         .btn-entrar:hover { 
-            box-shadow: 0 0 20px rgba(139, 92, 246, 0.3); 
+            box-shadow: 0 10px 25px rgba(139, 92, 246, 0.4); 
+            transform: translateY(-2px);
             filter: brightness(1.1);
         }
+
+        .btn-entrar:active { transform: translateY(0); }
 
         .subtitle {
             font-size: 11px;
             text-transform: uppercase;
-            letter-spacing: 0.2em;
+            letter-spacing: 0.25em;
             color: #52525b;
             margin-bottom: 8px;
             display: block;
+        }
+
+        /* Ajustes para telas bem pequenas */
+        @media (max-width: 380px) {
+            .glass-card { padding: 30px 20px; }
+            h1 { font-size: 1.875rem !important; }
         }
     </style>
 </head>
@@ -138,7 +159,6 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // 1. COPIAMOS O MAPA DE PERÍCIAS PARA O INDEX TAMBÉM
     const skillsMap = {
         "Acrobacia": "Projeção", "Adestramento": "Encantamento", "Atletismo": "Influencia",
         "Atuação": "Encantamento", "Cura": "Conhecimento", "Diplomacia": "Encantamento",
@@ -150,28 +170,19 @@
         "Sobrevivência": "Conhecimento", "Vontade": "Espiritualidade"
     };
 
-    // 2. COPIAMOS A FUNÇÃO QUE GERA OS DADOS COMPLETOS
     const getDefaultData = (nomeChar, nomePlayer) => ({
         estado: 'vivo',
-        info: { 
-            nome: nomeChar, 
-            player: nomePlayer, // Aqui salvamos o nome do player
-            profissao: '', 
-            idade: '', 
-            altura: '' 
-        },
+        info: { nome: nomeChar, player: nomePlayer, profissao: '', idade: '', altura: '' },
         status: {
             Vida: { a: 10, m: 10 },
             Sanidade: { a: 10, m: 10 },
-            Metafísica: {a: 10, m: 10}, // Adicionado para garantir compatibilidade
+            Metafísica: {a: 10, m: 10},
             Opacidade: {a: 100, m: 100}
         },
-        // Aqui os atributos começam com 1 (antes o seu index estava salvando 0)
         atributos: {
             Vitalidade: 1, Projeção: 1, Conhecimento: 1, 
             Encantamento: 1, Influencia: 1, Espiritualidade: 0
         },
-        // Gera todas as perícias corretamente no banco
         pericias: Object.keys(skillsMap).reduce((acc, skill) => {
             acc[skill] = { b: 0, t: false };
             return acc;
@@ -196,20 +207,13 @@
         
         try {
             const docSnap = await getDoc(docRef);
-            
             if (!docSnap.exists()) {
-                // 3. AQUI ESTÁ A CORREÇÃO: Usamos a função para gerar o objeto completo
                 const novosDados = getDefaultData(charName, playerName);
                 await setDoc(docRef, novosDados);
-                console.log("Novo personagem criado com dados padrão completos.");
-            } else {
-                console.log("Personagem já existe, carregando...");
             }
-
             localStorage.setItem('ciclo_char_id', charID);
             window.location.href = 'ficha.html'; 
         } catch (e) {
-            console.error("Erro ao entrar:", e);
             alert("Erro de conexão: " + e.message);
         }
     };
