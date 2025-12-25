@@ -138,6 +138,50 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    // 1. COPIAMOS O MAPA DE PERÍCIAS PARA O INDEX TAMBÉM
+    const skillsMap = {
+        "Acrobacia": "Projeção", "Adestramento": "Encantamento", "Atletismo": "Influencia",
+        "Atuação": "Encantamento", "Cura": "Conhecimento", "Diplomacia": "Encantamento",
+        "Enganação": "Encantamento", "Fortitude": "Vitalidade", "Furtividade": "Projeção",
+        "Iniciativa": "Projeção", "Intimidação": "Encantamento", "Intuição": "Espiritualidade",
+        "Investigação": "Conhecimento", "Ladinagem": "Projeção", "Luta": "Influencia",
+        "Misticismo": "Espiritualidade", "Percepção": "Projeção", "Pilotagem": "Projeção",
+        "Pontaria": "Projeção", "Reflexos": "Projeção", "Religião": "Conhecimento",
+        "Sobrevivência": "Conhecimento", "Vontade": "Espiritualidade"
+    };
+
+    // 2. COPIAMOS A FUNÇÃO QUE GERA OS DADOS COMPLETOS
+    const getDefaultData = (nomeChar, nomePlayer) => ({
+        estado: 'vivo',
+        info: { 
+            nome: nomeChar, 
+            player: nomePlayer, // Aqui salvamos o nome do player
+            profissao: '', 
+            idade: '', 
+            altura: '' 
+        },
+        status: {
+            Vida: { a: 10, m: 10 },
+            Sanidade: { a: 10, m: 10 },
+            Metafisica: {a: 10, m: 10}, // Adicionado para garantir compatibilidade
+            Opacidade: {a: 100, m: 100}
+        },
+        // Aqui os atributos começam com 1 (antes o seu index estava salvando 0)
+        atributos: {
+            Vitalidade: 1, Projeção: 1, Conhecimento: 1, 
+            Encantamento: 1, Influencia: 1, Espiritualidade: 0
+        },
+        // Gera todas as perícias corretamente no banco
+        pericias: Object.keys(skillsMap).reduce((acc, skill) => {
+            acc[skill] = { b: 0, t: false };
+            return acc;
+        }, {}),
+        combate: [],
+        inventario: [],
+        habilidades: [],
+        anotacoes: ''
+    });
+
     window.iniciar = async () => {
         const charName = document.getElementById('charName').value.trim();
         const playerName = document.getElementById('playerName').value.trim();
@@ -152,22 +196,21 @@
         
         try {
             const docSnap = await getDoc(docRef);
+            
             if (!docSnap.exists()) {
-                await setDoc(docRef, {
-                    info: { nome: charName, player: playerName, idade: "", altura: "", profissao: "" },
-                    estado: "vivo",
-                    status: { 
-                        Vida: {a: 10, m: 10}, Sanidade: {a: 10, m: 10}, 
-                        Metafisica: {a: 10, m: 10}, Opacidade: {a: 100, m: 100} 
-                    },
-                    atributos: { Vitalidade: 0, Projeção: 0, Conhecimento: 0, Encantamento: 0, Influencia: 0 }
-                });
+                // 3. AQUI ESTÁ A CORREÇÃO: Usamos a função para gerar o objeto completo
+                const novosDados = getDefaultData(charName, playerName);
+                await setDoc(docRef, novosDados);
+                console.log("Novo personagem criado com dados padrão completos.");
+            } else {
+                console.log("Personagem já existe, carregando...");
             }
+
             localStorage.setItem('ciclo_char_id', charID);
             window.location.href = 'ficha.html'; 
         } catch (e) {
-            console.error(e);
-            alert("Erro de conexão.");
+            console.error("Erro ao entrar:", e);
+            alert("Erro de conexão: " + e.message);
         }
     };
 </script>
