@@ -322,9 +322,9 @@ const getDefaultData = (nomeInformado = "Novo Jogador") => ({
     estado: 'vivo',
     info: { 
         nome: nomeInformado, 
-        profissao: 'Estudante', 
-        idade: '18', 
-        altura: '1.70m' 
+        profissao: '', 
+        idade: '', 
+        altura: '' 
     },
     status: {
         Vida: { a: 10, m: 10 },
@@ -332,7 +332,7 @@ const getDefaultData = (nomeInformado = "Novo Jogador") => ({
     },
     atributos: {
         Vitalidade: 1, Projeção: 1, Conhecimento: 1, 
-        Encantamento: 1, Influencia: 1, Espiritualidade: 1
+        Encantamento: 1, Influencia: 1, Espiritualidade: 0
     },
     pericias: Object.keys(skillsMap).reduce((acc, skill) => {
         acc[skill] = { b: 0, t: false };
