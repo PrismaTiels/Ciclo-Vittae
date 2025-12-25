@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Ciclo Vitae - Ficha Final v3</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
@@ -84,6 +84,14 @@
             color: black;
             box-shadow: 0 0 8px var(--accent);
         }
+
+        @media (max-width: 768px) {
+        .ctrl-btn {
+            width: 28px;
+            height: 28px;
+            font-size: 14px;
+        }
+        }  
 
         /* TABS */
         .tabs-nav { display: flex; background: rgba(0,0,0,0.2); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.05); }
@@ -169,6 +177,7 @@ select option {
 <body class="tema-vivo" id="body-tag">
 
 <div id="pop-container"></div>
+<div id="grid-main" class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8"></div>
 
 <aside class="sidebar">
     <div>
@@ -211,12 +220,12 @@ select option {
 </aside>
 
 <main>
-<nav class="tabs-nav sticky top-0 z-50">
-    <div onclick="setTab('pericias')" id="tab-pericias" class="tab-btn tab-active">Perícias</div>
-    <div onclick="setTab('combate')" id="tab-combate" class="tab-btn">Arsenal</div>
-    <div onclick="setTab('habilidades')" id="tab-habilidades" class="tab-btn">Habilidades</div>
-    <div onclick="setTab('inventario')" id="tab-inventario" class="tab-btn">Inventário</div>
-    <div onclick="setTab('anotacoes')" id="tab-anotacoes" class="tab-btn">Anotações</div>
+<nav class="flex flex-nowrap overflow-x-auto no-scrollbar border-b border-white/5 gap-2 mb-6">
+    <button id="tab-pericias" onclick="setTab('pericias')" class="tab-btn whitespace-nowrap tab-active">Perícias</button>
+    <button id="tab-combate" onclick="setTab('combate')" class="tab-btn whitespace-nowrap">Combate</button>
+    <button id="tab-habilidades" onclick="setTab('habilidades')" class="tab-btn whitespace-nowrap">Habilidades</button>
+    <button id="tab-inventario" onclick="setTab('inventario')" class="tab-btn whitespace-nowrap">Inventário</button>
+    <button id="tab-anotacoes" onclick="setTab('anotacoes')" class="tab-btn whitespace-nowrap">Anotações</button>
 </nav>
 
 <div class="content-area">
