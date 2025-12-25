@@ -4,110 +4,98 @@
     <meta charset="UTF-8">
     <title>Ciclo Vitae - Master Control</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Outfit:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Outfit:wght@700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        body { background-color: #030305; color: #a1a1aa; font-family: 'Inter', sans-serif; height: 100vh; margin: 0; overflow: hidden; }
+        :root { --accent: #8b5cf6; --bg: #030305; }
+        body { background-color: var(--bg); color: #a1a1aa; font-family: 'Inter', sans-serif; height: 100vh; margin: 0; overflow: hidden; }
         .font-title { font-family: 'Outfit', sans-serif; }
-        :root { --accent: #8b5cf6; --accent-rgb: 139, 92, 246; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
 
-        /* Estrutura de 3 Colunas */
-        .master-grid { 
-            display: grid; 
-            grid-template-columns: 280px 1fr 320px; 
-            height: 100vh; 
-            width: 100vw;
+        #lock-screen {
+            position: fixed; inset: 0; background: radial-gradient(circle at center, #0a0a15 0%, #030305 100%);
+            z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .lock-card {
+            background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(139, 92, 246, 0.1);
+            padding: 40px; border-radius: 24px; backdrop-filter: blur(10px); text-align: center;
+            position: relative; overflow: hidden;
+        }
+        .scan-line {
+            width: 100%; height: 2px; background: var(--accent); opacity: 0.3;
+            position: absolute; top: 0; left: 0; animation: scan 3s linear infinite;
+        }
+        @keyframes scan { 0% { top: 0; } 100% { top: 100%; } }
+
+        .master-grid { display: grid; grid-template-columns: 320px 1fr 320px; height: 100vh; width: 100vw; opacity: 0; transition: opacity 1s; }
+        .sidebar { background: #07070a; border-right: 1px solid rgba(255, 255, 255, 0.05); padding: 25px; display: flex; flex-direction: column; gap: 20px; }
+        .sidebar-right { border-right: none; border-left: 1px solid rgba(255, 255, 255, 0.05); }
+
+        #master-notes { 
+            background: #040406; border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 12px; padding: 20px; color: #d4d4d8; font-size: 13px;
+            line-height: 1.6; outline: none; flex-grow: 1; resize: none; font-family: 'JetBrains Mono';
         }
 
-        /* Coluna Esquerda: Ferramentas */
-        .sidebar-left { 
-            background: #07070a; border-right: 1px solid rgba(255, 255, 255, 0.05); 
-            padding: 25px; display: flex; flex-direction: column; gap: 20px;
-        }
-
-        /* Coluna Central: Jogadores */
-        main { padding: 40px; overflow-y: auto; background: #030305; }
-
-        /* Coluna Direita: Feed de Rolagens */
-        .sidebar-right { 
-            background: #07070a; border-left: 1px solid rgba(255, 255, 255, 0.05); 
-            padding: 20px; display: flex; flex-direction: column;
-        }
-
-        .btn-dice { 
-            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);
-            padding: 10px; border-radius: 8px; color: white; font-weight: bold; font-size: 12px;
-            transition: 0.3s; cursor: pointer;
-        }
-        .btn-dice:hover { background: var(--accent); color: black; box-shadow: 0 0 15px var(--accent); border-color: var(--accent); }
+        .player-card { background: #0a0a0f; border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 20px; }
+        .status-input { background: rgba(255,255,255,0.03); border-radius: 4px; color: white; width: 40px; text-align: center; font-weight: bold; outline: none; }
         
-        .player-card { 
-            background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); 
-            border-radius: 16px; padding: 20px;
-        }
-
-        .mini-bar-bg { background: rgba(0, 0, 0, 0.4); height: 6px; border-radius: 10px; overflow: hidden; }
-        .mini-bar-fill { height: 100%; transition: width 0.4s; }
-
-        textarea { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; resize: none; color: white; outline: none; padding: 15px; font-size: 12px; }
-
-        #bandeja-dados { 
-            flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;
-        }
+        .bar-bg { background: #15151a; height: 6px; border-radius: 10px; margin-top: 6px; overflow: hidden; position: relative; }
+        .bar-btn:last-child { border-right: none; }
+        .bar-fill { height: 100%; transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 10px currentColor; }
 
         .log-item { 
-            background: rgba(139, 92, 246, 0.05); border-right: 3px solid #8b5cf6; 
-            padding: 10px; border-radius: 4px; animation: slideIn 0.3s ease-out;
+            background: linear-gradient(90deg, rgba(139, 92, 246, 0.05) 0%, transparent 100%);
+            border-left: 3px solid var(--accent); padding: 12px; margin-bottom: 10px; border-radius: 0 8px 8px 0;
         }
-        @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
-
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-thumb { background: #1f1f23; border-radius: 10px; }
     </style>
 </head>
-<body class="master-grid">
+<body>
 
-    <aside class="sidebar-left">
-        <h1 class="text-lg font-title font-bold text-white mb-2 uppercase italic tracking-widest border-b border-white/10 pb-2">Master Deck</h1>
-        
-        <div class="space-y-4">
-        <h3 class="text-[9px] uppercase font-black text-white/40 tracking-widest">Console de Dados (Privado)</h3>
-        <div class="flex gap-2">
-            <input type="text" id="dice-command" 
-                class="bg-white/5 border border-white/10 rounded px-3 py-2 text-xs text-white w-full outline-none focus:border-purple-500" 
-                placeholder="Ex: 3#d20+5 ou 1d10"
-                onkeydown="if(event.key === 'Enter') window.masterRoll()">
-            <button onclick="window.masterRoll()" class="btn-dice px-4">Ir</button>
-        </div>
-        <div id="die-value" class="w-full bg-white/5 rounded py-4 text-center border border-white/10 italic">
-            <div id="roll-total" class="text-3xl font-bold text-white">--</div>
-            <div id="roll-detail" class="text-[9px] text-white/40 mt-1 uppercase">Aguardando comando...</div>
-        </div>
-        </div>
-
-        <div class="flex-grow flex flex-col space-y-2">
-            <h3 class="text-[9px] uppercase font-black text-white/40 tracking-widest">Anotações Secretas</h3>
-            <textarea id="master-notes" class="flex-grow w-full" placeholder="NPCs, Pistas, Iniciativa..."></textarea>
-        </div>
-    </aside>
-
-    <main>
-        <div class="flex justify-between items-center mb-10">
-            <h2 class="text-3xl font-title text-white font-bold uppercase italic tracking-tighter">Entidades no Ciclo</h2>
-            <div id="status-sessao" class="text-[10px] uppercase bg-white/5 border border-white/10 px-4 py-2 rounded-full font-bold">
-                Conectando...
+    <div id="lock-screen">
+        <div class="scan-line"></div>
+        <div class="lock-card">
+            <div class="mb-8">
+                <div class="text-purple-500 text-4xl mb-2">◈</div>
+                <h2 class="font-title text-white text-xs uppercase tracking-[0.6em]">Ciclo Vitae</h2>
             </div>
+            <input type="password" id="access-key" class="bg-transparent border-b border-white/10 text-center text-white text-xl outline-none w-48 pb-2 font-mono tracking-[0.5em]" placeholder="CHAVE" onkeydown="if(event.key === 'Enter') checkKey()">
+            <p id="lock-msg" class="text-[9px] text-red-500 mt-4 uppercase font-bold hidden">Acesso Negado</p>
         </div>
+    </div>
 
-        <div id="grid-players" class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+    <div id="main-panel" class="master-grid">
+        <aside class="sidebar">
+            <h1 class="font-title text-white uppercase italic tracking-tighter text-xl">Master <span class="text-purple-500">Deck</span></h1>
+            
+            <div class="space-y-4">
+                <div class="flex gap-2">
+                    <input type="text" id="dice-command" class="bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-xs text-white w-full outline-none font-mono" placeholder="Ex: 3#d20+5" onkeydown="if(event.key === 'Enter') masterRoll()">
+                    <button onclick="masterRoll()" class="bg-purple-600 text-black font-black px-4 rounded-lg text-[10px]">ROLAR</button>
+                </div>
+                <div class="bg-black/60 border border-white/5 p-6 rounded-2xl text-center">
+                    <span id="roll-total" class="text-6xl font-title font-black text-white leading-none">--</span>
+                    <div id="roll-detail" class="text-[10px] text-purple-400 font-mono mt-3 uppercase tracking-tighter">Aguardando Frequência</div>
+                    <div id="roll-list" class="text-[9px] text-white/20 font-mono mt-1 italic"></div>
+                </div>
             </div>
-    </main>
 
-    <aside class="sidebar-right">
-        <h3 class="text-[10px] uppercase font-black text-purple-400 tracking-[0.2em] mb-4 border-b border-purple-500/20 pb-2">Fluxo de Energia (Logs)</h3>
-        <div id="bandeja-dados">
-            <p class="text-[10px] opacity-20 italic text-center mt-10">Nenhuma oscilação detectada...</p>
-        </div>
-    </aside>
+            <textarea id="master-notes" placeholder="Anotações da sessão..."></textarea>
+        </aside>
+
+        <main class="p-10 overflow-y-auto">
+            <div class="flex justify-between items-end mb-10">
+                <h2 class="text-3xl font-title text-white font-black italic uppercase">Entidades</h2>
+                <div id="status-online" class="text-[10px] text-purple-400 font-bold border border-purple-500/20 px-5 py-2 rounded-full uppercase font-mono italic tracking-widest">Sincronizado</div>
+            </div>
+            <div id="grid-players" class="grid grid-cols-1 xl:grid-cols-2 gap-6"></div>
+        </main>
+
+        <aside class="sidebar sidebar-right">
+            <p class="text-[9px] font-black opacity-30 uppercase tracking-[0.2em] mb-4">Logs de Fluxo</p>
+            <div id="bandeja-dados" class="overflow-y-auto flex-grow"></div>
+        </aside>
+    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -121,157 +109,121 @@
             messagingSenderId: "595476111730",
             appId: "1:595476111730:web:a04d2d53f3d5f9c902fdeb"
         };
-
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // --- ROLAGEM DO MESTRE ---
-        window.rollDice = function(faces) {
-            const result = Math.floor(Math.random() * faces) + 1;
-            document.getElementById('die-value').innerText = result;
-        };
-
-        // --- ATUALIZAÇÃO DE STATUS ---
-        window.toggleEstadoMestre = async (id, atual) => {
-            const novo = atual === 'vivo' ? 'morto' : 'vivo';
-            await updateDoc(doc(db, "personagens", id), { estado: novo });
-        };
-
-        // --- ESCUTAR LOGS (DIREITA) ---
-        const qLogs = query(collection(db, "logs_rolagens"), orderBy("timestamp", "desc"), limit(15));
-        onSnapshot(qLogs, (snap) => {
-            const bandeja = document.getElementById('bandeja-dados');
-            bandeja.innerHTML = '';
-            if(snap.empty) {
-                bandeja.innerHTML = '<p class="text-[10px] opacity-20 italic text-center mt-10">Aguardando rolagens...</p>';
-                return;
+        window.checkKey = () => {
+            if(document.getElementById('access-key').value === '875246') {
+                document.getElementById('lock-screen').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('lock-screen').style.display = 'none';
+                    document.getElementById('main-panel').style.opacity = '1';
+                }, 800);
+            } else {
+                document.getElementById('lock-msg').classList.remove('hidden');
+                document.getElementById('access-key').value = '';
             }
-            snap.forEach(lDoc => {
-                const log = lDoc.data();
-                bandeja.innerHTML += `
-                    <div class="log-item">
-                        <div class="flex justify-between items-start mb-1">
-                            <span class="text-[10px] font-bold text-purple-400 uppercase">${log.charNome || '???'}</span>
-                            <span class="text-[8px] opacity-30 italic">${new Date(log.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
-                        </div>
-                        <div class="flex justify-between items-end">
-                            <span class="text-[11px] text-white/80">${log.pericia}</span>
-                            <span class="text-xl font-black text-white leading-none">${log.total}</span>
-                        </div>
-                        <p class="text-[8px] opacity-30 mt-1 uppercase italic">D: [${log.dados?.join(', ') || '?'}]</p>
-                    </div>
-                `;
-            });
+        };
+
+        window.quickUpdate = async (charId, field, value) => {
+            const val = parseInt(value) || 0;
+            await updateDoc(doc(db, "personagens", charId), { [`status.${field}.a`]: val });
+        };
+
+        window.toggleEstado = async (id, atual) => {
+            await updateDoc(doc(db, "personagens", id), { estado: atual === 'vivo' ? 'morto' : 'vivo' });
+        };
+
+        window.masterRoll = () => {
+            const cmd = document.getElementById('dice-command').value.trim();
+            const regex = /^(\d+)?([#$])?d(\d+)([+-]\d+)?$/i;
+            const match = cmd.match(regex);
+            if (!match) return;
+            let qtd = parseInt(match[1]) || 1;
+            let mod = match[2]; 
+            let faces = parseInt(match[3]);
+            let soma = parseInt(match[4]) || 0;
+            let rolls = [];
+            for (let i = 0; i < qtd; i++) rolls.push(Math.floor(Math.random() * faces) + 1);
+            let escolhido;
+            let tipo = "";
+            if (mod === '#') { escolhido = Math.max(...rolls); tipo = `Melhor de ${qtd}d${faces}`; }
+            else if (mod === '$') { escolhido = Math.min(...rolls); tipo = `Pior de ${qtd}d${faces}`; }
+            else { escolhido = rolls.reduce((a, b) => a + b, 0); tipo = `${qtd}d${faces}`; }
+            const total = escolhido + soma;
+            document.getElementById('roll-total').innerText = total;
+            document.getElementById('roll-detail').innerText = `${tipo} ${soma !== 0 ? (soma > 0 ? '+'+soma : soma) : ''}`;
+            document.getElementById('roll-list').innerText = `Dados: [${rolls.join(', ')}]`;
+            document.getElementById('dice-command').value = '';
+        };
+
+        onSnapshot(query(collection(db, "logs_rolagens"), orderBy("timestamp", "desc"), limit(20)), (snap) => {
+            const b = document.getElementById('bandeja-dados');
+            b.innerHTML = snap.docs.map(d => {
+                const l = d.data();
+                return `<div class="log-item">
+                    <div class="flex justify-between items-center mb-1"><span class="text-[10px] font-black text-white uppercase">${l.charNome}</span><span class="text-purple-400 text-base font-bold font-mono">${l.total}</span></div>
+                    <div class="flex justify-between opacity-40 uppercase text-[8px] font-mono"><span>${l.pericia}</span><span>[${l.dados?.join(', ')}]</span></div>
+                </div>`;
+            }).join('');
         });
 
-        // --- LISTA DE JOGADORES (CENTRO) ---
         onSnapshot(collection(db, "personagens"), (snap) => {
             const grid = document.getElementById('grid-players');
-            const statusSessao = document.getElementById('status-sessao');
-            grid.innerHTML = '';
-            statusSessao.innerHTML = `Sessão Online: <span class="text-green-500 font-bold">● ${snap.size} Entidades</span>`;
-
-            snap.forEach(docSnap => {
-                const p = docSnap.data();
-                const id = docSnap.id;
-                const estado = p.estado || 'vivo';
-                const borderClass = estado === 'vivo' ? 'border-purple-500' : 'border-emerald-500';
+            grid.innerHTML = snap.docs.map(d => {
+                const p = d.data();
+                const id = d.id;
+                const est = p.estado || 'vivo';
+                const accent = est === 'vivo' ? '#8b5cf6' : '#10b981';
                 
-                const b1_n = 'Vida', b2_n = estado === 'vivo' ? 'Sanidade' : 'Metafísica', b3_n = 'Opacidade';
-                const b1 = p.status?.[b1_n] || {a:0, m:10};
-                const b2 = p.status?.[b2_n] || {a:0, m:10};
-                const b3 = p.status?.[b3_n] || {a:0, m:100};
+                const v = p.status?.['Vida'] || {a:0, m:10};
+                const s_n = est === 'vivo' ? 'Sanidade' : 'Metafísica';
+                const s = p.status?.[s_n] || {a:0, m:10};
+                const o = p.status?.['Opacidade'] || {a:0, m:100};
 
-                grid.innerHTML += `
-                    <div class="player-card border-r-4 ${borderClass}">
-                        <div class="flex justify-between items-center mb-4">
-                            <div>
-                                <h4 class="text-white font-bold uppercase text-xs">${p.info?.nome || id}</h4>
-                                <p class="text-[7px] opacity-30 tracking-widest uppercase">${p.info?.player || 'Jogador'}</p>
-                            </div>
-                            <button onclick="window.toggleEstadoMestre('${id}', '${estado}')" class="text-[8px] px-2 py-1 rounded bg-white/5 border border-white/10 uppercase hover:bg-white/10">
-                                ${estado}
-                            </button>
-                        </div>
-                        
-                        <div class="space-y-3 mb-4 text-[9px] uppercase font-bold">
-                            <div>
-                                <div class="flex justify-between opacity-50 mb-1"><span>${b1_n}</span> <span>${b1.a}/${b1.m}</span></div>
-                                <div class="mini-bar-bg"><div class="mini-bar-fill bg-red-500" style="width: ${(b1.a/b1.m)*100}%"></div></div>
-                            </div>
-                            <div>
-                                <div class="flex justify-between opacity-50 mb-1"><span>${b2_n}</span> <span>${b2.a}/${b2.m}</span></div>
-                                <div class="mini-bar-bg"><div class="mini-bar-fill ${estado === 'vivo' ? 'bg-blue-500' : 'bg-purple-600'}" style="width: ${(b2.a/b2.m)*100}%"></div></div>
-                            </div>
-                            <div>
-                                <div class="flex justify-between opacity-50 mb-1"><span>${b3_n}</span> <span>${b3.a}%</span></div>
-                                <div class="mini-bar-bg"><div class="mini-bar-fill bg-emerald-500" style="width: ${b3.a}%"></div></div>
-                            </div>
+                const percVida = Math.min(Math.max((v.a / v.m) * 100, 0), 100);
+                const percSan = Math.min(Math.max((s.a / s.m) * 100, 0), 100);
+                const percOpa = Math.min(Math.max((o.a / o.m) * 100, 0), 100);
+
+                return `
+                    <div class="player-card border-b-2" style="border-color: ${accent}">
+                        <div class="flex justify-between items-start mb-6">
+                            <div><h3 class="text-white font-bold text-base uppercase">${p.info?.nome || id}</h3><p class="text-[9px] opacity-30 uppercase font-mono">${p.info?.profissao || 'Entidade'}</p></div>
+                            <button onclick="toggleEstado('${id}', '${est}')" class="text-[9px] px-3 py-1 rounded-full border border-white/10 uppercase font-bold" style="color: ${accent}">${est}</button>
                         </div>
 
-                        <div class="grid grid-cols-5 gap-1 border-t border-white/5 pt-3">
+                        <div class="space-y-4 mb-6">
+                            <div>
+                                <div class="flex justify-between text-[9px] font-black uppercase mb-1"><span class="opacity-40">Vida</span><span><input class="status-input" value="${v.a}" onchange="quickUpdate('${id}', 'Vida', this.value)"> / ${v.m}</span></div>
+                                <div class="bar-bg"><div class="bar-fill bg-red-600" style="width: ${percVida}%; color: #dc2626"></div></div>
+                            </div>
+
+                            <div>
+                                <div class="flex justify-between text-[9px] font-black uppercase mb-1"><span class="opacity-40">${s_n}</span><span><input class="status-input" value="${s.a}" onchange="quickUpdate('${id}', '${s_n}', this.value)"> / ${s.m}</span></div>
+                                <div class="bar-bg"><div class="bar-fill" style="width: ${percSan}%; background: ${accent}; color: ${accent}"></div></div>
+                            </div>
+
+                            ${est === 'morto' ? `
+                            <div class="pt-2">
+                                <div class="flex justify-between text-[9px] font-black uppercase mb-1 text-emerald-400/60"><span class="opacity-80">Opacidade</span><span><input class="status-input" style="color:#10b981" value="${o.a}" onchange="quickUpdate('${id}', 'Opacidade', this.value)"> / ${o.m}</span></div>
+                                <div class="bar-bg"><div class="bar-fill bg-emerald-500" style="width: ${percOpa}%; color: #10b981"></div></div>
+                            </div>
+                            ` : ''}
+                        </div>
+
+                        <div class="grid grid-cols-5 gap-2 border-t border-white/5 pt-4">
                             ${Object.entries(p.atributos || {}).map(([at, val]) => `
-                                <div class="text-center bg-white/5 rounded py-1">
-                                    <p class="text-[6px] opacity-30 uppercase">${at.substring(0,3)}</p>
-                                    <p class="text-[10px] text-white font-bold">${val}</p>
-                                </div>
+                                <div class="text-center bg-white/5 rounded-lg py-2"><p class="text-[7px] opacity-30 uppercase font-bold">${at.substring(0,3)}</p><p class="text-[11px] text-white font-bold font-mono">${val}</p></div>
                             `).join('')}
                         </div>
                     </div>
                 `;
-            });
+            }).join('');
         });
 
-        window.masterRoll = function() {
-    const command = document.getElementById('dice-command').value.trim();
-    if (!command) return;
-
-    // Regex para capturar: [quantidade][modificador # ou $]d[faces]+[soma]
-    const regex = /^(\d+)?([#$])?d(\d+)([+-]\d+)?$/i;
-    const match = command.match(regex);
-
-    if (!match) {
-        document.getElementById('roll-total').innerText = "???";
-        document.getElementById('roll-detail').innerText = "Comando Inválido";
-        return;
-    }
-
-    let qtd = parseInt(match[1]) || 1;
-    let mod = match[2]; // # para melhor, $ para pior
-    let faces = parseInt(match[3]);
-    let soma = parseInt(match[4]) || 0;
-
-    let resultados = [];
-    for (let i = 0; i < qtd; i++) {
-        resultados.push(Math.floor(Math.random() * faces) + 1);
-    }
-
-    let escolhido;
-    let info = "";
-
-    if (mod === '#') {
-        escolhido = Math.max(...resultados);
-        info = `Melhor de [${resultados.join(', ')}]`;
-    } else if (mod === '$') {
-        escolhido = Math.min(...resultados);
-        info = `Pior de [${resultados.join(', ')}]`;
-    } else {
-        escolhido = resultados.reduce((a, b) => a + b, 0);
-        info = qtd > 1 ? `Soma de [${resultados.join(', ')}]` : `Resultado`;
-    }
-
-    const totalFinal = escolhido + soma;
-    
-    // Atualiza apenas a tela do mestre (não usa addDoc/Firebase)
-    document.getElementById('roll-total').innerText = totalFinal;
-    document.getElementById('roll-detail').innerText = `${info} ${soma !== 0 ? (soma > 0 ? '+'+soma : soma) : ''}`;
-    document.getElementById('dice-command').value = ''; // Limpa o input
-};
-
-        // Notas Mestre LocalStorage
-        const notes = document.getElementById('master-notes');
-        notes.value = localStorage.getItem('ciclo_mestre_notes') || "";
-        notes.addEventListener('input', () => localStorage.setItem('ciclo_mestre_notes', notes.value));
+        const nt = document.getElementById('master-notes');
+        nt.value = localStorage.getItem('ciclo_m_notes') || "";
+        nt.addEventListener('input', () => localStorage.setItem('ciclo_m_notes', nt.value));
     </script>
 </body>
 </html>

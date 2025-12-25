@@ -46,8 +46,44 @@
         .progress-text { position: absolute; inset: 0; display: flex; justify-content: center; align-items: center; font-size: 12px; font-weight: 700; text-shadow: 0 1px 2px black; z-index: 2; pointer-events: none; }
         .progress-inputs { position: absolute; inset: 0; display: flex; justify-content: space-between; opacity: 0; transition: 0.2s; z-index: 3; }
         .progress-bg:hover .progress-inputs { opacity: 1; }
-        .bar-btn { width: 30px; height: 100%; border: none; background: rgba(0,0,0,0.5); color: white; cursor: pointer; font-weight: bold; }
-        .bar-btn:hover { background: var(--accent); }
+        .bar-btn { 
+            width: 32px; 
+            height: 100%; 
+            border: none; 
+            background: rgba(0,0,0,0.6); 
+            color: white; 
+            cursor: pointer; 
+            font-weight: bold; 
+            font-size: 9px;
+            transition: 0.2s;
+        }
+        .bar-btn:hover { background: var(--accent); color: black; }
+        
+        /* Esconde as setinhas padrão do navegador */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+
+        /* Estilo dos mini-botões de controle */
+        .ctrl-btn {
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 3px;
+            color: var(--accent);
+            font-size: 10px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .ctrl-btn:hover {
+            background: var(--accent);
+            color: black;
+            box-shadow: 0 0 8px var(--accent);
+        }
 
         /* TABS */
         .tabs-nav { display: flex; background: rgba(0,0,0,0.2); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.05); }
@@ -101,6 +137,33 @@
         
         .hidden { display: none !important; }
         .text-overload { color: #ef4444; text-shadow: 0 0 10px rgba(239, 68, 68, 0.5); }
+
+        select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    background-size: 12px;
+    padding-right: 28px !important;
+    cursor: pointer;
+}
+
+select option {
+    background: #1a1a1f;
+    color: white;
+    padding: 10px;
+}
+
+/* Cartões de Habilidade */
+.hab-card {
+    background: linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 16px;
+    transition: 0.3s;
+}
+.hab-card:hover { border-color: var(--accent); }
+
     </style>
 </head>
 <body class="tema-vivo" id="body-tag">
@@ -116,22 +179,28 @@
         <button onclick="toggleEstado()" class="text-[9px] w-full text-center text-white/30 hover:text-[var(--accent)] transition uppercase tracking-widest border-t border-white/5 pt-2">Alterar Estado Vital</button>
     </div>
 
-    <div class="space-y-3">
-        <div>
+<div class="space-y-3">
+    <div class="flex gap-2">
+        <div class="flex-[2]">
             <label class="text-[9px] uppercase tracking-widest text-white/40 font-bold">Nome</label>
-            <input id="inp-nome" onchange="saveInfo('nome', this.value)" class="input-glass w-full text-sm font-bold">
+            <input id="inp-nome" onchange="saveInfo('nome', this.value)" class="input-glass w-full text-sm font-bold" placeholder="Nome do Personagem">
         </div>
-        <div class="flex gap-2">
-            <div class="flex-1">
-                <label class="text-[9px] uppercase tracking-widest text-white/40 font-bold">Idade</label>
-                <input id="inp-idade" onchange="saveInfo('idade', this.value)" class="input-glass w-full text-sm text-center">
-            </div>
-            <div class="flex-1">
-                <label class="text-[9px] uppercase tracking-widest text-white/40 font-bold">Altura</label>
-                <input id="inp-altura" onchange="saveInfo('altura', this.value)" class="input-glass w-full text-sm text-center">
-            </div>
+        <div class="flex-1">
+            <label class="text-[9px] uppercase tracking-widest text-white/40 font-bold">Profissão</label>
+            <input id="inp-profissao" onchange="saveInfo('profissao', this.value)" class="input-glass w-full text-sm font-bold" placeholder="Ex: Detetive">
         </div>
     </div>
+    <div class="flex gap-2">
+        <div class="flex-1">
+            <label class="text-[9px] uppercase tracking-widest text-white/40 font-bold">Idade</label>
+            <input id="inp-idade" onchange="saveInfo('idade', this.value)" class="input-glass w-full text-sm text-center">
+        </div>
+        <div class="flex-1">
+            <label class="text-[9px] uppercase tracking-widest text-white/40 font-bold">Altura</label>
+            <input id="inp-altura" onchange="saveInfo('altura', this.value)" class="input-glass w-full text-sm text-center">
+        </div>
+    </div>
+</div>
 
     <div id="bars-container" class="space-y-4"></div>
 
@@ -142,45 +211,57 @@
 </aside>
 
 <main>
-    <nav class="tabs-nav sticky top-0 z-50">
-        <div onclick="setTab('pericias')" id="tab-pericias" class="tab-btn tab-active">Perícias</div>
-        <div onclick="setTab('combate')" id="tab-combate" class="tab-btn">Combate</div>
-        <div onclick="setTab('inventario')" id="tab-inventario" class="tab-btn">Inventário</div>
-        <div onclick="setTab('anotacoes')" id="tab-anotacoes" class="tab-btn">Anotações</div>
-    </nav>
+<nav class="tabs-nav sticky top-0 z-50">
+    <div onclick="setTab('pericias')" id="tab-pericias" class="tab-btn tab-active">Perícias</div>
+    <div onclick="setTab('combate')" id="tab-combate" class="tab-btn">Arsenal</div>
+    <div onclick="setTab('habilidades')" id="tab-habilidades" class="tab-btn">Habilidades</div>
+    <div onclick="setTab('inventario')" id="tab-inventario" class="tab-btn">Inventário</div>
+    <div onclick="setTab('anotacoes')" id="tab-anotacoes" class="tab-btn">Anotações</div>
+</nav>
 
-    <div class="content-area">
-        <section id="view-pericias" class="skills-grid"></section>
+<div class="content-area">
+    <section id="view-pericias" class="skills-grid"></section>
 
-        <section id="view-combate" class="hidden">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-title text-white uppercase italic">Arsenal</h2>
-                <span class="text-[10px] text-white/30 font-mono">DANO EXEMPLO: 1d8+2</span>
+    <section id="view-combate" class="hidden space-y-6">
+        <div class="bg-white/5 p-5 rounded-2xl border border-white/10">
+            <h3 class="text-[10px] uppercase font-black text-[var(--accent)] tracking-[0.2em] mb-4">Pool de Dados</h3>
+            <div class="flex gap-3">
+                <input type="text" id="dice-command" class="bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white w-full outline-none focus:border-[var(--accent)] font-mono" placeholder="Ex: 3#d20+INF" onkeydown="if(event.key === 'Enter') playerMasterRoll()">
+                <button onclick="playerMasterRoll()" class="bg-[var(--accent)] text-black font-black px-6 rounded-xl text-xs uppercase hover:scale-105 transition">Lançar</button>
             </div>
-            <div id="combat-list" class="item-list"></div>
-            <button onclick="addCombatItem()" class="btn-add">+ ADICIONAR ARMA / HABILIDADE</button>
-        </section>
+        </div>
+        <div id="combat-list" class="item-list"></div>
+        <button onclick="addCombatItem()" class="btn-add">+ VINCULAR NOVA ARMA</button>
+    </section>
 
-        <section id="view-inventario" class="hidden">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-title text-white uppercase italic">Mochila</h2>
-                <span id="inv-weight-display" class="text-xs font-mono font-bold text-[var(--accent)] border border-[var(--accent)] px-3 py-1 rounded">PESO: 0 / 0</span>
-            </div>
-            <div id="inventory-list" class="item-list"></div>
-            <button onclick="addInventoryItem()" class="btn-add">+ ADICIONAR ITEM</button>
-        </section>
+    <section id="view-habilidades" class="hidden space-y-4">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-title text-white uppercase italic">Habilidades & Poderes</h2>
+        </div>
+        <div id="habilidades-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+        <button onclick="addHabilidade()" class="btn-add">+ NOVA HABILIDADE</button>
+    </section>
 
-        <section id="view-anotacoes" class="hidden">
-            <textarea id="txt-notes" onchange="saveNotes(this.value)" 
-                class="w-full h-[75vh] bg-black/20 border border-white/10 rounded-xl p-8 text-gray-300 outline-none resize-none leading-relaxed font-mono text-sm focus:border-[var(--accent)] transition"
-                placeholder="Registro de missão..."></textarea>
-        </section>
-    </div>
+    <section id="view-inventario" class="hidden">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-title text-white uppercase italic">Mochila</h2>
+            <span id="inv-weight-display" class="text-xs font-mono font-bold text-[var(--accent)] border border-[var(--accent)] px-3 py-1 rounded">PESO: 0 / 0</span>
+        </div>
+        <div id="inventory-list" class="item-list"></div>
+        <button onclick="addInventoryItem()" class="btn-add">+ ADICIONAR ITEM</button>
+    </section>
+
+    <section id="view-anotacoes" class="hidden">
+        <textarea id="txt-notes" onchange="saveNotes(this.value)" 
+            class="w-full h-[75vh] bg-black/20 border border-white/10 rounded-xl p-8 text-gray-300 outline-none resize-none leading-relaxed font-mono text-sm focus:border-[var(--accent)] transition"
+            placeholder="Registro de missão..."></textarea>
+    </section>
+</div>
 </main>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, onSnapshot, doc, updateDoc, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, collection, onSnapshot, doc, updateDoc, addDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyAzDHaOYApynTHqdvhWy4FhUvwLXr5zfuc",
@@ -208,6 +289,29 @@
         "Sobrevivência": "Conhecimento", "Vontade": "Espiritualidade"
     };
 
+const defaultData = {
+    estado: 'vivo',
+    info: { profissao: '', idade: '', altura: '' },
+    status: {
+        Vida: { a: 10, m: 10 },
+        Sanidade: { a: 10, m: 10 }
+    },
+    // Todos os atributos começam em 1
+    atributos: {
+        Vitalidade: 1, Projeção: 1, Conhecimento: 1, 
+        Encantamento: 1, Influencia: 1, Espiritualidade: 1
+    },
+    // Bônus de perícias começam em 0
+    pericias: Object.keys(skillsMap).reduce((acc, skill) => {
+        acc[skill] = { b: 0, t: false };
+        return acc;
+    }, {}),
+    combate: [],
+    inventario: [],
+    habilidades: [],
+    anotacoes: ''
+};
+
     // LOGS E ROLAGEM
     async function logRoll(acao, dados, total) {
         await addDoc(collection(db, "logs_rolagens"), {
@@ -216,41 +320,36 @@
         });
     }
 
-async function rollPool(nome, qtdDados, valorAtributo, bonusSoma) {
+async function rollPool(nome, qtdDados, somaFinal) {
     let results = [];
-    let total = 0;
+    let resultadoDado = 0;
     
-    // Define a quantidade mínima de 1 dado, mas trata o 0 ou menor como desvantagem
-    const poolEfetiva = Math.max(Math.abs(qtdDados), 1);
-
+    // Regra de Desvantagem para 0 ou menos
     if (qtdDados <= 0) {
-        // Desvantagem: Rola 2 e pega o menor
         for (let i = 0; i < 2; i++) results.push(Math.floor(Math.random() * 20) + 1);
-        // Soma: Atributo + Bonus + Menor Dado
-        total = Math.min(...results) + valorAtributo + bonusSoma;
+        resultadoDado = Math.min(...results);
         nome += " (Desvantagem)";
     } else {
-        // Pool normal: Rola X e pega o maior
+        // Pool normal
         for (let i = 0; i < qtdDados; i++) results.push(Math.floor(Math.random() * 20) + 1);
-        // Soma: Atributo + Bonus + Maior Dado
-        total = Math.max(...results) + valorAtributo + bonusSoma;
+        resultadoDado = Math.max(...results);
     }
 
-    await logRoll(nome, results, total);
-    
-    // O dadoBase para o Popup será o dado puro (sem somas) para brilhar se for 20
-    const dadoPuro = qtdDados <= 0 ? Math.min(...results) : Math.max(...results);
-    showPopup(nome, total, results, dadoPuro); 
+    const totalFinal = resultadoDado + somaFinal;
+
+    await logRoll(nome, results, totalFinal);
+    showPopup(nome, totalFinal, results, resultadoDado); 
 }
 
-// Para rolar Atributo puro: (Atrib)d20 + Atrib
+// Rolar ATRIBUTO PURO: (Valor)d20 + ZERO
 window.rollAttr = (nome, valor) => {
-    rollPool(`Atributo: ${nome}`, valor, valor, 0);
+    rollPool(`Atributo: ${nome}`, valor, 0); 
 };
 
-// Para rolar Perícia: (Atrib)d20 + Atrib + Bonus + Treino
+// Rolar PERÍCIA: (Atrib)d20 + Atrib + Treino + Bonus
 window.rollCheck = (nome, valorAtrib, bonusSoma) => {
-    rollPool(nome, valorAtrib, valorAtrib, bonusSoma);
+    // Aqui a soma final inclui o próprio valor do atributo
+    rollPool(nome, valorAtrib, (valorAtrib + bonusSoma));
 };
 
     window.rollDamage = async (nomeItem, formula) => {
@@ -315,21 +414,26 @@ window.rollCheck = (nome, valorAtrib, bonusSoma) => {
 
     // RENDERIZAÇÃO
     function renderAll() {
-        document.body.className = `tema-${charData.estado}`;
-        document.getElementById('char-name-display').innerText = charData.info.nome || "SEM NOME";
-        document.getElementById('char-state-display').innerText = charData.estado.toUpperCase();
-        
-        ['nome','idade','altura'].forEach(k => document.getElementById(`inp-${k}`).value = charData.info[k] || "");
-        document.getElementById('txt-notes').value = charData.anotacoes || "";
+    document.body.className = `tema-${charData.estado}`;
+    document.getElementById('char-name-display').innerText = charData.info.nome || "SEM NOME";
+    document.getElementById('char-state-display').innerText = charData.estado.toUpperCase();
+    
+    // Adicionado 'profissao' na lista abaixo:
+    ['nome', 'profissao', 'idade', 'altura'].forEach(k => {
+        const el = document.getElementById(`inp-${k}`);
+        if (el) el.value = charData.info[k] || "";
+    });
 
-        renderBars();
-        renderAttrs();
-        renderSkills();
-        renderCombat();
-        renderInventory();
-    }
+    renderBars();
+    renderAttrs();
+    renderSkills();
+    renderCombat();
+    renderInventory();
+    renderHabilidades(); 
+    renderAnotacoes();
+}
 
-    function renderBars() {
+function renderBars() {
         const bars = charData.estado === 'vivo' ? ['Vida', 'Sanidade'] : ['Vida', 'Metafísica', 'Opacidade'];
         const colors = { 'Vida': '#ef4444', 'Sanidade': '#3b82f6', 'Metafísica': '#a855f7', 'Opacidade': '#10b981' };
         
@@ -341,9 +445,18 @@ window.rollCheck = (nome, valorAtrib, bonusSoma) => {
                 <div class="flex justify-between text-[9px] font-bold uppercase tracking-wider text-white/60"><span>${k}</span><span>${v.a} / ${v.m}</span></div>
                 <div class="progress-bg">
                     <div class="progress-fill" style="width: ${pct}%; background: ${colors[k]}"></div>
-                    <div class="progress-inputs">
-                        <button class="bar-btn" onclick="modStatus('${k}', -1)">-</button>
-                        <button class="bar-btn" onclick="modStatus('${k}', 1)">+</button>
+                    <div class="progress-inputs flex justify-between">
+                        <div class="flex">
+                            <button class="bar-btn" onclick="modStatus('${k}', -5)">-5</button>
+                            <button class="bar-btn" onclick="modStatus('${k}', -1)">-1</button>
+                        </div>
+                        
+                        <div class="flex-1"></div>
+
+                        <div class="flex border-l border-white/10">
+                            <button class="bar-btn" onclick="modStatus('${k}', 1)">+1</button>
+                            <button class="bar-btn" onclick="modStatus('${k}', 5)">+5</button>
+                        </div>
                     </div>
                 </div>
             </div>`;
@@ -359,11 +472,14 @@ function renderAttrs() {
         return `
         <div class="flex justify-between items-center bg-white/5 px-3 py-2 rounded border border-white/5 hover:border-[var(--accent)] transition-all group">
             <span onclick="rollAttr('${attr}', ${val})" class="text-[10px] font-bold uppercase text-white/50 tracking-wider cursor-pointer hover:text-[var(--accent)] transition-colors">
-    ${attr} 🎲
-</span>
-            <input type="number" value="${val}" 
-                onchange="saveAttr('${attr}', this.value)"
-                class="bg-transparent text-right text-white font-bold w-10 outline-none border-b border-transparent focus:border-[var(--accent)]">
+                ${attr} 🎲
+            </span>
+            <div class="flex items-center gap-2">
+                <button onclick="changeVal('atributos.${attr}', -1)" class="ctrl-btn">-</button>
+                <input type="number" value="${val}" readonly
+                    class="bg-transparent text-center text-white font-bold w-6 outline-none text-xs">
+                <button onclick="changeVal('atributos.${attr}', 1)" class="ctrl-btn">+</button>
+            </div>
         </div>`;
     }).join('');
 }
@@ -392,11 +508,15 @@ function renderSkills() {
             </div>
             
             <div class="flex gap-2 items-center mt-2 bg-black/20 p-1 rounded">
-                <input type="checkbox" ${skillData.t ? 'checked' : ''} onchange="saveSkill('${skill}', 't', this.checked)" class="accent-[var(--accent)] w-3 h-3 cursor-pointer">
-                <span class="text-[9px] uppercase opacity-40 font-bold">Treino</span>
-                <input type="number" value="${skillData.b}" onchange="saveSkill('${skill}', 'b', this.value)" class="w-full bg-transparent text-right text-xs text-white/70 outline-none font-mono pr-1" placeholder="Bônus">
-            </div>
-
+    <input type="checkbox" ${skillData.t ? 'checked' : ''} onchange="saveSkill('${skill}', 't', this.checked)" class="accent-[var(--accent)] w-3 h-3 cursor-pointer">
+    <span class="text-[9px] uppercase opacity-40 font-bold">Treino</span>
+    <div class="flex items-center gap-1 ml-auto">
+        <button onclick="changeVal('pericias.${skill}.b', -1)" class="ctrl-btn" style="width:14px; height:14px;">-</button>
+        <input type="number" value="${skillData.b}" readonly 
+            class="bg-transparent text-center text-[10px] text-white/70 w-6 outline-none font-mono">
+        <button onclick="changeVal('pericias.${skill}.b', 1)" class="ctrl-btn" style="width:14px; height:14px;">+</button>
+    </div>
+</div>
             <button onclick="rollCheck('${skill}', ${attrVal}, ${somaSemAtributo})" class="btn-roll mt-2">
                 Rolar
             </button>
@@ -404,28 +524,73 @@ function renderSkills() {
     }).join('');
 }
 
-    function renderCombat() {
-        const list = document.getElementById('combat-list');
-        list.innerHTML = '';
-        (charData.combate || []).forEach((item, idx) => {
-            const el = document.createElement('div');
-            el.className = 'item-row combat-row';
-            el.innerHTML = `
-                <input value="${item.nome}" onchange="updateCombat(${idx}, 'nome', this.value)" class="input-glass text-xs font-bold" placeholder="Nome">
-                <input type="number" value="${item.bonus}" onchange="updateCombat(${idx}, 'bonus', this.value)" class="input-glass text-xs text-center font-mono" placeholder="Atq">
-                <input value="${item.dano}" onchange="updateCombat(${idx}, 'dano', this.value)" class="input-glass text-xs text-center font-mono" placeholder="Dano">
-                <div class="flex gap-1">
-                    <button onclick="rollCheck('Ataque ${item.nome}', ${parseInt(item.bonus)||0})" class="bg-[var(--accent)] text-black font-bold text-[9px] px-2 rounded hover:brightness-110">ATQ</button>
-                    <button onclick="rollDamage('${item.nome}', '${item.dano}')" class="border border-[var(--accent)] text-[var(--accent)] font-bold text-[9px] px-2 rounded hover:bg-[var(--accent)] hover:text-black">DMG</button>
+function renderCombat() {
+    const list = document.getElementById('combat-list');
+    list.innerHTML = '';
+    
+    (charData.combate || []).forEach((item, idx) => {
+        const el = document.createElement('div');
+        el.className = 'bg-white/5 border border-white/10 p-4 rounded-xl flex flex-col md:flex-row gap-4 items-center group';
+        
+        // Lógica de Dano: Se corpo-a-corpo, mostra o bônus de influência
+        const influ = charData.atributos.Influencia || 0;
+        const infoDano = item.tipo === 'corpo' ? `${item.dano} + ${influ} (Influ)` : item.dano;
+        
+        // Pega o valor da perícia selecionada para rolar o ataque
+        const attrDaPericia = skillsMap[item.pericia] || "Influencia";
+        const valorAtrib = charData.atributos[attrDaPericia] || 0;
+
+        el.innerHTML = `
+            <div class="flex-grow grid grid-cols-1 md:grid-cols-3 gap-3 w-full">
+                <input value="${item.nome}" onchange="updateCombat(${idx}, 'nome', this.value)" class="bg-transparent font-bold text-sm outline-none text-white" placeholder="Nome">
+                
+                <select onchange="updateCombat(${idx}, 'pericia', this.value)" class="bg-black/20 text-[10px] uppercase font-bold p-2 rounded outline-none text-white/60">
+                    ${Object.keys(skillsMap).map(s => `<option value="${s}" ${item.pericia === s ? 'selected' : ''}>${s}</option>`).join('')}
+                </select>
+
+                <div class="flex gap-2">
+                    <select onchange="updateCombat(${idx}, 'tipo', this.value)" class="bg-black/20 text-[10px] uppercase font-bold p-2 rounded outline-none text-white/40">
+                        <option value="corpo" ${item.tipo === 'corpo' ? 'selected' : ''}> Corpo</option>
+                        <option value="distancia" ${item.tipo === 'distancia' ? 'selected' : ''}> Distância</option>
+                    </select>
+                    <input value="${item.dano}" onchange="updateCombat(${idx}, 'dano', this.value)" class="bg-black/20 text-center font-mono text-xs p-2 rounded w-full outline-none text-emerald-400" placeholder="Ex: 1d8">
                 </div>
-                <button onclick="rollPool('Ataque: ${item.nome}', 1, ${parseInt(item.bonus)||0})" 
-                    class="bg-[var(--accent)] text-black font-bold text-[9px] px-2 rounded hover:brightness-110">
-                    ATQ
-                </button>
-            `;
-            list.appendChild(el);
-        });
-    }
+            </div>
+            
+            <div class="flex gap-2 w-full md:w-auto">
+                <button onclick="rollCheck('Ataque: ${item.nome}', ${valorAtrib}, 0)" class="flex-1 md:flex-none bg-[var(--accent)] text-black font-black text-[10px] px-4 py-2 rounded uppercase">Ataque</button>
+                <button onclick="executarDano('${item.nome}', '${item.dano}', '${item.tipo}')" class="flex-1 md:flex-none border border-[var(--accent)] text-[var(--accent)] font-black text-[10px] px-4 py-2 rounded uppercase">Dano</button>
+                <button onclick="removeCombat(${idx})" class="text-red-500/30 hover:text-red-500 transition px-2">✕</button>
+            </div>
+        `;
+        list.appendChild(el);
+    });
+}
+
+function renderHabilidades() {
+    const container = document.getElementById('habilidades-list');
+    const habs = charData.habilidades || [];
+    
+    container.innerHTML = habs.map((hab) => `
+        <div class="hab-card flex flex-col gap-2 p-4 bg-white/5 rounded-xl border border-white/10">
+            <div class="flex justify-between items-start">
+                <input type="text" 
+                    value="${hab.nome || ''}" 
+                    onchange="updateHab('${hab.id}', 'nome', this.value)" 
+                    class="bg-transparent font-bold text-[var(--accent)] outline-none w-full uppercase"
+                    placeholder="NOME DA HABILIDADE...">
+                <button onclick="removeHab('${hab.id}')" class="text-red-500/50 hover:text-red-500 transition ml-2">✕</button>
+            </div>
+            <textarea 
+                onchange="updateHab('${hab.id}', 'desc', this.value)" 
+                class="bg-transparent text-xs text-white/60 outline-none resize-none h-20"
+                placeholder="Escreva a descrição aqui...">${hab.desc || ''}</textarea>
+        </div>
+    `).join('');
+}
+
+
+// Função para atualizar e salvar no Firebase
 
     function renderInventory() {
         const list = document.getElementById('inventory-list');
@@ -462,10 +627,119 @@ function renderSkills() {
         }
     }
 
+    // No seu HTML ou função de renderização das anotações
+function renderAnotacoes() {
+    const area = document.getElementById('view-anotacoes');
+    area.innerHTML = `
+        <h2 class="text-xl font-title text-white uppercase italic mb-4">Diário de Bordo</h2>
+        <textarea id="txt-notes" 
+            onchange="saveAnotacoes(this.value)"
+            class="w-full h-[60vh] bg-white/5 border border-white/10 rounded-2xl p-6 text-sm text-white/80 outline-none focus:border-[var(--accent)] transition resize-none"
+            placeholder="Escreva suas descobertas aqui...">${charData.anotacoes || ''}</textarea>
+    `;
+}
+
+// --- LÓGICA DE DANO COM SOMA AUTOMÁTICA ---
+window.executarDano = async (nome, formula, tipo) => {
+    const influ = charData.atributos.Influencia || 0;
+    const somaExtra = tipo === 'corpo' ? influ : 0;
+    
+    const regex = /(\d+)d(\d+)([\+\-]\d+)?/i;
+    const match = formula.match(regex);
+    
+    let totalDados = 0, resultados = [];
+    
+    if (match) {
+        const qtd = parseInt(match[1]), faces = parseInt(match[2]);
+        const modFormula = match[3] ? parseInt(match[3]) : 0;
+        
+        for(let i=0; i<qtd; i++) {
+            let r = Math.floor(Math.random() * faces) + 1;
+            resultados.push(r);
+            totalDados += r;
+        }
+        
+        const totalFinal = totalDados + modFormula + somaExtra;
+        await logRoll(`Dano: ${nome}`, resultados, totalFinal);
+        showPopup(`Dano: ${nome}`, totalFinal, resultados, null);
+    }
+};
+
+// --- AJUSTE NO UPDATE DE COMBATE ---
+window.addCombatItem = () => {
+    const novo = { nome: 'Nova Arma', pericia: 'Luta', dano: '1d6', tipo: 'corpo' };
+    updateDoc(doc(db, "personagens", charID), { 
+        combate: [...(charData.combate || []), novo] 
+    });
+};
+
+    // --- CONSOLE DE DADOS (ESTILO MESTRE COM LOG) ---
+window.playerMasterRoll = async () => {
+    const commandInput = document.getElementById('dice-command');
+    let command = commandInput.value.trim();
+    if (!command) return;
+
+    // Criamos um mapa de substituição para facilitar
+    const substituticoes = {
+        'INF': charData.atributos.Influencia || 0,
+        'CON': charData.atributos.Conhecimento || 0,
+        'VIT': charData.atributos.Vitalidade || 0,
+        'PRO': charData.atributos.Projeção || 0,
+        'ENC': charData.atributos.Encantamento || 0,
+        'ESP': charData.atributos.Espiritualidade || 0
+    };
+
+    // Substitui todas as ocorrências, independente de ser maiúscula ou minúscula
+    for (const [chave, valor] of Object.entries(substituticoes)) {
+        const regex = new RegExp(chave, 'gi'); 
+        command = command.replace(regex, valor);
+    }
+
+    // Regex para capturar: [quantidade][modificador # ou $]d[faces][+ ou -][soma]
+    const regexDados = /^(\d+)?([#$])?d(\d+)([+-].+)?$/i;
+    const match = command.match(regexDados);
+
+    if (!match) { 
+        alert("Comando Inválido! Use ex: 3#d20+INF"); 
+        return; 
+    }
+
+    let qtd = parseInt(match[1]) || 1;
+    let mod = match[2]; 
+    let faces = parseInt(match[3]);
+    
+    // O eval aqui resolve contas complexas como +5+2 que podem vir das substituições
+    let soma = 0;
+    if (match[4]) {
+        try {
+            soma = eval(match[4]);
+        } catch (e) {
+            soma = 0;
+        }
+    }
+
+    let resultados = [];
+    for (let i = 0; i < qtd; i++) {
+        resultados.push(Math.floor(Math.random() * faces) + 1);
+    }
+
+    let escolhido = mod === '#' ? Math.max(...resultados) : (mod === '$' ? Math.min(...resultados) : resultados.reduce((a, b) => a + b, 0));
+    let totalFinal = escolhido + soma;
+
+    // Envia para o log do mestre
+    await logRoll(`Console: ${commandInput.value}`, resultados, totalFinal);
+    showPopup(`Console: ${commandInput.value}`, totalFinal, resultados, escolhido);
+    
+    commandInput.value = '';
+};
+
     // --- FUNÇÕES DE UPDATE ---
     window.saveInfo = (k, v) => updateDoc(doc(db, "personagens", charID), { [`info.${k}`]: v });
     window.saveNotes = (v) => updateDoc(doc(db, "personagens", charID), { anotacoes: v });
-    
+    window.updateHab = (id, campo, valor) => {
+    const lista = charData.habilidades.map(h => h.id === id ? {...h, [campo]: valor} : h);
+    updateDoc(doc(db, "personagens", charID), { habilidades: lista });
+};
     window.modStatus = async (key, delta) => {
         const cur = charData.status[key] || { a: 10, m: 10 };
         const novo = Math.min(cur.m, Math.max(0, cur.a + delta));
@@ -485,8 +759,53 @@ function renderSkills() {
         .then(() => recalculateStats()); // RECALCULA VIDA QUANDO MUDA ESTADO
     };
 
+    window.saveAnotacoes = (valor) => {
+        updateDoc(doc(db, "personagens", charID), { anotacoes: valor });
+    };
+
+    window.changeVal = async (path, delta) => {
+    // Separa o caminho (ex: "atributos.Vitalidade" vira ["atributos", "Vitalidade"])
+    const parts = path.split('.');
+    let currentVal = 0;
+
+    if (parts.length === 2) {
+        currentVal = parseFloat(charData[parts[0]][parts[1]]) || 0;
+    } else if (parts.length === 3) {
+        currentVal = parseFloat(charData[parts[0]][parts[1]][parts[2]]) || 0;
+    }
+
+    const newVal = currentVal + delta;
+    
+    // Salva no Firebase
+    await updateDoc(doc(db, "personagens", charID), { [path]: newVal });
+    
+    // Se for atributo, recalcula a vida
+    if (parts[0] === 'atributos') recalculateStats();
+};
+    
+// --- LÓGICA DE HABILIDADES ---
+window.addHabilidade = () => {
+    const nova = { id: String(Date.now()), nome: '', desc: '' };
+    updateDoc(doc(db, "personagens", charID), { 
+        habilidades: [...(charData.habilidades || []), nova] 
+    });
+};
+
+// Remove sem aviso
+window.removeHab = (id) => {
+    const lista = (charData.habilidades || []).filter(h => h.id !== id);
+    updateDoc(doc(db, "personagens", charID), { habilidades: lista });
+};
+
+// Atualização genérica
+window.updateHab = (id, campo, valor) => {
+    const lista = (charData.habilidades || []).map(h => 
+        h.id === id ? { ...h, [campo]: valor } : h
+    );
+    updateDoc(doc(db, "personagens", charID), { habilidades: lista });
+};
+
     // COMBAT & INV HELPERS
-    window.addCombatItem = () => updateDoc(doc(db, "personagens", charID), { combate: [...(charData.combate||[]), {nome:'Nova Arma', bonus:0, dano:'1d6'}] });
     window.updateCombat = (i, f, v) => { let l=[...charData.combate]; l[i][f]=v; updateDoc(doc(db,"personagens",charID), {combate:l}); };
     window.removeCombat = (i) => { let l=[...charData.combate]; l.splice(i,1); updateDoc(doc(db,"personagens",charID), {combate:l}); };
 
@@ -494,18 +813,41 @@ function renderSkills() {
     window.updateInv = (i, f, v) => { let l=[...charData.inventario]; l[i][f]=v; updateDoc(doc(db,"personagens",charID), {inventario:l}); };
     window.removeInv = (i) => { let l=[...charData.inventario]; l.splice(i,1); updateDoc(doc(db,"personagens",charID), {inventario:l}); };
 
-    window.setTab = (t) => {
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('tab-active'));
-        document.getElementById(`tab-${t}`).classList.add('tab-active');
-        ['pericias','combate','inventario','anotacoes'].forEach(x => {
-            const el = document.getElementById(`view-${x}`);
-            if(x===t) el.classList.remove('hidden'); else el.classList.add('hidden');
-        });
-    };
-
-    onSnapshot(doc(db, "personagens", charID), (snap) => {
-        if (snap.exists()) { charData = { ...charData, ...snap.data() }; renderAll(); }
+window.setTab = (t) => {
+    // Remove a classe ativa de todos os botões
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('tab-active'));
+    // Adiciona ao botão clicado
+    document.getElementById(`tab-${t}`).classList.add('tab-active');
+    
+    // Lista de todas as seções de conteúdo
+    const tabs = ['pericias', 'combate', 'habilidades', 'inventario', 'anotacoes'];
+    
+    tabs.forEach(x => {
+        const el = document.getElementById(`view-${x}`);
+        if (el) {
+            if (x === t) {
+                el.classList.remove('hidden');
+            } else {
+                el.classList.add('hidden');
+            }
+        }
     });
+};
+
+onSnapshot(doc(db, "personagens", charID), async (snap) => {
+    if (snap.exists()) { 
+        charData = { ...charData, ...snap.data() }; 
+        renderAll();
+    } else {
+        // Se a ficha não existir, usamos setDoc para criar o documento com os padrões
+        console.log("Criando nova ficha com valores padrão...");
+        try {
+            await setDoc(doc(db, "personagens", charID), defaultData);
+        } catch (e) {
+            console.error("Erro ao criar ficha: ", e);
+        }
+    }
+});
 </script>
 </body>
 </html>
