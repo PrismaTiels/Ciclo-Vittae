@@ -175,8 +175,7 @@ body {
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, onSnapshot, doc, updateDoc, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
+        import { getFirestore, collection, onSnapshot, doc, updateDoc, deleteDoc, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         const firebaseConfig = {
             apiKey: "AIzaSyAzDHaOYApynTHqdvhWy4FhUvwLXr5zfuc",
             authDomain: "ciclo-vittae.firebaseapp.com",
@@ -236,9 +235,13 @@ body {
 window.deletarFicha = async (id, nome) => {
     if(confirm(`Deseja apagar permanentemente a ficha de ${nome}?`)) {
         try {
+            // Agora deleteDoc funcionará porque foi importado
             await deleteDoc(doc(db, "personagens", id));
-            alert("Ficha removida.");
-        } catch (e) { console.error("Erro ao deletar:", e); }
+            alert("Ficha removida com sucesso.");
+        } catch (e) { 
+            console.error("Erro ao deletar:", e); 
+            alert("Erro ao deletar ficha. Verifique o console.");
+        }
     }
 };
 
