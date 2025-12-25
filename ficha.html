@@ -289,19 +289,22 @@ select option {
         "Sobrevivência": "Conhecimento", "Vontade": "Espiritualidade"
     };
 
-const defaultData = {
+const getDefaultData = (nomeInformado = "Novo Jogador") => ({
     estado: 'vivo',
-    info: { profissao: '', idade: '', altura: '' },
+    info: { 
+        nome: nomeInformado, 
+        profissao: 'Estudante', 
+        idade: '18', 
+        altura: '1.70m' 
+    },
     status: {
         Vida: { a: 10, m: 10 },
         Sanidade: { a: 10, m: 10 }
     },
-    // Todos os atributos começam em 1
     atributos: {
         Vitalidade: 1, Projeção: 1, Conhecimento: 1, 
         Encantamento: 1, Influencia: 1, Espiritualidade: 1
     },
-    // Bônus de perícias começam em 0
     pericias: Object.keys(skillsMap).reduce((acc, skill) => {
         acc[skill] = { b: 0, t: false };
         return acc;
@@ -310,7 +313,7 @@ const defaultData = {
     inventario: [],
     habilidades: [],
     anotacoes: ''
-};
+});
 
     // LOGS E ROLAGEM
     async function logRoll(acao, dados, total) {
@@ -839,13 +842,13 @@ onSnapshot(doc(db, "personagens", charID), async (snap) => {
         charData = { ...charData, ...snap.data() }; 
         renderAll();
     } else {
-        // Se a ficha não existir, usamos setDoc para criar o documento com os padrões
-        console.log("Criando nova ficha com valores padrão...");
-        try {
-            await setDoc(doc(db, "personagens", charID), defaultData);
-        } catch (e) {
-            console.error("Erro ao criar ficha: ", e);
-        }
+        // Pega o ID da URL e transforma em Nome (ex: "pedro-silva" vira "Pedro Silva")
+        const nomeDaURL = charID.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+        
+        console.log("Inicializando ficha nova para:", nomeDaURL);
+        const dataInicial = getDefaultData(nomeDaURL);
+        
+        await setDoc(doc(db, "personagens", charID), dataInicial);
     }
 });
 </script>
