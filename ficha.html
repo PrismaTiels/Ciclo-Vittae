@@ -341,7 +341,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, onSnapshot, doc, updateDoc, addDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, collection, onSnapshot, doc, updateDoc, addDoc, setDoc, query, orderBy, getDocs, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyAzDHaOYApynTHqdvhWy4FhUvwLXr5zfuc",
@@ -397,13 +397,36 @@ const getDefaultData = (nomeInformado = "Novo Jogador") => ({
     anotacoes: ''
 });
 
-    // LOGS E ROLAGEM
-    async function logRoll(acao, dados, total) {
-        await addDoc(collection(db, "logs_rolagens"), {
-            charNome: charData.info.nome || "Desconhecido",
-            pericia: acao, dados: dados, total: total, timestamp: Date.now()
-        });
+async function limparLogsAntigos() {
+    try {
+        const logsRef = collection(db, "logs_rolagens");
+        const q = query(logsRef, orderBy("timestamp", "desc"));
+        const snap = await getDocs(q);
+
+        if (snap.size > 15) {
+            const docsParaDeletar = snap.docs.slice(15);
+            const promessas = docsParaDeletar.map(d => deleteDoc(doc(db, "logs_rolagens", d.id)));
+            await Promise.all(promessas);
+            console.log("Logs antigos limpos!");
+        }
+    } catch (e) {
+        console.error("Erro na limpeza:", e);
     }
+}
+
+    // LOGS E ROLAGEM
+async function logRoll(acao, dados, total) {
+await addDoc(collection(db, "logs_rolagens"), {
+    charNome: charData.info.nome || "Desconhecido",
+    pericia: acao,
+    dados,
+    total,
+    timestamp: serverTimestamp()
+});
+
+    // 🔥 LIMPA OS LOGS ANTIGOS
+    await limparLogsAntigos();
+}
 
 async function rollPool(nome, qtdDados, somaFinal) {
     let results = [];
