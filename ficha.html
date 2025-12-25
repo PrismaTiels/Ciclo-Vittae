@@ -328,7 +328,9 @@ const getDefaultData = (nomeInformado = "Novo Jogador") => ({
     },
     status: {
         Vida: { a: 10, m: 10 },
-        Sanidade: { a: 10, m: 10 }
+        Opacidade: { a: 100, m: 100 },
+        Sanidade: { a: 10, m: 10 },
+        Metafísica: { a: 5, m: 5 }
     },
     atributos: {
         Vitalidade: 1, Projeção: 1, Conhecimento: 1, 
@@ -419,30 +421,59 @@ window.rollCheck = (nome, valorAtrib, bonusSoma) => {
         setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 300); }, 4000);
     }
 
-    // --- NOVA LÓGICA DE STATUS AUTOMÁTICO ---
-    function recalculateStats() {
-        const getAttr = (n) => parseFloat(charData.atributos[n]) || 0;
-        const vit = getAttr("Vitalidade");
-        const inf = getAttr("Influencia");
-        const con = getAttr("Conhecimento");
+function recalculateStats() {
+    if (!charData || !charData.atributos) return;
 
-        let vidaMax = 10;
-        
-        // FÓRMULA DE VIDA
-        if (charData.estado === 'vivo') {
-            vidaMax = (vit + inf) + (vit * inf) + 5;
-        } else {
-            vidaMax = (vit + con) + (vit * con) + 5;
-        }
+    // Converte atributos para números para evitar erros de cálculo
+    const getAttr = (n) => parseFloat(charData.atributos[n]) || 0;
+    const vit = getAttr("Vitalidade");
+    const inf = getAttr("Influencia");
+    const con = getAttr("Conhecimento");
+    const esp = getAttr("Espiritualidade");
 
-        // Verifica se mudou para evitar loop infinito de updates
-        const currentMax = charData.status?.Vida?.m;
-        if (vidaMax !== currentMax) {
-            // Mantém a vida atual (a), muda a máxima (m)
-            const vidaAtual = charData.status?.Vida?.a || 10;
-            updateDoc(doc(db, "personagens", charID), { 'status.Vida': { a: vidaAtual, m: vidaMax } });
-        }
+    // --- CÁLCULO DAS FÓRMULAS ---
+    
+    // 1. Vida Máxima (Mantendo a lógica de estado)
+    let vidaMax = (charData.estado === 'vivo') 
+        ? (vit + inf) + (vit * inf) + 5 
+        : (vit + con) + (vit * con) + 5;
+
+    // 2. Sanidade Máxima: Conhecimento + 5
+    let sanidadeMax = con + 5;
+
+    // 3. Metafísica Máxima: (Con + Esp + Vit) * 1.5 arredondado para baixo
+    let metafisicaMax = Math.floor((con + esp + vit) * 1.5);
+
+    // --- SINCRONIZAÇÃO COM O FIREBASE ---
+    let updates = {};
+    let needUpdate = false;
+
+    // Verificação de Vida
+    if (charData.status?.Vida?.m !== vidaMax) {
+        updates['status.Vida.m'] = vidaMax;
+        needUpdate = true;
     }
+
+    // Verificação de Sanidade
+    if (charData.status?.Sanidade?.m !== sanidadeMax) {
+        updates['status.Sanidade.m'] = sanidadeMax;
+        needUpdate = true;
+    }
+
+    // Verificação de Metafísica (usando o nome exato do seu banco: 'Metafísica')
+    const currentMetaM = charData.status?.['Metafísica']?.m || charData.status?.['Metafisica']?.m;
+    if (currentMetaM !== metafisicaMax) {
+        // Tenta atualizar com o nome que existir no seu banco
+        const fieldName = charData.status?.['Metafísica'] ? 'status.Metafísica.m' : 'status.Metafisica.m';
+        updates[fieldName] = metafisicaMax;
+        needUpdate = true;
+    }
+
+    if (needUpdate) {
+        console.log("Atualizando atributos máximos...", updates);
+        updateDoc(doc(db, "personagens", charID), updates);
+    }
+}
 
     // RENDERIZAÇÃO
     function renderAll() {
