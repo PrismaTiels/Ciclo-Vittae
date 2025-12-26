@@ -101,6 +101,39 @@ body {
             background: linear-gradient(90deg, rgba(139, 92, 246, 0.05) 0%, transparent 100%);
             border-left: 3px solid var(--accent); padding: 12px; margin-bottom: 10px; border-radius: 0 8px 8px 0;
         }
+        
+        /* ESTILOS ADICIONADOS PARA CRÍTICOS */
+        .crit-gold { 
+            color: #f59e0b !important; 
+            text-shadow: 0 0 10px rgba(245, 158, 11, 0.4) !important;
+        }
+        .crit-blue { 
+            color: #3b82f6 !important; 
+            text-shadow: 0 0 10px rgba(59, 130, 246, 0.4) !important;
+        }
+        .crit-red { 
+            color: #ef4444 !important; 
+            text-shadow: 0 0 10px rgba(239, 68, 68, 0.4) !important;
+        }
+
+        .btn-access {
+            background: var(--accent);
+            color: black;
+            font-size: 9px;
+            font-weight: 900;
+            text-transform: uppercase;
+            padding: 4px 10px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 0.5px;
+        }
+        .btn-access:hover {
+            filter: brightness(1.2);
+            box-shadow: 0 0 10px var(--accent);
+        }
+        
         #cards-container {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -123,6 +156,12 @@ body {
     0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
     70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
     100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+/* Adicionar no CSS do ficha.html */
+.crit-red { 
+    color: #ef4444 !important; 
+    text-shadow: 0 0 10px rgba(239, 68, 68, 0.4) !important; 
 }
     </style>
 </head>
@@ -173,182 +212,335 @@ body {
         </aside>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, onSnapshot, doc, updateDoc, deleteDoc, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-        const firebaseConfig = {
-            apiKey: "AIzaSyAzDHaOYApynTHqdvhWy4FhUvwLXr5zfuc",
-            authDomain: "ciclo-vittae.firebaseapp.com",
-            projectId: "ciclo-vittae",
-            storageBucket: "ciclo-vittae.firebasestorage.app",
-            messagingSenderId: "595476111730",
-            appId: "1:595476111730:web:a04d2d53f3d5f9c902fdeb"
-        };
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, onSnapshot, doc, updateDoc, deleteDoc, query, orderBy, limit, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    const firebaseConfig = {
+        apiKey: "AIzaSyAzDHaOYApynTHqdvhWy4FhUvwLXr5zfuc",
+        authDomain: "ciclo-vittae.firebaseapp.com",
+        projectId: "ciclo-vittae",
+        storageBucket: "ciclo-vittae.firebasestorage.app",
+        messagingSenderId: "595476111730",
+        appId: "1:595476111730:web:a04d2d53f3d5f9c902fdeb"
+    };
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-        window.checkKey = () => {
-            if(document.getElementById('access-key').value === '875246') {
-                document.getElementById('lock-screen').style.opacity = '0';
-                setTimeout(() => {
-                    document.getElementById('lock-screen').style.display = 'none';
-                    document.getElementById('main-panel').style.opacity = '1';
-                }, 800);
-            } else {
-                document.getElementById('lock-msg').classList.remove('hidden');
-                document.getElementById('access-key').value = '';
+    window.checkKey = () => {
+        if(document.getElementById('access-key').value === '875246') {
+            document.getElementById('lock-screen').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('lock-screen').style.display = 'none';
+                document.getElementById('main-panel').style.opacity = '1';
+            }, 800);
+        } else {
+            document.getElementById('lock-msg').classList.remove('hidden');
+            document.getElementById('access-key').value = '';
+        }
+    };
+
+    window.quickUpdate = async (charId, field, value) => {
+        const val = parseInt(value) || 0;
+        await updateDoc(doc(db, "personagens", charId), { [`status.${field}.a`]: val });
+    };
+
+    window.toggleEstado = async (id, atual) => {
+        await updateDoc(doc(db, "personagens", id), { estado: atual === 'vivo' ? 'morto' : 'vivo' });
+    };
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlCharID = urlParams.get('char');
+
+    let charID;
+if (urlCharID) {
+    charID = urlCharID;
+    // Salva no localStorage também (para manter compatibilidade)
+    localStorage.setItem('ciclo_char_id', urlCharID);
+} else {
+const urlParams = new URLSearchParams(window.location.search);
+const urlCharID = urlParams.get('char');
+
+let charID;
+if (urlCharID) {
+    charID = urlCharID;
+    localStorage.setItem('ciclo_char_id', urlCharID);
+} else {
+    // PRIMEIRO: Pega da URL (sempre prioridade)
+const urlParams = new URLSearchParams(window.location.search);
+const urlCharID = urlParams.get('char');
+
+// SEGUNDO: Só se não tiver na URL, usa localStorage
+let charID = urlCharID || localStorage.getItem('ciclo_char_id') || 'amiga';
+
+// ATUALIZA: localStorage com o da URL (se tiver)
+if (urlCharID) {
+    localStorage.setItem('ciclo_char_id', urlCharID);
+}
+
+console.log("FICHA: ID final =", charID, "| Da URL?", !!urlCharID);
+}
+
+console.log("ID final do personagem:", charID);
+}
+
+console.log("Carregando ficha com ID:", charID, "da URL?", !!urlCharID);
+
+    // FUNÇÃO CORRIGIDA PARA ACESSAR FICHA
+window.accessFicha = (charId) => {
+    const url = `ficha.html?char=${charId}`;
+    // Abre em nova guia (target="_blank") em vez de nova janela
+    window.open(url, '_blank');
+};
+
+    // FUNÇÃO VERIFICAR CRÍTICO CORRIGIDA
+function verificarCriticoLog(dados, pericia, tipoRolagem, dadoRelevante) {
+    if (!dados || dados.length === 0) return '';
+    
+    // Se for um d20, verifica crítico
+    if (dadoRelevante === 20) {
+        if (tipoRolagem === 'vantagem') {
+            const melhor = Math.max(...dados);
+            return melhor === 20 ? 'crit-gold' : (melhor === 1 ? 'crit-blue' : '');
+        } else if (tipoRolagem === 'desvantagem') {
+            const pior = Math.min(...dados);
+            return pior === 20 ? 'crit-gold' : (pior === 1 ? 'crit-blue' : '');
+        } else {
+            // Rolagem normal
+            if (dados.length === 1) {
+                const dado = dados[0];
+                return dado === 20 ? 'crit-gold' : (dado === 1 ? 'crit-blue' : '');
             }
-        };
-
-        window.quickUpdate = async (charId, field, value) => {
-            const val = parseInt(value) || 0;
-            await updateDoc(doc(db, "personagens", charId), { [`status.${field}.a`]: val });
-        };
-
-        window.toggleEstado = async (id, atual) => {
-            await updateDoc(doc(db, "personagens", id), { estado: atual === 'vivo' ? 'morto' : 'vivo' });
-        };
-
-        window.masterRoll = () => {
-            const cmd = document.getElementById('dice-command').value.trim();
-            const regex = /^(\d+)?([#$])?d(\d+)([+-]\d+)?$/i;
-            const match = cmd.match(regex);
-            if (!match) return;
-            let qtd = parseInt(match[1]) || 1;
-            let mod = match[2]; 
-            let faces = parseInt(match[3]);
-            let soma = parseInt(match[4]) || 0;
-            let rolls = [];
-            for (let i = 0; i < qtd; i++) rolls.push(Math.floor(Math.random() * faces) + 1);
-            let escolhido;
-            let tipo = "";
-            if (mod === '#') { escolhido = Math.max(...rolls); tipo = `Melhor de ${qtd}d${faces}`; }
-            else if (mod === '$') { escolhido = Math.min(...rolls); tipo = `Pior de ${qtd}d${faces}`; }
-            else { escolhido = rolls.reduce((a, b) => a + b, 0); tipo = `${qtd}d${faces}`; }
-            const total = escolhido + soma;
-            document.getElementById('roll-total').innerText = total;
-            document.getElementById('roll-detail').innerText = `${tipo} ${soma !== 0 ? (soma > 0 ? '+'+soma : soma) : ''}`;
-            document.getElementById('roll-list').innerText = `Dados: [${rolls.join(', ')}]`;
-            document.getElementById('dice-command').value = '';
-        };
-
-window.deletarFicha = async (id, nome) => {
-    if(confirm(`Deseja apagar permanentemente a ficha de ${nome}?`)) {
-        try {
-            // Agora deleteDoc funcionará porque foi importado
-            await deleteDoc(doc(db, "personagens", id));
-            alert("Ficha removida com sucesso.");
-        } catch (e) { 
-            console.error("Erro ao deletar:", e); 
-            alert("Erro ao deletar ficha. Verifique o console.");
         }
     }
+    return '';
+}
+    
+function verificarCriticoRoll(dados, tipoRolagem) {
+    if (!dados || dados.length === 0) return '';
+    
+    if (tipoRolagem === 'vantagem') {
+        const melhor = Math.max(...dados);
+        return melhor === 20 ? 'crit-gold' : (melhor === 1 ? 'crit-blue' : '');
+    } else if (tipoRolagem === 'desvantagem') {
+        const pior = Math.min(...dados);
+        return pior === 20 ? 'crit-gold' : (pior === 1 ? 'crit-blue' : '');
+    } else {
+        // Rolagem normal
+        if (dados.length === 1) {
+            const dado = dados[0];
+            return dado === 20 ? 'crit-gold' : (dado === 1 ? 'crit-blue' : '');
+        }
+        // Múltiplos dados sem vantagem/desvantagem - não aplica crítico
+    }
+    return '';
+}
+
+    // FUNÇÃO MASTER ROLL CORRIGIDA
+    window.masterRoll = () => {
+    const cmd = document.getElementById('dice-command').value.trim();
+    const regex = /^(\d+)?([#$])?d(\d+)([+-]\d+)?$/i;
+    const match = cmd.match(regex);
+    if (!match) return;
+    
+    let qtd = parseInt(match[1]) || 1;
+    let mod = match[2]; 
+    let faces = parseInt(match[3]);
+    let soma = parseInt(match[4]) || 0;
+    let rolls = [];
+    
+    for (let i = 0; i < qtd; i++) rolls.push(Math.floor(Math.random() * faces) + 1);
+    
+    let escolhido;
+    let tipo = "";
+    let tipoRolagem = 'normal';
+    
+    if (mod === '#') { 
+        escolhido = Math.max(...rolls); 
+        tipo = `Melhor de ${qtd}d${faces}`; 
+        tipoRolagem = 'vantagem';
+    } else if (mod === '$') { 
+        escolhido = Math.min(...rolls); 
+        tipo = `Pior de ${qtd}d${faces}`; 
+        tipoRolagem = 'desvantagem';
+    } else { 
+        escolhido = rolls.reduce((a, b) => a + b, 0); 
+        tipo = `${qtd}d${faces}`; 
+    }
+    
+    const total = escolhido + soma;
+    
+    // USAR A FUNÇÃO CORRETA
+    let critClass = '';
+    if (faces === 20) {
+        critClass = verificarCriticoRoll(rolls, tipoRolagem);
+    }
+    
+    document.getElementById('roll-total').innerText = total;
+    document.getElementById('roll-total').className = `text-6xl font-title font-black leading-none ${critClass}`;
+    document.getElementById('roll-detail').innerText = `${tipo} ${soma !== 0 ? (soma > 0 ? '+'+soma : soma) : ''}`;
+    document.getElementById('roll-list').innerText = `Dados: [${rolls.join(', ')}]`;
+    document.getElementById('dice-command').value = '';
 };
 
-// Função para mudar o valor MÁXIMO (m)
-window.updateMax = async (id, tipo, valor) => {
-    const v = parseInt(valor) || 0;
-    const path = `status.${tipo}.m`;
-    await updateDoc(doc(db, "personagens", id), { [path]: v });
-};
+    window.deletarFicha = async (id, nome) => {
+        if(confirm(`Deseja apagar permanentemente a ficha de ${nome}?`)) {
+            try {
+                await deleteDoc(doc(db, "personagens", id));
+                alert("Ficha removida com sucesso.");
+            } catch (e) { 
+                console.error("Erro ao deletar:", e); 
+                alert("Erro ao deletar ficha. Verifique o console.");
+            }
+        }
+    };
 
-        onSnapshot(query(collection(db, "logs_rolagens"), orderBy("timestamp", "desc"), limit(20)), (snap) => {
-            const b = document.getElementById('bandeja-dados');
-            b.innerHTML = snap.docs.map(d => {
-                const l = d.data();
-                return `<div class="log-item">
-                    <div class="flex justify-between items-center mb-1"><span class="text-[10px] font-black text-white uppercase">${l.charNome}</span><span class="text-purple-400 text-base font-bold font-mono">${l.total}</span></div>
-                    <div class="flex justify-between opacity-40 uppercase text-[8px] font-mono"><span>${l.pericia}</span><span>[${l.dados?.join(', ')}]</span></div>
-                </div>`;
-            }).join('');
-        });
+    window.updateMax = async (id, tipo, valor) => {
+        const v = parseInt(valor) || 0;
+        const path = `status.${tipo}.m`;
+        await updateDoc(doc(db, "personagens", id), { [path]: v });
+    };
 
-       onSnapshot(collection(db, "personagens"), (snap) => {
-    const grid = document.getElementById('grid-players');
-    grid.innerHTML = snap.docs.map(docSnap => {
-        const p = docSnap.data();
-        const id = docSnap.id;
-        const est = p.estado || 'vivo';
+    // LOGS COM VERIFICAÇÃO CORRETA
+// Substitua o onSnapshot atual por este:
+onSnapshot(query(collection(db, "logs_rolagens"), orderBy("timestamp", "desc"), limit(20)), 
+    (snap) => {
+        console.log("Logs recebidos:", snap.docs.length); // Para debug
+        const b = document.getElementById('bandeja-dados');
         
-        const accentColor = est === 'vivo' ? '#8b5cf6' : '#10b981';
-        const stateBg = est === 'vivo' ? 'rgba(139, 92, 246, 0.05)' : 'rgba(16, 185, 129, 0.05)';
-
-        const v = p.status?.['Vida'] || {a:0, m:10};
-        const s_n = est === 'vivo' ? 'Sanidade' : 'Metafísica';
-        const s = p.status?.[s_n] || {a:0, m:10};
-        const o = p.status?.['Opacidade'] || {a:0, m:100};
-
-        const pesoTotal = (p.inventario || []).reduce((acc, item) => acc + (parseFloat(item.peso||0) * parseFloat(item.qtd||1)), 0);
-        const pesoMax = (parseFloat(p.atributos?.Influencia) || 0) * 3;
-        const sobrecarregado = pesoTotal > pesoMax;
-
-        return `
-            <div class="player-card transition-all duration-500 ${sobrecarregado ? 'overload-warning' : ''}" 
-                 style="border-top: 4px solid ${accentColor}; background: ${stateBg}">
-                
-                <div class="flex justify-between items-start mb-4">
-                    <div>
-                        <h3 class="font-title text-xl text-white mb-1">${p.info?.nome || 'Sem Nome'}</h3>
-                        <span class="text-[9px] font-mono px-2 py-0.5 rounded-full border border-white/10" style="color: ${accentColor}">
-                            ${est.toUpperCase()}
-                        </span>
-                    </div>
-                    <button onclick="toggleEstado('${id}', '${est}')" class="text-[10px] opacity-30 hover:opacity-100 transition-opacity uppercase font-bold text-white">
-                        Alternar
-                    </button>
+        if (snap.empty) {
+            b.innerHTML = '<div class="text-[10px] text-white/20 italic">Nenhum log registrado ainda</div>';
+            return;
+        }
+        
+        b.innerHTML = snap.docs.map(d => {
+            const l = d.data();
+            console.log("Log item:", l); // Para debug
+            
+            // Verifique se os campos existem
+            const charNome = l.charNome || 'Desconhecido';
+            const total = l.total || '?';
+            const pericia = l.pericia || 'Geral';
+            const dados = l.dados || [];
+            const tipoRolagem = l.tipoRolagem || 'normal';
+            const dadoRelevante = l.dadoRelevante || 20;
+            
+            const critClass = verificarCriticoLog(dados, pericia, tipoRolagem, dadoRelevante);
+            
+            return `<div class="log-item">
+                <div class="flex justify-between items-center mb-1">
+                    <span class="text-[10px] font-black text-white uppercase">${charNome}</span>
+                    <span class="text-base font-bold font-mono ${critClass}">${total}</span>
                 </div>
+                <div class="flex justify-between opacity-40 uppercase text-[8px] font-mono">
+                    <span>${pericia}</span>
+                    <span>[${dados.join(', ')}]</span>
+                </div>
+            </div>`;
+        }).join('');
+    },
+    (error) => {
+        console.error("Erro ao buscar logs:", error);
+        document.getElementById('bandeja-dados').innerHTML = 
+            '<div class="text-red-400 text-[10px]">Erro ao carregar logs</div>';
+    }
+);
 
-                <div class="space-y-4">
-                    <div>
-                        <div class="flex justify-between text-[10px] font-mono mb-1 text-red-400">
-                            <span>VITALIDADE</span>
-                            <span>
-                                <input class="status-input" value="${v.a}" onchange="quickUpdate('${id}', 'Vida', this.value)"> / 
-                                <input class="status-input opacity-40" value="${v.m}" onchange="updateMax('${id}', 'Vida', this.value)">
+    // RENDERIZAÇÃO DOS JOGADORES (mantida igual)
+    onSnapshot(collection(db, "personagens"), (snap) => {
+        const grid = document.getElementById('grid-players');
+        grid.innerHTML = snap.docs.map(docSnap => {
+            const p = docSnap.data();
+            const id = docSnap.id;
+            const est = p.estado || 'vivo';
+            
+            const accentColor = est === 'vivo' ? '#8b5cf6' : '#10b981';
+            const stateBg = est === 'vivo' ? 'rgba(139, 92, 246, 0.05)' : 'rgba(16, 185, 129, 0.05)';
+
+            const v = p.status?.['Vida'] || {a:0, m:10};
+            const s_n = est === 'vivo' ? 'Sanidade' : 'Metafísica';
+            const s = p.status?.[s_n] || {a:0, m:10};
+            const o = p.status?.['Opacidade'] || {a:0, m:100};
+
+            const pesoTotal = (p.inventario || []).reduce((acc, item) => acc + (parseFloat(item.peso||0) * parseFloat(item.qtd||1)), 0);
+            const pesoMax = (parseFloat(p.atributos?.Influencia) || 0) * 3;
+            const sobrecarregado = pesoTotal > pesoMax;
+
+            return `
+                <div class="player-card transition-all duration-500 ${sobrecarregado ? 'overload-warning' : ''}" 
+                     style="border-top: 4px solid ${accentColor}; background: ${stateBg}">
+                    
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 class="font-title text-xl text-white mb-1">${p.info?.nome || 'Sem Nome'}</h3>
+                            <span class="text-[9px] font-mono px-2 py-0.5 rounded-full border border-white/10" style="color: ${accentColor}">
+                                ${est.toUpperCase()}
                             </span>
                         </div>
-                        <div class="bar-bg"><div class="bar-fill bg-red-600" style="width: ${(v.a/v.m)*100}%"></div></div>
-                    </div>
-
-                    <div>
-                        <div class="flex justify-between text-[10px] font-mono mb-1" style="color: ${accentColor}">
-                            <span>${s_n.toUpperCase()}</span>
-                            <span>
-                                <input class="status-input" value="${s.a}" onchange="quickUpdate('${id}', '${s_n}', this.value)"> / 
-                                <input class="status-input opacity-40" value="${s.m}" onchange="updateMax('${id}', '${s_n}', this.value)">
-                            </span>
+                        <div class="flex gap-2">
+                            <button onclick="toggleEstado('${id}', '${est}')" class="text-[10px] opacity-30 hover:opacity-100 transition-opacity uppercase font-bold text-white">
+                                Alternar
+                            </button>
+                            <button onclick="accessFicha('${id}')" class="btn-access">
+                                Acessar
+                            </button>
                         </div>
-                        <div class="bar-bg"><div class="bar-fill" style="width: ${(s.a/s.m)*100}%; background-color: ${accentColor}"></div></div>
                     </div>
 
-                    ${est === 'morto' ? `
-                    <div>
-                        <div class="flex justify-between text-[10px] font-mono mb-1 text-white/40">
-                            <span>OPACIDADE</span>
-                            <span><input class="status-input" value="${o.a}" onchange="quickUpdate('${id}', 'Opacidade', this.value)">%</span>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between text-[10px] font-mono mb-1 text-red-400">
+                                <span>VITALIDADE</span>
+                                <span>
+                                    <input class="status-input" value="${v.a}" onchange="quickUpdate('${id}', 'Vida', this.value)"> / 
+                                    <input class="status-input opacity-40" value="${v.m}" onchange="updateMax('${id}', 'Vida', this.value)">
+                                </span>
+                            </div>
+                            <div class="bar-bg"><div class="bar-fill bg-red-600" style="width: ${(v.a/v.m)*100}%"></div></div>
                         </div>
-                        <div class="bar-bg" style="height: 2px;"><div class="bar-fill bg-white/40" style="width: ${o.a}%"></div></div>
-                    </div>
-                    ` : ''}
-                </div>
 
-                <div class="mt-4 pt-4 border-t border-white/5 flex justify-between items-center">
-                    <div class="text-[9px] font-mono ${sobrecarregado ? 'text-red-500 animate-pulse' : 'text-white/20'}">
-                        CARGA: ${pesoTotal.toFixed(1)}/${pesoMax}KG
+                        <div>
+                            <div class="flex justify-between text-[10px] font-mono mb-1" style="color: ${accentColor}">
+                                <span>${s_n.toUpperCase()}</span>
+                                <span>
+                                    <input class="status-input" value="${s.a}" onchange="quickUpdate('${id}', '${s_n}', this.value)"> / 
+                                    <input class="status-input opacity-40" value="${s.m}" onchange="updateMax('${id}', '${s_n}', this.value)">
+                                </span>
+                            </div>
+                            <div class="bar-bg"><div class="bar-fill" style="width: ${(s.a/s.m)*100}%; background-color: ${accentColor}"></div></div>
+                        </div>
+
+                        ${est === 'morto' ? `
+                        <div>
+                            <div class="flex justify-between text-[10px] font-mono mb-1 text-white/40">
+                                <span>OPACIDADE</span>
+                                <span><input class="status-input" value="${o.a}" onchange="quickUpdate('${id}', 'Opacidade', this.value)">%</span>
+                            </div>
+                            <div class="bar-bg" style="height: 2px;"><div class="bar-fill bg-white/40" style="width: ${o.a}%"></div></div>
+                        </div>
+                        ` : ''}
                     </div>
-                    <button onclick="deletarFicha('${id}', '${p.info?.nome}')" class="text-white/10 hover:text-red-500 transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                    </button>
+
+                    <div class="mt-4 pt-4 border-t border-white/5 flex justify-between items-center">
+                        <div class="text-[9px] font-mono ${sobrecarregado ? 'text-red-500 animate-pulse' : 'text-white/20'}">
+                            CARGA: ${pesoTotal.toFixed(1)}/${pesoMax}KG
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="deletarFicha('${id}', '${p.info?.nome}')" class="text-white/10 hover:text-red-500 transition-colors" title="Deletar Ficha">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        `;
-    }).join('');
-});
-        const nt = document.getElementById('master-notes');
-        nt.value = localStorage.getItem('ciclo_m_notes') || "";
-        nt.addEventListener('input', () => localStorage.setItem('ciclo_m_notes', nt.value));
-    </script>
+            `;
+        }).join('');
+    });
+
+    // NOTAS DO MESTRE (mantido)
+    const nt = document.getElementById('master-notes');
+    nt.value = localStorage.getItem('ciclo_m_notes') || "";
+    nt.addEventListener('input', () => localStorage.setItem('ciclo_m_notes', nt.value));
+</script>
 </body>
 </html>

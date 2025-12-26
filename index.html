@@ -143,6 +143,8 @@
         </button>
     </div>
 
+<!-- No final do script da index.html, substitua por: -->
+
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -193,30 +195,55 @@
         anotacoes: ''
     });
 
-    window.iniciar = async () => {
-        const charName = document.getElementById('charName').value.trim();
-        const playerName = document.getElementById('playerName').value.trim();
+window.iniciar = async () => {
+    const charName = document.getElementById('charName').value.trim();
+    const playerName = document.getElementById('playerName').value.trim();
 
-        if (!charName || !playerName) {
-            alert("Preencha os campos para continuar.");
-            return;
+    if (!charName || !playerName) {
+        alert("Preencha os campos para continuar.");
+        return;
+    }
+
+    const charID = charName.toLowerCase().replace(/\s+/g, '-');
+    const docRef = doc(db, "personagens", charID);
+    
+    try {
+        const docSnap = await getDoc(docRef);
+        if (!docSnap.exists()) {
+            // Cria a ficha se não existir
+            const novosDados = getDefaultData(charName, playerName);
+            await setDoc(docRef, novosDados);
         }
-
-        const charID = charName.toLowerCase().replace(/\s+/g, '-');
-        const docRef = doc(db, "personagens", charID);
         
-        try {
-            const docSnap = await getDoc(docRef);
-            if (!docSnap.exists()) {
-                const novosDados = getDefaultData(charName, playerName);
-                await setDoc(docRef, novosDados);
-            }
-            localStorage.setItem('ciclo_char_id', charID);
-            window.location.href = 'ficha.html'; 
-        } catch (e) {
-            alert("Erro de conexão: " + e.message);
+        // Salva no localStorage E redireciona
+        localStorage.setItem('ciclo_char_id', charID);
+        window.location.href = `ficha.html?char=${charID}`;
+    } catch (e) {
+        alert("Erro de conexão: " + e.message);
+    }
+};
+
+    // Verifica se há um parâmetro na URL para login automático
+    window.addEventListener('load', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const charParam = urlParams.get('char');
+        
+        if (charParam) {
+            // Se tiver um parâmetro 'char' na URL, faz login automático
+            localStorage.setItem('ciclo_char_id', charParam);
+            window.location.href = 'ficha.html';
         }
-    };
+        
+        // Também verifica se já tem um ID salvo no localStorage
+        // e redireciona automaticamente se o usuário já estiver logado
+        const savedCharId = localStorage.getItem('ciclo_char_id');
+        if (savedCharId && savedCharId !== 'amiga') {
+            // Pode redirecionar automaticamente ou preencher os campos
+            // Vou deixar como opcional para o usuário clicar
+        }
+    });
+</script>
+</script>
 </script>
 </body>
 </html>

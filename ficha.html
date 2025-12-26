@@ -2,6 +2,10 @@
 <html lang="pt-br">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta charset="UTF-8"> 
     <title>Ciclo Vitae - Ficha Final v3</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
@@ -244,6 +248,12 @@
     .inv-small { flex: 1; } /* Qtd e Peso dividem a segunda linha */
 }
 
+/* Adicionar no ficha.css (após .crit-blue) */
+.crit-red { 
+    color: #ef4444 !important; 
+    text-shadow: 0 0 10px rgba(239, 68, 68, 0.4) !important; 
+}
+
 </style>
 </head>
 <body class="tema-vivo" id="body-tag">
@@ -354,7 +364,19 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-    const charID = localStorage.getItem('ciclo_char_id') || 'amiga';
+    // PRIMEIRO: Pega da URL (sempre prioridade)
+const urlParams = new URLSearchParams(window.location.search);
+const urlCharID = urlParams.get('char');
+
+// SEGUNDO: Só se não tiver na URL, usa localStorage
+let charID = urlCharID || localStorage.getItem('ciclo_char_id') || 'amiga';
+
+// ATUALIZA: localStorage com o da URL (se tiver)
+if (urlCharID) {
+    localStorage.setItem('ciclo_char_id', urlCharID);
+}
+
+console.log("FICHA: ID final =", charID, "| Da URL?", !!urlCharID);
 
     let charData = { estado: 'vivo', info: {}, status: {}, atributos: {}, pericias: {}, combate: [], inventario: [], anotacoes: '' };
 
@@ -415,37 +437,52 @@ async function limparLogsAntigos() {
 }
 
     // LOGS E ROLAGEM
-async function logRoll(acao, dados, total) {
-await addDoc(collection(db, "logs_rolagens"), {
-    charNome: charData.info.nome || "Desconhecido",
-    pericia: acao,
-    dados,
-    total,
-    timestamp: serverTimestamp()
-});
+async function logRoll(acao, dados, total, tipoRolagem = 'normal', dadoRelevante = null) {
+    await addDoc(collection(db, "logs_rolagens"), {
+        charNome: charData.info.nome || "Desconhecido",
+        pericia: acao,
+        dados,
+        total,
+        tipoRolagem,
+        dadoRelevante: dadoRelevante, // ← DEVE ESTAR AQUI
+        timestamp: serverTimestamp()
+    });
 
-    // 🔥 LIMPA OS LOGS ANTIGOS
     await limparLogsAntigos();
 }
 
-async function rollPool(nome, qtdDados, somaFinal) {
+async function rollPool(nome, qtdDados, somaFinal, tipoRolagem = 'normal') {
     let results = [];
     let resultadoDado = 0;
+    let dadoRelevante = null;
     
     // Regra de Desvantagem para 0 ou menos
     if (qtdDados <= 0) {
         for (let i = 0; i < 2; i++) results.push(Math.floor(Math.random() * 20) + 1);
         resultadoDado = Math.min(...results);
+        dadoRelevante = resultadoDado;
         nome += " (Desvantagem)";
+        tipoRolagem = 'desvantagem';
     } else {
-        // Pool normal
+        // Pool normal (vantagem - melhor de N)
         for (let i = 0; i < qtdDados; i++) results.push(Math.floor(Math.random() * 20) + 1);
-        resultadoDado = Math.max(...results);
+        
+        // Se for mais de 1 dado, é vantagem (melhor de N)
+        if (qtdDados > 1) {
+            resultadoDado = Math.max(...results);
+            dadoRelevante = resultadoDado;
+            tipoRolagem = 'vantagem';
+        } else {
+            // Apenas 1 dado
+            resultadoDado = results[0];
+            dadoRelevante = resultadoDado;
+            tipoRolagem = 'normal';
+        }
     }
 
     const totalFinal = resultadoDado + somaFinal;
 
-    await logRoll(nome, results, totalFinal);
+    await logRoll(nome, results, totalFinal, tipoRolagem, dadoRelevante);
     showPopup(nome, totalFinal, results, resultadoDado); 
 }
 
@@ -478,22 +515,47 @@ window.rollCheck = (nome, valorAtrib, bonusSoma) => {
         }
     };
 
-    function showPopup(titulo, total, dados, dadoBase) {
-        const container = document.getElementById('pop-container');
-        const el = document.createElement('div');
-        el.className = 'pop-card';
-        let colorClass = 'text-white';
-        if(dadoBase === 20) colorClass = 'crit-gold';
-        if(dadoBase === 1) colorClass = 'crit-blue';
-
-        el.innerHTML = `
-            <div class="text-[9px] uppercase font-bold text-white/40 tracking-wider mb-1">${titulo}</div>
-            <div class="text-4xl font-black italic ${colorClass}">${total}</div>
-            ${dados.length > 0 ? `<div class="text-[10px] font-mono mt-2 text-white/20">Dados: [${dados.join(', ')}]</div>` : ''}
-        `;
-        container.appendChild(el);
-        setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 300); }, 4000);
+function showPopup(titulo, total, dados, dadoRelevante) {
+    const container = document.getElementById('pop-container');
+    const el = document.createElement('div');
+    el.className = 'pop-card';
+    
+    let colorClass = 'text-white';
+    
+    // Verificar se é uma rolagem de D20
+    const isD20Roll = dados.length > 0 && dados.every(d => d >= 1 && d <= 20);
+    
+    if (isD20Roll) {
+        // Se temos um dado relevante (vantagem/desvantagem)
+        if (dadoRelevante !== null && dadoRelevante !== undefined) {
+            if (dadoRelevante === 20) {
+                colorClass = 'crit-gold';
+            } else if (dadoRelevante === 1) {
+                colorClass = 'crit-blue';
+            }
+        } 
+        // Se não tem dado relevante, verifica os dados normais
+        else if (dados.length === 1) {
+            if (dados[0] === 20) {
+                colorClass = 'crit-gold';
+            } else if (dados[0] === 1) {
+                colorClass = 'crit-blue';
+            }
+        }
+    } 
+    // Para DANO - usa crit-red para danos altos
+    else if (titulo.includes('Dano') && total > 20) {
+        colorClass = 'crit-red';
     }
+
+    el.innerHTML = `
+        <div class="text-[9px] uppercase font-bold text-white/40 tracking-wider mb-1">${titulo}</div>
+        <div class="text-4xl font-black italic ${colorClass}">${total}</div>
+        ${dados.length > 0 ? `<div class="text-[10px] font-mono mt-2 text-white/20">Dados: [${dados.join(', ')}]</div>` : ''}
+    `;
+    container.appendChild(el);
+    setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 300); }, 4000);
+}
 
 function recalculateStats() {
     if (!charData || !charData.atributos) return;
@@ -673,9 +735,21 @@ function renderCombat() {
         const influ = charData.atributos.Influencia || 0;
         const infoDano = item.tipo === 'corpo' ? `${item.dano} + ${influ} (Influ)` : item.dano;
         
-        // Pega o valor da perícia selecionada para rolar o ataque
-        const attrDaPericia = skillsMap[item.pericia] || "Influencia";
+        // Pega o valor da perícia selecionada
+        const periciaNome = item.pericia || 'Luta';
+        const skillData = charData.pericias?.[periciaNome] || { b: 0, t: false };
+        
+        // Pega o atributo da perícia
+        const attrDaPericia = skillsMap[periciaNome] || "Influencia";
         const valorAtrib = charData.atributos[attrDaPericia] || 0;
+        
+        // Calcula bônus da perícia (treino + bônus)
+        const treinoBonus = skillData.t ? 2 : 0;
+        const bonusExtra = parseFloat(skillData.b) || 0;
+        const bonusPericia = treinoBonus + bonusExtra;
+        
+        // Soma TOTAL para o ataque: atributo + bônus da perícia
+        const somaAtaque = valorAtrib + bonusPericia;
 
         el.innerHTML = `
             <div class="flex-grow grid grid-cols-1 md:grid-cols-3 gap-3 w-full">
@@ -695,8 +769,12 @@ function renderCombat() {
             </div>
             
             <div class="flex gap-2 w-full md:w-auto">
-                <button onclick="rollCheck('Ataque: ${item.nome}', ${valorAtrib}, 0)" class="flex-1 md:flex-none bg-[var(--accent)] text-black font-black text-[10px] px-4 py-2 rounded uppercase">Ataque</button>
-                <button onclick="executarDano('${item.nome}', '${item.dano}', '${item.tipo}')" class="flex-1 md:flex-none border border-[var(--accent)] text-[var(--accent)] font-black text-[10px] px-4 py-2 rounded uppercase">Dano</button>
+                <button onclick="rollCheck('Ataque: ${item.nome}', ${valorAtrib}, ${bonusPericia})" class="flex-1 md:flex-none bg-[var(--accent)] text-black font-black text-[10px] px-4 py-2 rounded uppercase">
+                    Ataque<br><span class="text-[8px] opacity-70">${valorAtrib}d20 + ${somaAtaque}</span>
+                </button>
+                <button onclick="executarDano('${item.nome}', '${item.dano}', '${item.tipo}')" class="flex-1 md:flex-none border border-[var(--accent)] text-[var(--accent)] font-black text-[10px] px-4 py-2 rounded uppercase">
+                    Dano<br><span class="text-[8px] opacity-70">${infoDano}</span>
+                </button>
                 <button onclick="removeCombat(${idx})" class="text-red-500/30 hover:text-red-500 transition px-2">✕</button>
             </div>
         `;
@@ -825,7 +903,6 @@ window.playerMasterRoll = async () => {
     let command = commandInput.value.trim();
     if (!command) return;
 
-    // Criamos um mapa de substituição para facilitar
     const substituticoes = {
         'INF': charData.atributos.Influencia || 0,
         'CON': charData.atributos.Conhecimento || 0,
@@ -835,13 +912,11 @@ window.playerMasterRoll = async () => {
         'ESP': charData.atributos.Espiritualidade || 0
     };
 
-    // Substitui todas as ocorrências, independente de ser maiúscula ou minúscula
     for (const [chave, valor] of Object.entries(substituticoes)) {
         const regex = new RegExp(chave, 'gi'); 
         command = command.replace(regex, valor);
     }
 
-    // Regex para capturar: [quantidade][modificador # ou $]d[faces][+ ou -][soma]
     const regexDados = /^(\d+)?([#$])?d(\d+)([+-].+)?$/i;
     const match = command.match(regexDados);
 
@@ -854,7 +929,6 @@ window.playerMasterRoll = async () => {
     let mod = match[2]; 
     let faces = parseInt(match[3]);
     
-    // O eval aqui resolve contas complexas como +5+2 que podem vir das substituições
     let soma = 0;
     if (match[4]) {
         try {
@@ -869,12 +943,31 @@ window.playerMasterRoll = async () => {
         resultados.push(Math.floor(Math.random() * faces) + 1);
     }
 
-    let escolhido = mod === '#' ? Math.max(...resultados) : (mod === '$' ? Math.min(...resultados) : resultados.reduce((a, b) => a + b, 0));
-    let totalFinal = escolhido + soma;
+    let escolhido;
+    let tipoRolagem = 'normal';
+    let dadoRelevante = null;
+    
+    if (mod === '#') { 
+        escolhido = Math.max(...resultados); 
+        dadoRelevante = escolhido;
+        tipoRolagem = 'vantagem';
+    } else if (mod === '$') { 
+        escolhido = Math.min(...resultados); 
+        dadoRelevante = escolhido;
+        tipoRolagem = 'desvantagem';
+    } else { 
+        escolhido = resultados.reduce((a, b) => a + b, 0); 
+        // Para rolagens normais com múltiplos dados, não há dado relevante
+        if (resultados.length === 1) {
+            dadoRelevante = resultados[0];
+        }
+    }
+    
+    const totalFinal = escolhido + soma;
 
     // Envia para o log do mestre
-    await logRoll(`Console: ${commandInput.value}`, resultados, totalFinal);
-    showPopup(`Console: ${commandInput.value}`, totalFinal, resultados, escolhido);
+    await logRoll(`Console: ${commandInput.value}`, resultados, totalFinal, tipoRolagem, dadoRelevante);
+    showPopup(`Console: ${commandInput.value}`, totalFinal, resultados, dadoRelevante);
     
     commandInput.value = '';
 };
@@ -975,6 +1068,17 @@ onSnapshot(doc(db, "personagens", charID), async (snap) => {
 }, (error) => {
     console.error("Erro no Firebase Snapshot:", error);
 });
+
+
+// DEBUG: Mostra tudo
+console.log("=== DEBUG FICHA ===");
+console.log("URL completa:", window.location.href);
+console.log("Parâmetro 'char' da URL:", urlCharID);
+console.log("localStorage atual:", localStorage.getItem('ciclo_char_id'));
+console.log("charID final usado:", charID);
+console.log("=== FIM DEBUG ===");
+
+
 </script>
 </body>
 </html>
