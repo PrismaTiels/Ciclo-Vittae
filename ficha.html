@@ -254,6 +254,98 @@
     text-shadow: 0 0 10px rgba(239, 68, 68, 0.4) !important; 
 }
 
+/* AVATAR STYLES */
+.avatar-container {
+    position: relative;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 1rem;
+}
+
+.avatar-preview {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid rgba(var(--accent-rgb), 0.3);
+    box-shadow: 0 0 20px rgba(var(--accent-rgb), 0.2);
+    transition: all 0.3s ease;
+}
+
+.avatar-preview:hover {
+    border-color: var(--accent);
+    box-shadow: 0 0 25px rgba(var(--accent-rgb), 0.4);
+}
+
+.avatar-upload-btn {
+    background: rgba(var(--accent-rgb), 0.1);
+    border: 1px solid rgba(var(--accent-rgb), 0.3);
+    color: var(--accent);
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.avatar-upload-btn:hover {
+    background: rgba(var(--accent-rgb), 0.2);
+    border-color: var(--accent);
+}
+
+.avatar-upload-btn svg {
+    width: 14px;
+    height: 14px;
+}
+
+.avatar-remove-btn {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #ef4444;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.avatar-remove-btn:hover {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: #ef4444;
+}
+
+#avatar-input {
+    display: none;
+}
+
+.avatar-loading {
+    opacity: 0.7;
+    filter: grayscale(0.5);
+}
+
+.avatar-placeholder {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: linear-gradient(145deg, rgba(var(--accent-rgb), 0.1), rgba(var(--accent-rgb), 0.05));
+    border: 3px dashed rgba(var(--accent-rgb), 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(var(--accent-rgb), 0.5);
+    font-size: 36px;
+}
+
 </style>
 </head>
 <body class="tema-vivo" id="body-tag">
@@ -267,6 +359,25 @@
             <span id="char-state-display" class="text-[9px] bg-white/10 px-2 py-1 rounded text-white font-mono uppercase">VIVO</span>
         </div>
         <button onclick="toggleEstado()" class="text-[9px] w-full text-center text-white/30 hover:text-[var(--accent)] transition uppercase tracking-widest border-t border-white/5 pt-2">Alterar Estado Vital</button>
+    </div>
+
+    <!-- Avatar Container -->
+    <div class="avatar-container">
+        <div id="avatar-display" class="avatar-placeholder">
+            👤
+        </div>
+        <input type="file" id="avatar-input" accept="image/*">
+        <div class="flex gap-2">
+            <button onclick="document.getElementById('avatar-input').click()" class="avatar-upload-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                </svg>
+                Alterar Foto
+            </button>
+            <button onclick="removeAvatar()" class="avatar-remove-btn" id="remove-avatar-btn" style="display: none;">
+                Remover
+            </button>
+        </div>
     </div>
 
 <div class="space-y-3">
@@ -352,6 +463,7 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getFirestore, collection, onSnapshot, doc, updateDoc, addDoc, setDoc, query, orderBy, getDocs, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyAzDHaOYApynTHqdvhWy4FhUvwLXr5zfuc",
@@ -364,6 +476,8 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    const storage = getStorage(app);
+    
     // PRIMEIRO: Pega da URL (sempre prioridade)
 const urlParams = new URLSearchParams(window.location.search);
 const urlCharID = urlParams.get('char');
@@ -397,7 +511,8 @@ const getDefaultData = (nomeInformado = "Novo Jogador") => ({
         nome: nomeInformado, 
         profissao: '', 
         idade: '', 
-        altura: '' 
+        altura: '',
+        avatarURL: '' // Adicionado campo para URL do avatar
     },
     status: {
         Vida: { a: 10, m: 10 },
@@ -623,6 +738,9 @@ function recalculateStats() {
         if (el) el.value = charData.info[k] || "";
     });
 
+    // Renderizar avatar
+    renderAvatar();
+    
     renderBars();
     renderAttrs();
     renderSkills();
@@ -630,6 +748,28 @@ function recalculateStats() {
     renderInventory();
     renderHabilidades(); 
     renderAnotacoes();
+}
+
+// FUNÇÃO PARA RENDERIZAR AVATAR
+function renderAvatar() {
+    const avatarDisplay = document.getElementById('avatar-display');
+    const removeBtn = document.getElementById('remove-avatar-btn');
+    
+    if (charData.info?.avatarURL) {
+        // Se há URL do avatar, mostrar imagem
+        avatarDisplay.innerHTML = '';
+        const img = document.createElement('img');
+        img.src = charData.info.avatarURL;
+        img.className = 'avatar-preview';
+        img.alt = 'Avatar do Personagem';
+        avatarDisplay.appendChild(img);
+        removeBtn.style.display = 'block';
+    } else {
+        // Se não há avatar, mostrar placeholder
+        avatarDisplay.innerHTML = '👤';
+        avatarDisplay.className = 'avatar-placeholder';
+        removeBtn.style.display = 'none';
+    }
 }
 
 function renderBars() {
@@ -1041,6 +1181,96 @@ window.removeCombat = (i) => { let l=[...charData.combate]; l.splice(i,1); updat
 window.addInventoryItem = () => updateDoc(doc(db, "personagens", charID), { inventario: [...(charData.inventario||[]), {nome:'Novo Item', qtd:1, peso:1}] });
 window.updateInv = (i, f, v) => { let l=[...charData.inventario]; l[i][f]=v; updateDoc(doc(db,"personagens",charID), {inventario:l}); };
 window.removeInv = (i) => { let l=[...charData.inventario]; l.splice(i,1); updateDoc(doc(db,"personagens",charID), {inventario:l}); };
+
+const IMGBB_API_KEY = '27f5e02f2aefe0e203049fd80b7f628b';
+
+window.uploadAvatar = async (file) => {
+    if (!file) return;
+    
+    // Validar tipo e tamanho
+    if (!file.type.startsWith('image/')) {
+        alert('Por favor, selecione apenas arquivos de imagem.');
+        return;
+    }
+    
+    if (file.size > 5 * 1024 * 1024) {
+        alert('A imagem deve ter no máximo 5MB.');
+        return;
+    }
+    
+    try {
+        const avatarDisplay = document.getElementById('avatar-display');
+        avatarDisplay.innerHTML = '<div class="avatar-preview avatar-loading">Carregando...</div>';
+        
+        // Converter para Base64
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        
+        reader.onload = async (e) => {
+            const base64Image = e.target.result.split(',')[1]; // Remove o prefixo
+            
+            // Fazer upload para ImgBB
+            const formData = new FormData();
+            formData.append('image', base64Image);
+            
+            const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+                method: 'POST',
+                body: formData
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                // Salvar URL no Firestore
+                await updateDoc(doc(db, "personagens", charID), {
+                    'info.avatarURL': data.data.url
+                });
+                console.log('Avatar uploadado com sucesso:', data.data.url);
+            } else {
+                throw new Error('Falha no upload');
+            }
+        };
+        
+    } catch (error) {
+        console.error('Erro ao fazer upload do avatar:', error);
+        alert('Erro ao fazer upload da imagem. Tente novamente.');
+        renderAvatar(); // Restaurar avatar anterior
+    }
+};
+
+window.removeAvatar = async () => {
+    if (!confirm('Tem certeza que deseja remover a foto do personagem?')) {
+        return;
+    }
+    
+    try {
+        // Remover URL do Firestore
+        await updateDoc(doc(db, "personagens", charID), {
+            'info.avatarURL': ''
+        });
+        
+        console.log('Avatar removido com sucesso');
+        
+    } catch (error) {
+        console.error('Erro ao remover avatar:', error);
+        alert('Erro ao remover a imagem.');
+    }
+};
+
+// Configurar input de arquivo
+document.addEventListener('DOMContentLoaded', () => {
+    const avatarInput = document.getElementById('avatar-input');
+    if (avatarInput) {
+        avatarInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                uploadAvatar(file);
+            }
+            // Resetar input para permitir selecionar o mesmo arquivo novamente
+            avatarInput.value = '';
+        });
+    }
+});
 
 // Torne o charID global para o HTML encontrar
 window.charID = charID; 
