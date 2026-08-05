@@ -163,6 +163,355 @@ body {
     color: #ef4444 !important; 
     text-shadow: 0 0 10px rgba(239, 68, 68, 0.4) !important; 
 }
+
+/* ======================== */
+/* EMOÇÕES NO PAINEL MESTRE */
+/* ======================== */
+.emocao-mini-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+}
+.emocao-pill {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 8px;
+    border-radius: 999px;
+    font-size: 9px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    border: 1px solid;
+    transition: all 0.3s;
+    cursor: default;
+}
+.emocao-pill.neutro {
+    background: rgba(255,255,255,0.02);
+    border-color: rgba(255,255,255,0.06);
+    color: rgba(255,255,255,0.2);
+}
+.emocao-pill.ativo {
+    color: black;
+    border-color: transparent;
+}
+.emocao-pill.extremo {
+    animation: emocao-pulse 2s infinite;
+}
+@keyframes emocao-pulse {
+    0%   { box-shadow: 0 0 0 0 rgba(var(--em-rgb), 0.5); }
+    70%  { box-shadow: 0 0 0 6px rgba(var(--em-rgb), 0); }
+    100% { box-shadow: 0 0 0 0 rgba(var(--em-rgb), 0); }
+}
+.emocao-section-label {
+    font-size: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    font-weight: 800;
+    color: rgba(255,255,255,0.2);
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* ======================== */
+/* PAINEL DE PODERES        */
+/* ======================== */
+.poder-modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.85);
+    backdrop-filter: blur(8px);
+    z-index: 1000;
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+    animation: fadeInOverlay 0.2s ease;
+}
+@keyframes fadeInOverlay { from { opacity: 0; } to { opacity: 1; } }
+
+.poder-modal {
+    background: #0a0a0f;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    width: 100%;
+    max-width: 760px;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 32px;
+    animation: slideUpModal 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes slideUpModal {
+    from { transform: translateY(20px); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+}
+.poder-modal-header {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    margin-bottom: 28px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.poder-modal-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 20px;
+    font-weight: 900;
+    text-transform: uppercase;
+    color: white;
+}
+.poder-input {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px;
+    color: white;
+    padding: 10px 12px;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
+}
+.poder-input:focus { border-color: var(--accent); }
+.poder-textarea {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px;
+    color: white;
+    padding: 10px 12px;
+    font-size: 12px;
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
+    resize: none;
+    line-height: 1.6;
+    font-family: 'Inter', sans-serif;
+}
+.poder-textarea:focus { border-color: var(--accent); }
+
+.poder-forma-card {
+    border-radius: 12px;
+    padding: 16px;
+    border: 1px solid rgba(255,255,255,0.06);
+    background: rgba(0,0,0,0.2);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.poder-forma-header {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 4px;
+}
+.poder-forma-icon { font-size: 18px; }
+.poder-forma-label {
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+}
+.poder-toggle-row {
+    display: flex; align-items: center; justify-content: space-between;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 10px;
+    padding: 12px 16px;
+}
+.poder-toggle-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+.poder-toggle-desc {
+    font-size: 10px;
+    color: rgba(255,255,255,0.3);
+    margin-top: 2px;
+}
+.toggle-switch {
+    position: relative;
+    width: 44px; height: 24px;
+    flex-shrink: 0;
+}
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.toggle-slider {
+    position: absolute; inset: 0;
+    background: rgba(255,255,255,0.1);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+.toggle-slider::before {
+    content: '';
+    position: absolute;
+    width: 18px; height: 18px;
+    left: 3px; top: 3px;
+    background: white;
+    border-radius: 50%;
+    transition: 0.3s;
+}
+.toggle-switch input:checked + .toggle-slider { background: var(--accent); }
+.toggle-switch input:checked + .toggle-slider::before { transform: translateX(20px); }
+
+.poder-item-card {
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    padding: 16px;
+    background: rgba(255,255,255,0.015);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.poder-item-topo {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 8px;
+    align-items: start;
+}
+.poder-item-toggles {
+    display: flex;
+    gap: 8px;
+}
+.poder-toggle-mini {
+    display: flex; align-items: center; gap: 6px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-size: 9px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: rgba(255,255,255,0.4);
+    cursor: pointer;
+    transition: 0.2s;
+}
+.poder-toggle-mini.ativo { color: white; border-color: var(--accent); background: rgba(139,92,246,0.12); }
+.poder-toggle-mini input { display:none; }
+
+.poder-stage-tabs { display: flex; gap: 6px; }
+.poder-stage-tab {
+    flex: 1;
+    padding: 8px 6px;
+    border-radius: 8px;
+    font-size: 9px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    text-align: center;
+    cursor: pointer;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(0,0,0,0.2);
+    color: rgba(255,255,255,0.4);
+    transition: 0.2s;
+}
+.poder-stage-tab:hover { color: white; }
+.poder-stage-tab.ativo {
+    background: var(--stage-cor, var(--accent));
+    color: black;
+    border-color: transparent;
+}
+.poder-stage-hint {
+    font-size: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: rgba(255,255,255,0.25);
+    margin-bottom: 8px;
+}
+.btn-remove-poder {
+    align-self: flex-start;
+    font-size: 9px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: rgba(239,68,68,0.6);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px 0;
+}
+.btn-remove-poder:hover { color: #ef4444; }
+.btn-add-poder {
+    width: 100%;
+    padding: 12px;
+    border: 1px dashed rgba(255,255,255,0.2);
+    background: transparent;
+    color: rgba(255,255,255,0.5);
+    cursor: pointer;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+.btn-add-poder:hover { border-color: var(--accent); color: var(--accent); background: rgba(139,92,246,0.05); }
+
+.btn-poder-edit {
+    font-size: 9px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 5px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: rgba(139,92,246,0.1);
+    border: 1px solid rgba(139,92,246,0.3);
+    color: var(--accent);
+}
+.btn-poder-edit:hover {
+    background: var(--accent);
+    color: black;
+}
+
+/* Controles editáveis de emoção */
+.emocao-controles {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    margin-top: 10px;
+}
+.emocao-row {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 8px;
+    padding: 5px 8px;
+    border: 1px solid rgba(255,255,255,0.05);
+    transition: border-color 0.2s;
+}
+.emocao-row:hover { border-color: rgba(255,255,255,0.12); }
+.emocao-row-icon { font-size: 14px; flex-shrink: 0; }
+.emocao-row-nome {
+    font-size: 9px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: color 0.3s;
+}
+.emocao-row-dots {
+    display: flex;
+    gap: 3px;
+    flex-shrink: 0;
+}
+.emocao-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.15);
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.15s;
+    padding: 0;
+}
+.emocao-dot:hover { transform: scale(1.3); }
+.emocao-dot.preenchido { border-color: transparent; }
     </style>
 </head>
 <body class="bg-[#030305] text-white">
@@ -211,6 +560,22 @@ body {
             <div id="bandeja-dados" class="overflow-y-auto flex-grow"></div>
         </aside>
     </div>
+
+<!-- MODAL DE PODERES -->
+<div id="poder-modal-overlay" class="poder-modal-overlay" style="display:none;" onclick="fecharPoderModal(event)">
+    <div class="poder-modal" onclick="event.stopPropagation()">
+        <div class="poder-modal-header">
+            <div>
+                <div id="poder-modal-char-nome" style="font-size:10px; text-transform:uppercase; letter-spacing:0.2em; color:rgba(255,255,255,0.3); margin-bottom:6px;"></div>
+                <div class="poder-modal-title">⚡ Gerenciar Poderes</div>
+            </div>
+            <button onclick="fecharPoderModal(null)" style="color:rgba(255,255,255,0.3); font-size:20px; background:none; border:none; cursor:pointer; padding:4px;">✕</button>
+        </div>
+
+        <div id="pm-poderes-list" style="display:flex; flex-direction:column; gap:14px; margin-bottom:14px;"></div>
+        <button onclick="addPoderMestre()" class="btn-add-poder">+ Novo Poder</button>
+    </div>
+</div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -445,6 +810,58 @@ onSnapshot(query(collection(db, "logs_rolagens"), orderBy("timestamp", "desc"), 
     }
 );
 
+    // ========================
+    // SISTEMA DE EMOÇÕES
+    // ========================
+    const EMOCOES_CONFIG = {
+        Alegria:  { icon: '😄', cor: '#f59e0b', rgb: '245,158,11',  niveis: ['—', 'Alegria', 'Euforia', 'Mania'] },
+        Tristeza: { icon: '😔', cor: '#6366f1', rgb: '99,102,241',  niveis: ['—', 'Tristeza', 'Angústia', 'Depressão'] },
+        Medo:     { icon: '😨', cor: '#8b5cf6', rgb: '139,92,246',  niveis: ['—', 'Medo', 'Terror', 'Pânico'] },
+        Raiva:    { icon: '😠', cor: '#ef4444', rgb: '239,68,68',   niveis: ['—', 'Raiva', 'Fúria', 'Ira Cega'] },
+        Nojo:     { icon: '🤢', cor: '#22c55e', rgb: '34,197,94',   niveis: ['—', 'Nojo', 'Repulsa', 'Aversão'] },
+        Surpresa: { icon: '😲', cor: '#06b6d4', rgb: '6,182,212',   niveis: ['—', 'Surpresa', 'Espanto', 'Estupefação'] }
+    };
+
+    function renderEmocoesMestre(emocoes, charId) {
+        const dados = emocoes || {};
+
+        const linhas = Object.entries(EMOCOES_CONFIG).map(([nome, cfg]) => {
+            const nivel = dados[nome]?.nivel || 0;
+            const nomeEstado = nivel === 0 ? 'Neutro' : cfg.niveis[nivel];
+
+            const dots = [1, 2, 3].map(i => {
+                const preenchido = i <= nivel;
+                const dotStyle = preenchido
+                    ? `background: ${cfg.cor}; border-color: transparent;`
+                    : '';
+                return `<button 
+                    class="emocao-dot ${preenchido ? 'preenchido' : ''}"
+                    style="${dotStyle}"
+                    onclick="setEmocaoMestre('${charId}', '${nome}', ${nivel === i ? 0 : i})"
+                    title="${cfg.niveis[i]}">
+                </button>`;
+            }).join('');
+
+            const corNome = nivel === 0 ? 'rgba(255,255,255,0.25)' : cfg.cor;
+            const isExtremo = nivel === 3;
+
+            return `<div class="emocao-row" style="${isExtremo ? `border-color: ${cfg.cor}33;` : ''}">
+                <span class="emocao-row-icon">${cfg.icon}</span>
+                <span class="emocao-row-nome" style="color: ${corNome}">${nomeEstado}</span>
+                <div class="emocao-row-dots">${dots}</div>
+            </div>`;
+        }).join('');
+
+        return `<div class="emocao-section-label"><span>♡</span> Estado Emocional</div>
+                <div class="emocao-controles">${linhas}</div>`;
+    }
+
+    window.setEmocaoMestre = async (charId, nome, nivel) => {
+        await updateDoc(doc(db, "personagens", charId), {
+            [`emocoes.${nome}.nivel`]: nivel
+        });
+    };
+
     // RENDERIZAÇÃO DOS JOGADORES (mantida igual)
     onSnapshot(collection(db, "personagens"), (snap) => {
         const grid = document.getElementById('grid-players');
@@ -479,6 +896,9 @@ onSnapshot(query(collection(db, "logs_rolagens"), orderBy("timestamp", "desc"), 
                         <div class="flex gap-2">
                             <button onclick="toggleEstado('${id}', '${est}')" class="text-[10px] opacity-30 hover:opacity-100 transition-opacity uppercase font-bold text-white">
                                 Alternar
+                            </button>
+                            <button onclick="abrirPoderModal('${id}')" class="btn-poder-edit">
+                                ⚡ Poderes
                             </button>
                             <button onclick="accessFicha('${id}')" class="btn-access">
                                 Acessar
@@ -532,10 +952,206 @@ onSnapshot(query(collection(db, "logs_rolagens"), orderBy("timestamp", "desc"), 
                             </button>
                         </div>
                     </div>
+
+                    ${renderEmocoesMestre(p.emocoes, id)}
                 </div>
             `;
         }).join('');
     });
+
+    // ========================
+    // PAINEL DE PODERES (cada personagem tem sua própria lista,
+    // e cada poder tem 3 estágios que acompanham o nível da emoção vinculada)
+    // ========================
+    const PERICIAS_LISTA = [
+        "Acrobacia","Adestramento","Atletismo","Atuação","Cura","Diplomacia",
+        "Enganação","Fortitude","Furtividade","Iniciativa","Intimidação","Intuição",
+        "Investigação","Ladinagem","Luta","Misticismo","Percepção","Pilotagem",
+        "Pontaria","Reflexos","Religião","Sobrevivência","Vontade"
+    ];
+
+    let poderModalCharId = null;
+    let poderModalPoderes = [];
+    let poderStageTab = {}; // id do poder -> estágio (1,2,3) sendo editado no momento
+
+    function poderVazio() {
+        return {
+            id: String(Date.now()) + Math.random().toString(16).slice(2, 6),
+            nome: '',
+            emocao: '',
+            descoberto: false,
+            ativado: false,
+            estagios: {
+                1: { nome: '', desc: '', dano: '', pericia: 'Vontade' },
+                2: { nome: '', desc: '', dano: '', pericia: 'Vontade' },
+                3: { nome: '', desc: '', dano: '', pericia: 'Vontade' }
+            }
+        };
+    }
+
+    function persistPoderes() {
+        if (!poderModalCharId) return;
+        updateDoc(doc(db, "personagens", poderModalCharId), { poderes: poderModalPoderes });
+    }
+
+    function buildPoderCardHTML(poder) {
+        const cfg = poder.emocao ? EMOCOES_CONFIG[poder.emocao] : null;
+        const cor = cfg ? cfg.cor : '#8b5cf6';
+        const emocaoOptions = ['', ...Object.keys(EMOCOES_CONFIG)].map(k =>
+            `<option value="${k}" ${poder.emocao === k ? 'selected' : ''}>${k || '— Nenhuma (poder fixo) —'}</option>`
+        ).join('');
+
+        const stageAtiva = poderStageTab[poder.id] || 1;
+        const tabs = [1, 2, 3].map(n => {
+            const hint = cfg ? cfg.niveis[n] : `Estágio ${n}`;
+            return `<div class="poder-stage-tab ${stageAtiva === n ? 'ativo' : ''}" style="--stage-cor:${cor}" onclick="selecionarEstagioTab('${poder.id}', ${n})" title="Nível ${n}">${hint}</div>`;
+        }).join('');
+
+        const est = (poder.estagios && poder.estagios[stageAtiva]) || { nome: '', desc: '', dano: '', pericia: 'Vontade' };
+        const optionsPericia = PERICIAS_LISTA.map(p => `<option value="${p}" ${est.pericia === p ? 'selected' : ''}>${p}</option>`).join('');
+
+        return `
+        <div class="poder-item-card" id="poder-card-${poder.id}" style="border-left: 3px solid ${cor}55;">
+            <div class="poder-item-topo">
+                <div>
+                    <label style="font-size:8px; text-transform:uppercase; letter-spacing:0.15em; color:rgba(255,255,255,0.25); display:block; margin-bottom:4px;">Nome do Poder</label>
+                    <input class="poder-input" placeholder="Ex: Ressonância, Eco da Alma..." value="${poder.nome || ''}" oninput="setPoderCampo('${poder.id}', 'nome', this.value)">
+                </div>
+                <div>
+                    <label style="font-size:8px; text-transform:uppercase; letter-spacing:0.15em; color:rgba(255,255,255,0.25); display:block; margin-bottom:4px;">Emoção Vinculada</label>
+                    <select class="poder-input" onchange="setPoderCampoRender('${poder.id}', 'emocao', this.value)">${emocaoOptions}</select>
+                </div>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div class="poder-item-toggles">
+                    <div class="poder-toggle-mini ${poder.descoberto ? 'ativo' : ''}" onclick="toggleDescoberto('${poder.id}')" title="O jogador sabe que o poder existe, mas não vê o conteúdo">👁 Descoberto</div>
+                    <div class="poder-toggle-mini ${poder.ativado ? 'ativo' : ''}" onclick="toggleAtivado('${poder.id}')" title="O jogador pode ver e usar o conteúdo do poder">⚡ Ativado</div>
+                </div>
+                <button class="btn-remove-poder" onclick="removePoderMestre('${poder.id}')">Remover</button>
+            </div>
+
+            <div>
+                <div class="poder-stage-tabs">${tabs}</div>
+                <div class="poder-stage-hint">${cfg ? `Estágio ${stageAtiva} de 3 — ativa quando ${poder.emocao} chega no nível ${stageAtiva}` : 'Sem emoção vinculada — o jogador sempre vê o estágio 1'}</div>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:8px;">
+                    <div>
+                        <label style="font-size:8px; text-transform:uppercase; letter-spacing:0.15em; color:rgba(255,255,255,0.25); display:block; margin-bottom:4px;">Nome nesse estágio</label>
+                        <input class="poder-input" style="font-size:12px;" placeholder="Ex: Chama Frenética..." value="${est.nome || ''}" oninput="setPoderEstagioCampo('${poder.id}', ${stageAtiva}, 'nome', this.value)">
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
+                        <div>
+                            <label style="font-size:8px; text-transform:uppercase; letter-spacing:0.15em; color:rgba(255,255,255,0.25); display:block; margin-bottom:4px;">Dano</label>
+                            <input class="poder-input" style="font-size:12px; font-family:monospace;" placeholder="2d8+4" value="${est.dano || ''}" oninput="setPoderEstagioCampo('${poder.id}', ${stageAtiva}, 'dano', this.value)">
+                        </div>
+                        <div>
+                            <label style="font-size:8px; text-transform:uppercase; letter-spacing:0.15em; color:rgba(255,255,255,0.25); display:block; margin-bottom:4px;">Perícia</label>
+                            <select class="poder-input" style="font-size:11px; padding: 8px 10px;" onchange="setPoderEstagioCampo('${poder.id}', ${stageAtiva}, 'pericia', this.value)">${optionsPericia}</select>
+                        </div>
+                    </div>
+                </div>
+                <label style="font-size:8px; text-transform:uppercase; letter-spacing:0.15em; color:rgba(255,255,255,0.25); display:block; margin-bottom:4px;">Descrição / Efeito</label>
+                <textarea class="poder-textarea" rows="2" placeholder="O que esse poder faz nesse estágio..." oninput="setPoderEstagioCampo('${poder.id}', ${stageAtiva}, 'desc', this.value)">${est.desc || ''}</textarea>
+            </div>
+        </div>`;
+    }
+
+    function renderPoderesList() {
+        const container = document.getElementById('pm-poderes-list');
+        if (!container) return;
+        if (!poderModalPoderes.length) {
+            container.innerHTML = `<div style="font-size:11px; color:rgba(255,255,255,0.25); text-align:center; padding:24px 0;">Nenhum poder cadastrado ainda. Clique em "+ Novo Poder".</div>`;
+            return;
+        }
+        container.innerHTML = poderModalPoderes.map(p => buildPoderCardHTML(p)).join('');
+    }
+
+    function refreshPoderCard(poderId) {
+        const el = document.getElementById('poder-card-' + poderId);
+        const poder = poderModalPoderes.find(p => p.id === poderId);
+        if (el && poder) el.outerHTML = buildPoderCardHTML(poder);
+    }
+
+    window.abrirPoderModal = async (charId) => {
+        poderModalCharId = charId;
+        const snap = await getDoc(doc(db, "personagens", charId));
+        if (!snap.exists()) return;
+        const p = snap.data();
+        poderModalPoderes = JSON.parse(JSON.stringify(p.poderes || []));
+        poderStageTab = {};
+
+        document.getElementById('poder-modal-char-nome').innerText = p.info?.nome || charId;
+        renderPoderesList();
+        document.getElementById('poder-modal-overlay').style.display = 'flex';
+    };
+
+    window.fecharPoderModal = (event) => {
+        if (event && event.target !== document.getElementById('poder-modal-overlay')) return;
+        document.getElementById('poder-modal-overlay').style.display = 'none';
+        poderModalCharId = null;
+        poderModalPoderes = [];
+        poderStageTab = {};
+    };
+
+    window.addPoderMestre = () => {
+        poderModalPoderes.push(poderVazio());
+        persistPoderes();
+        renderPoderesList();
+    };
+
+    window.removePoderMestre = (poderId) => {
+        poderModalPoderes = poderModalPoderes.filter(p => p.id !== poderId);
+        persistPoderes();
+        renderPoderesList();
+    };
+
+    window.setPoderCampo = (poderId, campo, valor) => {
+        const p = poderModalPoderes.find(x => x.id === poderId);
+        if (!p) return;
+        p[campo] = valor;
+        persistPoderes();
+    };
+
+    window.setPoderCampoRender = (poderId, campo, valor) => {
+        const p = poderModalPoderes.find(x => x.id === poderId);
+        if (!p) return;
+        p[campo] = valor;
+        persistPoderes();
+        poderStageTab[poderId] = 1;
+        refreshPoderCard(poderId);
+    };
+
+    window.setPoderEstagioCampo = (poderId, nivel, campo, valor) => {
+        const p = poderModalPoderes.find(x => x.id === poderId);
+        if (!p) return;
+        p.estagios = p.estagios || {};
+        p.estagios[nivel] = p.estagios[nivel] || { nome: '', desc: '', dano: '', pericia: 'Vontade' };
+        p.estagios[nivel][campo] = valor;
+        persistPoderes();
+    };
+
+    window.toggleDescoberto = (poderId) => {
+        const p = poderModalPoderes.find(x => x.id === poderId);
+        if (!p) return;
+        p.descoberto = !p.descoberto;
+        if (!p.descoberto) p.ativado = false;
+        persistPoderes();
+        refreshPoderCard(poderId);
+    };
+
+    window.toggleAtivado = (poderId) => {
+        const p = poderModalPoderes.find(x => x.id === poderId);
+        if (!p) return;
+        p.ativado = !p.ativado;
+        if (p.ativado) p.descoberto = true;
+        persistPoderes();
+        refreshPoderCard(poderId);
+    };
+
+    window.selecionarEstagioTab = (poderId, nivel) => {
+        poderStageTab[poderId] = nivel;
+        refreshPoderCard(poderId);
+    };
 
     // NOTAS DO MESTRE (mantido)
     const nt = document.getElementById('master-notes');
