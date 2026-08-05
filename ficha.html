@@ -197,6 +197,92 @@
     }
     .hab-card:hover { border-color: var(--accent); }
 
+    /* ======================== */
+    /* PODERES (3 estágios)     */
+    /* ======================== */
+    .poder-card {
+        background: rgba(255,255,255,0.02);
+        border: 1px solid rgba(255,255,255,0.07);
+        border-radius: 14px;
+        padding: 16px;
+        min-height: 152px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    .poder-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 3px;
+        background: var(--poder-cor, var(--accent));
+        opacity: 0.55;
+    }
+    .poder-card:hover { border-color: var(--poder-cor, var(--accent)); background: rgba(255,255,255,0.04); }
+    .poder-card.poder-dormant { opacity: 0.55; }
+    .poder-card.poder-bloqueado { align-items: center; justify-content: center; text-align: center; opacity: 0.4; }
+
+    .poder-top { display: flex; align-items: flex-start; gap: 8px; }
+    .poder-icon { font-size: 20px; line-height: 1; flex-shrink: 0; }
+    .poder-nome {
+        font-family: 'Outfit', sans-serif;
+        font-size: 14px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        color: white;
+        line-height: 1.25;
+    }
+    .poder-dano-badge {
+        display: inline-block;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 9px;
+        font-weight: 700;
+        text-transform: none;
+        letter-spacing: 0;
+        color: var(--poder-cor, var(--accent));
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 5px;
+        padding: 1px 6px;
+        margin-left: 7px;
+        vertical-align: middle;
+        cursor: pointer;
+        transition: all 0.15s;
+    }
+    .poder-dano-badge:hover {
+        background: var(--poder-cor, var(--accent));
+        color: black;
+        box-shadow: 0 0 8px var(--poder-cor, var(--accent));
+    }
+    .poder-tag {
+        font-size: 8px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        opacity: 0.4;
+        margin-top: 2px;
+    }
+    .poder-desc {
+        font-size: 11px;
+        color: rgba(255,255,255,0.55);
+        line-height: 1.5;
+        overflow-y: auto;
+        flex-grow: 1;
+        max-height: 76px;
+    }
+    .poder-estagio-dots { display: flex; gap: 4px; align-items: center; margin-top: auto; padding-top: 6px; }
+    .poder-estagio-dot {
+        width: 8px; height: 8px; border-radius: 50%;
+        border: 1px solid rgba(255,255,255,0.15);
+        background: transparent;
+    }
+    .poder-estagio-dot.preenchido { border-color: transparent; background: var(--poder-cor, var(--accent)); }
+    .poder-estagio-label { font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.35; margin-left: 4px; }
+
 /* Container Principal */
 #inventory-list {
     display: flex;
@@ -346,6 +432,127 @@
     font-size: 36px;
 }
 
+/* ======================== */
+/* SISTEMA DE EMOÇÕES       */
+/* ======================== */
+.emocao-card {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 16px;
+    padding: 20px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+.emocao-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--emocao-cor, var(--accent));
+    opacity: 0.6;
+    transition: opacity 0.3s;
+}
+.emocao-card:hover::before { opacity: 1; }
+.emocao-card:hover { border-color: var(--emocao-cor, var(--accent)); background: rgba(255,255,255,0.04); }
+
+.emocao-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+.emocao-icon {
+    font-size: 28px;
+    line-height: 1;
+}
+.emocao-nome {
+    font-family: 'Outfit', sans-serif;
+    font-size: 18px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: white;
+}
+.emocao-nivel-label {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    font-weight: 700;
+    margin-bottom: 6px;
+    opacity: 0.5;
+}
+.emocao-intensidade-bar {
+    height: 8px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 999px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.05);
+    margin-bottom: 14px;
+    position: relative;
+}
+.emocao-intensidade-fill {
+    height: 100%;
+    border-radius: 999px;
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1), background 0.5s;
+}
+.emocao-estado-btns {
+    display: flex;
+    gap: 6px;
+}
+.emocao-estado-btn {
+    flex: 1;
+    padding: 8px 4px;
+    border-radius: 8px;
+    font-size: 9px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(0,0,0,0.2);
+    color: rgba(255,255,255,0.4);
+    text-align: center;
+}
+.emocao-estado-btn:hover {
+    border-color: var(--emocao-cor, var(--accent));
+    color: white;
+    background: rgba(255,255,255,0.05);
+}
+.emocao-estado-btn.ativo {
+    background: var(--emocao-cor, var(--accent));
+    color: black;
+    border-color: transparent;
+    box-shadow: 0 0 12px color-mix(in srgb, var(--emocao-cor, var(--accent)) 50%, transparent);
+}
+.emocao-extremo-tag {
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: 1px solid;
+    display: inline-block;
+    margin-top: 10px;
+    opacity: 0.7;
+    transition: opacity 0.3s;
+}
+.emocao-card.nivel-extremo .emocao-extremo-tag { opacity: 1; }
+
+.emocao-resumo-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 10px;
+    transition: border-color 0.3s;
+}
+.emocao-resumo-bar:hover { border-color: rgba(255,255,255,0.12); }
+
 </style>
 </head>
 <body class="tema-vivo" id="body-tag">
@@ -417,6 +624,7 @@
     <button id="tab-combate" onclick="setTab('combate')" class="tab-btn whitespace-nowrap">Combate</button>
     <button id="tab-habilidades" onclick="setTab('habilidades')" class="tab-btn whitespace-nowrap">Habilidades</button>
     <button id="tab-inventario" onclick="setTab('inventario')" class="tab-btn whitespace-nowrap">Inventário</button>
+    <button id="tab-emocoes" onclick="setTab('emocoes')" class="tab-btn whitespace-nowrap">Emoções</button>
     <button id="tab-anotacoes" onclick="setTab('anotacoes')" class="tab-btn whitespace-nowrap">Anotações</button>
 </nav>
 
@@ -437,10 +645,12 @@
 
     <section id="view-habilidades" class="hidden space-y-4">
         <div class="flex justify-between items-center mb-6">
-            <h2 class="text-xl font-title text-white uppercase italic">Habilidades & Poderes</h2>
+            <div>
+                <h2 class="text-xl font-title text-white uppercase italic">Habilidades & Poderes</h2>
+                <p class="text-[10px] text-white/30 uppercase tracking-widest mt-1">O estágio de cada poder muda com o nível da emoção vinculada</p>
+            </div>
         </div>
-        <div id="habilidades-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-        <button onclick="addHabilidade()" class="btn-add">+ NOVA HABILIDADE</button>
+        <div id="habilidades-list" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"></div>
     </section>
 
     <section id="view-inventario" class="hidden">
@@ -450,6 +660,17 @@
         </div>
         <div id="inventory-list" class="item-list"></div>
         <button onclick="addInventoryItem()" class="btn-add">+ ADICIONAR ITEM</button>
+    </section>
+
+    <section id="view-emocoes" class="hidden">
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <h2 class="text-xl font-title text-white uppercase italic">Estado Emocional</h2>
+                <p class="text-[10px] text-white/30 uppercase tracking-widest mt-1">Intensidade afeta rolagens de Vontade e Intuição</p>
+            </div>
+            <button onclick="resetarEmocoes()" class="text-[9px] uppercase tracking-widest text-white/20 hover:text-[var(--accent)] transition border border-white/10 hover:border-[var(--accent)] px-3 py-1 rounded">Neutralizar Tudo</button>
+        </div>
+        <div id="emocoes-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"></div>
     </section>
 
     <section id="view-anotacoes" class="hidden">
@@ -530,8 +751,16 @@ const getDefaultData = (nomeInformado = "Novo Jogador") => ({
     }, {}),
     combate: [],
     inventario: [],
-    habilidades: [],
-    anotacoes: ''
+    poderes: [],
+    anotacoes: '',
+    emocoes: {
+        Alegria:   { nivel: 0 }, // 0=neutro, 1=base, 2=forte, 3=extremo
+        Tristeza:  { nivel: 0 },
+        Medo:      { nivel: 0 },
+        Raiva:     { nivel: 0 },
+        Nojo:      { nivel: 0 },
+        Surpresa:  { nivel: 0 }
+    }
 });
 
 async function limparLogsAntigos() {
@@ -746,8 +975,9 @@ function recalculateStats() {
     renderSkills();
     renderCombat();
     renderInventory();
-    renderHabilidades(); 
+    renderPoderes(); 
     renderAnotacoes();
+    renderEmocoes();
 }
 
 // FUNÇÃO PARA RENDERIZAR AVATAR
@@ -922,26 +1152,92 @@ function renderCombat() {
     });
 }
 
-function renderHabilidades() {
+function renderPoderes() {
     const container = document.getElementById('habilidades-list');
-    const habs = charData.habilidades || [];
-    
-    container.innerHTML = habs.map((hab) => `
-        <div class="hab-card flex flex-col gap-2 p-4 bg-white/5 rounded-xl border border-white/10">
-            <div class="flex justify-between items-start">
-                <input type="text" 
-                    value="${hab.nome || ''}" 
-                    onchange="updateHab('${hab.id}', 'nome', this.value)" 
-                    class="bg-transparent font-bold text-[var(--accent)] outline-none w-full uppercase"
-                    placeholder="NOME DA HABILIDADE...">
-                <button onclick="removeHab('${hab.id}')" class="text-red-500/50 hover:text-red-500 transition ml-2">✕</button>
+    if (!container) return;
+    const poderes = charData.poderes || [];
+
+    if (!poderes.length) {
+        container.innerHTML = `<div class="text-xs text-white/20 uppercase tracking-widest italic col-span-full py-8 text-center">Nenhum poder cadastrado pelo mestre ainda.</div>`;
+        return;
+    }
+
+    container.innerHTML = poderes.map((poder) => {
+        const cfg = poder.emocao ? EMOCOES_CONFIG[poder.emocao] : null;
+        const cor = cfg ? cfg.cor : 'var(--accent)';
+
+        // Bloqueado: jogador ainda nem sabe que o poder existe
+        if (!poder.descoberto) {
+            return `
+            <div class="poder-card poder-bloqueado">
+                <div class="poder-icon" style="opacity:0.5;">🔒</div>
+                <div class="poder-tag" style="margin-top:6px;">Poder não descoberto</div>
+            </div>`;
+        }
+
+        // Descoberto mas ainda não ativado: só o nome aparece
+        if (!poder.ativado) {
+            return `
+            <div class="poder-card poder-dormant" style="--poder-cor:${cor}">
+                <div class="poder-top">
+                    ${cfg ? `<span class="poder-icon">${cfg.icon}</span>` : ''}
+                    <div>
+                        <div class="poder-nome">${poder.nome || 'Poder sem nome'}</div>
+                        <div class="poder-tag">Selado · ainda não pode ser usado</div>
+                    </div>
+                </div>
+            </div>`;
+        }
+
+        const nivelEmocao = poder.emocao ? (charData.emocoes?.[poder.emocao]?.nivel || 0) : 1;
+        const estagios = poder.estagios || {};
+
+        // Sem emoção vinculada ou emoção neutra: mostra estado de repouso, mesma altura de card
+        if (!poder.emocao || nivelEmocao === 0) {
+            const estagioFixo = !poder.emocao ? (estagios[1] || {}) : null;
+            return `
+            <div class="poder-card poder-dormant" style="--poder-cor:${cor}">
+                <div class="poder-top">
+                    ${cfg ? `<span class="poder-icon">${cfg.icon}</span>` : '<span class="poder-icon">✦</span>'}
+                    <div>
+                        <div class="poder-nome">${poderNomeComDano(poder.nome || 'Poder sem nome', estagioFixo?.dano)}</div>
+                        <div class="poder-tag">${poder.emocao ? `Adormecido · desperta com ${poder.emocao}` : 'Poder fixo'}</div>
+                    </div>
+                </div>
+                ${estagioFixo ? renderPoderEstagioConteudo(estagioFixo) : ''}
+            </div>`;
+        }
+
+        const estagioAtual = estagios[nivelEmocao] || {};
+        const nomeEstagio = cfg.niveis[nivelEmocao];
+
+        const dots = [1, 2, 3].map(i => `<span class="poder-estagio-dot ${i <= nivelEmocao ? 'preenchido' : ''}" style="${i <= nivelEmocao ? `background:${cor};` : ''}"></span>`).join('');
+
+        return `
+        <div class="poder-card" style="--poder-cor:${cor}">
+            <div class="poder-top">
+                <span class="poder-icon">${cfg.icon}</span>
+                <div>
+                    <div class="poder-nome" style="color:${cor}">${poderNomeComDano(estagioAtual.nome || poder.nome || nomeEstagio, estagioAtual.dano)}</div>
+                    <div class="poder-tag">${poder.nome ? poder.nome + ' · ' : ''}${nomeEstagio}</div>
+                </div>
             </div>
-            <textarea 
-                onchange="updateHab('${hab.id}', 'desc', this.value)" 
-                class="bg-transparent text-xs text-white/60 outline-none resize-none h-20"
-                placeholder="Escreva a descrição aqui...">${hab.desc || ''}</textarea>
-        </div>
-    `).join('');
+            <div class="poder-desc">${estagioAtual.desc || '<span style="opacity:0.3">Sem descrição para este estágio.</span>'}</div>
+            <div class="poder-estagio-dots">${dots}<span class="poder-estagio-label">Estágio ${nivelEmocao}/3</span></div>
+        </div>`;
+    }).join('');
+}
+
+function poderNomeComDano(nome, dano) {
+    if (!dano) return nome;
+    const label = String(nome).replace(/'/g, "\\'");
+    const formula = String(dano).replace(/'/g, "\\'");
+    return `${nome}<span class="poder-dano-badge" onclick="event.stopPropagation(); rollDamage('${label}', '${formula}')" title="Rolar dano">🎲 ${dano}</span>`;
+}
+
+function renderPoderEstagioConteudo(estagio) {
+    if (!estagio) return '';
+    return `<div class="poder-desc">${estagio.desc || ''}</div>`;
 }
 
 
@@ -1002,6 +1298,129 @@ function renderAnotacoes() {
             placeholder="Escreva suas descobertas aqui...">${charData.anotacoes || ''}</textarea>
     `;
 }
+
+// ========================
+// SISTEMA DE EMOÇÕES
+// ========================
+
+const EMOCOES_CONFIG = {
+    Alegria: {
+        icon: '😄',
+        cor: '#f59e0b',
+        niveis: ['Neutro', 'Alegria', 'Euforia', 'Mania'],
+        extremo: 'Mania',
+        descExtremo: 'Superestimulação, perda de foco e impulsividade'
+    },
+    Tristeza: {
+        icon: '😔',
+        cor: '#6366f1',
+        niveis: ['Neutro', 'Tristeza', 'Angústia', 'Depressão'],
+        extremo: 'Depressão',
+        descExtremo: 'Apatia profunda e perda prolongada de sentido'
+    },
+    Medo: {
+        icon: '😨',
+        cor: '#8b5cf6',
+        niveis: ['Neutro', 'Medo', 'Terror', 'Pânico'],
+        extremo: 'Pânico',
+        descExtremo: 'Paralisia completa ou desespero com sintomas físicos intensos'
+    },
+    Raiva: {
+        icon: '😠',
+        cor: '#ef4444',
+        niveis: ['Neutro', 'Raiva', 'Fúria', 'Ira Cega'],
+        extremo: 'Ira Cega',
+        descExtremo: 'Perda total do controle racional e impulsos destrutivos'
+    },
+    Nojo: {
+        icon: '🤢',
+        cor: '#22c55e',
+        niveis: ['Neutro', 'Nojo', 'Repulsa', 'Aversão Visceral'],
+        extremo: 'Aversão Visceral',
+        descExtremo: 'Rejeição física imediata, como o vômito ou fobia'
+    },
+    Surpresa: {
+        icon: '😲',
+        cor: '#06b6d4',
+        niveis: ['Neutro', 'Surpresa', 'Espanto', 'Estupefação'],
+        extremo: 'Estupefação',
+        descExtremo: 'Choque estático onde a mente não consegue processar o evento'
+    }
+};
+
+function renderEmocoes() {
+    const container = document.getElementById('emocoes-grid');
+    if (!container) return;
+
+    const emocoes = charData.emocoes || {};
+
+    container.innerHTML = Object.entries(EMOCOES_CONFIG).map(([nome, cfg]) => {
+        const estado = emocoes[nome] || { nivel: 0 };
+        const nivel = estado.nivel || 0;
+        const pct = (nivel / 3) * 100;
+
+        // Cor da barra interpolada por nível
+        const corFill = nivel === 0
+            ? 'rgba(255,255,255,0.1)'
+            : nivel === 3
+            ? cfg.cor
+            : cfg.cor;
+
+        const isExtremo = nivel === 3;
+        const nomeAtual = cfg.niveis[nivel];
+
+        const btns = cfg.niveis.map((nomeNivel, idx) => {
+            const isAtivo = nivel === idx;
+            return `<button 
+                onclick="setEmocao('${nome}', ${idx})"
+                class="emocao-estado-btn ${isAtivo ? 'ativo' : ''}"
+                title="${nomeNivel}">
+                ${nomeNivel}
+            </button>`;
+        }).join('');
+
+        return `
+        <div class="emocao-card ${isExtremo ? 'nivel-extremo' : ''}" style="--emocao-cor: ${cfg.cor}">
+            <div class="emocao-header">
+                <span class="emocao-icon">${cfg.icon}</span>
+                <div>
+                    <div class="emocao-nome" style="color: ${nivel > 0 ? cfg.cor : 'rgba(255,255,255,0.8)'}">
+                        ${nomeAtual}
+                    </div>
+                    <div style="font-size:9px; opacity:0.35; text-transform:uppercase; letter-spacing:0.15em; font-weight:700; margin-top:2px;">
+                        ${nome} · Nível ${nivel}/3
+                    </div>
+                </div>
+            </div>
+
+            <div class="emocao-nivel-label">Intensidade</div>
+            <div class="emocao-intensidade-bar">
+                <div class="emocao-intensidade-fill" style="width: ${pct}%; background: ${corFill};"></div>
+            </div>
+
+            <div class="emocao-estado-btns">${btns}</div>
+
+            ${isExtremo ? `
+            <div class="emocao-extremo-tag" style="color: ${cfg.cor}; border-color: ${cfg.cor};">
+                ⚠ ${cfg.descExtremo}
+            </div>` : ''}
+        </div>`;
+    }).join('');
+}
+
+window.setEmocao = (nome, nivel) => {
+    const emocoes = { ...(charData.emocoes || {}) };
+    emocoes[nome] = { nivel };
+    updateDoc(doc(db, "personagens", charID), { emocoes });
+};
+
+window.resetarEmocoes = () => {
+    const emocoes = Object.keys(EMOCOES_CONFIG).reduce((acc, nome) => {
+        acc[nome] = { nivel: 0 };
+        return acc;
+    }, {});
+    updateDoc(doc(db, "personagens", charID), { emocoes });
+};
 
 // --- LÓGICA DE DANO COM SOMA AUTOMÁTICA ---
 window.executarDano = async (nome, formula, tipo) => {
@@ -1116,7 +1535,7 @@ window.playerMasterRoll = async () => {
 window.setTab = (t) => {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('tab-active'));
     document.getElementById(`tab-${t}`).classList.add('tab-active');
-    const tabs = ['pericias', 'combate', 'habilidades', 'inventario', 'anotacoes'];
+    const tabs = ['pericias', 'combate', 'habilidades', 'inventario', 'emocoes', 'anotacoes'];
     tabs.forEach(x => {
         const el = document.getElementById(`view-${x}`);
         if (el) x === t ? el.classList.remove('hidden') : el.classList.add('hidden');
@@ -1145,21 +1564,6 @@ window.changeVal = async (path, delta) => {
     const newVal = currentVal + delta;
     await updateDoc(doc(db, "personagens", charID), { [path]: newVal });
     if (parts[0] === 'atributos') recalculateStats();
-};
-
-window.addHabilidade = () => {
-    const nova = { id: String(Date.now()), nome: '', desc: '' };
-    updateDoc(doc(db, "personagens", charID), { habilidades: [...(charData.habilidades || []), nova] });
-};
-
-window.updateHab = (id, campo, valor) => {
-    const lista = (charData.habilidades || []).map(h => h.id === id ? { ...h, [campo]: valor } : h);
-    updateDoc(doc(db, "personagens", charID), { habilidades: lista });
-};
-
-window.removeHab = (id) => {
-    const lista = (charData.habilidades || []).filter(h => h.id !== id);
-    updateDoc(doc(db, "personagens", charID), { habilidades: lista });
 };
 
 window.modStatus = async (key, delta) => {
@@ -1283,6 +1687,7 @@ onSnapshot(doc(db, "personagens", charID), async (snap) => {
         // Garante que sub-objetos não venham nulos
         charData.info = { ...getDefaultData().info, ...data.info };
         charData.atributos = { ...getDefaultData().atributos, ...data.atributos };
+        charData.emocoes = { ...getDefaultData().emocoes, ...(data.emocoes || {}) };
         
         renderAll();
     } else {
