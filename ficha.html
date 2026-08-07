@@ -1025,7 +1025,9 @@ function recalculateStats() {
         // Recalcula o estágio da emoção vinculada com o novo máximo de Sanidade
         const sanidadeAtual = charData.status?.Sanidade?.a ?? sanidadeMax;
         if (charData.emocaoSanidade) {
-            updates[`emocoes.${charData.emocaoSanidade}.nivel`] = calcularNivelPorPercentual(sanidadeAtual, sanidadeMax);
+            const novoNivel = calcularNivelPorPercentual(sanidadeAtual, sanidadeMax);
+            updates[`emocoes.${charData.emocaoSanidade}.nivel`] = novoNivel;
+            reajustarTempPorEmocao(charData.emocaoSanidade, novoNivel, updates);
         }
     }
 
@@ -1439,8 +1441,69 @@ window.togglePoderPassivo = async (poderId) => {
     const lista = JSON.parse(JSON.stringify(charData.poderes || []));
     const p = lista.find(x => x.id === poderId);
     if (!p || !p.passivoHabilitado) return;
-    p.ligado = !p.ligado;
-    await updateDoc(doc(db, "personagens", charID), { poderes: lista });
+
+    const ligarAgora = !p.ligado;
+    p.ligado = ligarAgora;
+
+    const updates = {};
+
+    // Soma quanta Vida/Sanidade temporária este poder concede, acumulando pelos estágios já
+    // alcançados (igual aos demais bônus passivos: fixo usa só o estágio 1; vinculado a emoção
+    // acumula do estágio 1 até o nível atual).
+    const estagiosPoder = p.estagios || {};
+    let vidaTemp = 0, sanidadeTemp = 0;
+    const somarEstagioTemp = (est) => {
+        if (!est) return;
+        vidaTemp += parseFloat(est.passivoVidaTemp) || 0;
+        sanidadeTemp += parseFloat(est.passivoSanidadeTemp) || 0;
+    };
+    if (!p.emocao) {
+        somarEstagioTemp(estagiosPoder[1]);
+    } else {
+        const nivel = charData.emocoes?.[p.emocao]?.nivel || 0;
+        for (let n = 1; n <= nivel; n++) somarEstagioTemp(estagiosPoder[n]);
+    }
+
+    if (ligarAgora) {
+        // Ao ativar: guarda o valor "de antes" e soma o temporário por cima, de verdade, na barra.
+        if (vidaTemp) {
+            const cur = charData.status?.Vida || { a: 10, m: 10 };
+            p.vidaTempBaseline = cur.a;
+            updates['status.Vida.a'] = cur.a + vidaTemp;
+            if (charData.emocaoVida) updates[`emocoes.${charData.emocaoVida}.nivel`] = calcularNivelVidaPorPercentual(cur.a + vidaTemp, cur.m);
+        }
+        if (sanidadeTemp) {
+            const cur = charData.status?.Sanidade || { a: 10, m: 10 };
+            p.sanidadeTempBaseline = cur.a;
+            updates['status.Sanidade.a'] = cur.a + sanidadeTemp;
+            if (charData.emocaoSanidade) updates[`emocoes.${charData.emocaoSanidade}.nivel`] = calcularNivelPorPercentual(cur.a + sanidadeTemp, cur.m);
+        }
+    } else {
+        // Ao desativar: a barra só volta pro valor de antes do bônus. Se ela já estiver abaixo
+        // desse valor (o personagem levou dano/desgaste que consumiu o extra e mais um pouco
+        // da vida/sanidade real), não mexe em nada — evita "curar" dano que já foi sofrido.
+        if (p.vidaTempBaseline !== undefined && p.vidaTempBaseline !== null) {
+            const cur = charData.status?.Vida || { a: 10, m: 10 };
+            const novo = Math.min(cur.a, p.vidaTempBaseline);
+            if (novo !== cur.a) {
+                updates['status.Vida.a'] = novo;
+                if (charData.emocaoVida) updates[`emocoes.${charData.emocaoVida}.nivel`] = calcularNivelVidaPorPercentual(novo, cur.m);
+            }
+            delete p.vidaTempBaseline;
+        }
+        if (p.sanidadeTempBaseline !== undefined && p.sanidadeTempBaseline !== null) {
+            const cur = charData.status?.Sanidade || { a: 10, m: 10 };
+            const novo = Math.min(cur.a, p.sanidadeTempBaseline);
+            if (novo !== cur.a) {
+                updates['status.Sanidade.a'] = novo;
+                if (charData.emocaoSanidade) updates[`emocoes.${charData.emocaoSanidade}.nivel`] = calcularNivelPorPercentual(novo, cur.m);
+            }
+            delete p.sanidadeTempBaseline;
+        }
+    }
+
+    updates.poderes = lista;
+    await updateDoc(doc(db, "personagens", charID), updates);
 };
 
 // Renderiza UM bloco de estágio (ex: "Raiva", "Fúria", "Ira Cega") dentro do card do poder,
@@ -1864,21 +1927,83 @@ window.changeVal = async (path, delta) => {
     if (parts[0] === 'atributos') recalculateStats();
 };
 
+// Reajusta a Vida/Sanidade temporária de poderes vinculados a uma emoção quando o nível dela
+// muda (enquanto o poder estiver ligado) — sem precisar desligar e religar a habilidade.
+// Funciona em 2 passos: primeiro desfaz o temporário antigo (só desce até a base salva,
+// nunca "cura" dano/desgaste já sofrido), depois soma o temporário do novo estágio por cima
+// dessa base. Escreve direto no objeto `updates` que a função chamadora vai enviar ao Firebase.
+function reajustarTempPorEmocao(nomeEmocao, novoNivel, updates) {
+    const poderes = charData.poderes || [];
+    const temPoderRelevante = poderes.some(p => p.emocao === nomeEmocao && p.passivoHabilitado && p.ligado);
+    if (!temPoderRelevante) return;
+
+    let vidaAtual = updates['status.Vida.a'] !== undefined ? updates['status.Vida.a'] : (charData.status?.Vida?.a ?? 10);
+    let sanidadeAtual = updates['status.Sanidade.a'] !== undefined ? updates['status.Sanidade.a'] : (charData.status?.Sanidade?.a ?? 10);
+    const vidaMax = charData.status?.Vida?.m ?? 10;
+    const sanidadeMax = charData.status?.Sanidade?.m ?? 10;
+
+    const novaLista = poderes.map(p => ({ ...p }));
+    novaLista.forEach(p => {
+        if (p.emocao !== nomeEmocao || !p.passivoHabilitado || !p.ligado) return;
+        const estagios = p.estagios || {};
+        let novoVidaTemp = 0, novoSanidadeTemp = 0;
+        for (let n = 1; n <= novoNivel; n++) {
+            const est = estagios[n];
+            if (!est) continue;
+            novoVidaTemp += parseFloat(est.passivoVidaTemp) || 0;
+            novoSanidadeTemp += parseFloat(est.passivoSanidadeTemp) || 0;
+        }
+
+        if (p.vidaTempBaseline !== undefined && p.vidaTempBaseline !== null) {
+            vidaAtual = Math.min(vidaAtual, p.vidaTempBaseline);
+        }
+        if (novoVidaTemp) {
+            p.vidaTempBaseline = vidaAtual;
+            vidaAtual += novoVidaTemp;
+        } else {
+            delete p.vidaTempBaseline;
+        }
+
+        if (p.sanidadeTempBaseline !== undefined && p.sanidadeTempBaseline !== null) {
+            sanidadeAtual = Math.min(sanidadeAtual, p.sanidadeTempBaseline);
+        }
+        if (novoSanidadeTemp) {
+            p.sanidadeTempBaseline = sanidadeAtual;
+            sanidadeAtual += novoSanidadeTemp;
+        } else {
+            delete p.sanidadeTempBaseline;
+        }
+    });
+
+    updates.poderes = novaLista;
+    updates['status.Vida.a'] = vidaAtual;
+    updates['status.Sanidade.a'] = sanidadeAtual;
+    if (charData.emocaoVida) updates[`emocoes.${charData.emocaoVida}.nivel`] = calcularNivelVidaPorPercentual(vidaAtual, vidaMax);
+    if (charData.emocaoSanidade) updates[`emocoes.${charData.emocaoSanidade}.nivel`] = calcularNivelPorPercentual(sanidadeAtual, sanidadeMax);
+}
+
 window.modStatus = async (key, delta) => {
     const cur = charData.status[key] || { a: 10, m: 10 };
-    const novo = Math.min(cur.m, Math.max(0, cur.a + delta));
+    // Se a barra estiver acima do máximo por causa de vida/sanidade temporária, o teto
+    // pros botões -/+ acompanha o valor atual (não "achata" de volta pro máximo sozinho).
+    const teto = Math.max(cur.m, cur.a);
+    const novo = Math.min(teto, Math.max(0, cur.a + delta));
     const updates = { [`status.${key}.a`]: novo };
 
     // Sanidade: a emoção escolhida por este personagem acompanha o trauma sofrido.
     // Aqui zera de fato no 0%, já que Sanidade zerada não significa morte.
     if (key === 'Sanidade' && charData.emocaoSanidade) {
-        updates[`emocoes.${charData.emocaoSanidade}.nivel`] = calcularNivelPorPercentual(novo, cur.m);
+        const novoNivel = calcularNivelPorPercentual(novo, cur.m);
+        updates[`emocoes.${charData.emocaoSanidade}.nivel`] = novoNivel;
+        reajustarTempPorEmocao(charData.emocaoSanidade, novoNivel, updates);
     }
 
     // Vida: a emoção escolhida por este personagem acompanha o dano recebido.
     // Cada ficha pode vincular uma emoção diferente, já que nem todo mundo reage igual a se machucar.
     if (key === 'Vida' && charData.emocaoVida) {
-        updates[`emocoes.${charData.emocaoVida}.nivel`] = calcularNivelVidaPorPercentual(novo, cur.m);
+        const novoNivel = calcularNivelVidaPorPercentual(novo, cur.m);
+        updates[`emocoes.${charData.emocaoVida}.nivel`] = novoNivel;
+        reajustarTempPorEmocao(charData.emocaoVida, novoNivel, updates);
     }
 
     await updateDoc(doc(db, "personagens", charID), updates);
