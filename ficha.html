@@ -834,6 +834,8 @@ const getDefaultData = (nomeInformado = "Novo Jogador") => ({
     inventario: [],
     poderes: [],
     anotacoes: '',
+    emocaoVida: '',
+    emocaoSanidade: 'Medo',
     emocoes: {
         Alegria:   { nivel: 0 }, // 0=neutro, 1=base, 2=forte, 3=extremo
         Tristeza:  { nivel: 0 },
@@ -1019,6 +1021,12 @@ function recalculateStats() {
     if (charData.status?.Sanidade?.m !== sanidadeMax) {
         updates['status.Sanidade.m'] = sanidadeMax;
         needUpdate = true;
+
+        // Recalcula o estágio da emoção vinculada com o novo máximo de Sanidade
+        const sanidadeAtual = charData.status?.Sanidade?.a ?? sanidadeMax;
+        if (charData.emocaoSanidade) {
+            updates[`emocoes.${charData.emocaoSanidade}.nivel`] = calcularNivelPorPercentual(sanidadeAtual, sanidadeMax);
+        }
     }
 
     // Verificação de Metafísica (usando o nome exato do seu banco: 'Metafísica')
@@ -1091,6 +1099,23 @@ function renderBars() {
         document.getElementById('bars-container').innerHTML = bars.map(k => {
             const v = charData.status[k] || { a: 10, m: 10 };
             const pct = Math.min(100, Math.max(0, (v.a / v.m) * 100));
+
+            // Vida e Sanidade: permitem escolher qual emoção reage automaticamente ao dano/desgaste.
+            // Nem todo personagem reage igual — um que se acha poderoso pode reagir
+            // com Surpresa em vez de Medo, por exemplo.
+            const camposVinculo = { 'Vida': { campo: 'emocaoVida', fn: 'setEmocaoVida', label: 'Reação a dano' }, 'Sanidade': { campo: 'emocaoSanidade', fn: 'setEmocaoSanidade', label: 'Reação ao trauma' } };
+            const vinculo = camposVinculo[k];
+            const seletorEmocao = vinculo ? `
+                <div class="flex items-center gap-2 mt-1">
+                    <span class="text-[9px] uppercase tracking-wider text-white/30 font-bold">${vinculo.label}</span>
+                    <select onchange="${vinculo.fn}(this.value)" class="input-glass text-[10px] py-1 px-2 flex-1">
+                        <option value="" ${!charData[vinculo.campo] ? 'selected' : ''}>Nenhuma</option>
+                        ${Object.keys(EMOCOES_CONFIG).map(nome =>
+                            `<option value="${nome}" ${charData[vinculo.campo] === nome ? 'selected' : ''}>${nome}</option>`
+                        ).join('')}
+                    </select>
+                </div>` : '';
+
             return `
             <div class="progress-container">
                 <div class="flex justify-between text-[9px] font-bold uppercase tracking-wider text-white/60"><span>${k}</span><span>${v.a} / ${v.m}</span></div>
@@ -1110,6 +1135,7 @@ function renderBars() {
                         </div>
                     </div>
                 </div>
+                ${seletorEmocao}
             </div>`;
         }).join('');
     }
@@ -1530,6 +1556,34 @@ function renderAnotacoes() {
 // SISTEMA DE EMOÇÕES
 // ========================
 
+// Calcula o nível de uma emoção (0=Neutro, 1=base, 2=forte, 3=extremo) a partir do % restante de um status.
+// Estágio final (extremo) só é atingido com o status zerado.
+function calcularNivelPorPercentual(atual, maximo) {
+    if (!maximo || maximo <= 0) return 0;
+    if (atual <= 0) return 3;                 // Status zerado -> extremo
+    const pct = atual / maximo;
+    if (pct <= 1 / 3) return 2;                // até 33% -> forte
+    if (pct <= 2 / 3) return 1;                // até 66% -> base
+    return 0;                                  // acima de 66% -> Neutro
+}
+
+// Mantido por compatibilidade com o vínculo Sanidade -> Medo.
+function calcularNivelMedoPorSanidade(atual, maximo) {
+    return calcularNivelPorPercentual(atual, maximo);
+}
+
+// Versão para Vida: o extremo dispara em ~5% da Vida máxima (mínimo 1 ponto),
+// não em zero — com zero o personagem já está morto/inconsciente, não "surpreso".
+function calcularNivelVidaPorPercentual(atual, maximo) {
+    if (!maximo || maximo <= 0) return 0;
+    const limiarExtremo = Math.max(1, Math.round(maximo * 0.05));
+    if (atual <= limiarExtremo) return 3;      // ~5% (ou 1 ponto) -> extremo
+    const pct = atual / maximo;
+    if (pct <= 1 / 3) return 2;                // até 33% -> forte
+    if (pct <= 2 / 3) return 1;                // até 66% -> base
+    return 0;                                  // acima de 66% -> Neutro
+}
+
 const EMOCOES_CONFIG = {
     Alegria: {
         icon: '😄',
@@ -1796,7 +1850,53 @@ window.changeVal = async (path, delta) => {
 window.modStatus = async (key, delta) => {
     const cur = charData.status[key] || { a: 10, m: 10 };
     const novo = Math.min(cur.m, Math.max(0, cur.a + delta));
-    await updateDoc(doc(db, "personagens", charID), { [`status.${key}.a`]: novo });
+    const updates = { [`status.${key}.a`]: novo };
+
+    // Sanidade: a emoção escolhida por este personagem acompanha o trauma sofrido.
+    // Aqui zera de fato no 0%, já que Sanidade zerada não significa morte.
+    if (key === 'Sanidade' && charData.emocaoSanidade) {
+        updates[`emocoes.${charData.emocaoSanidade}.nivel`] = calcularNivelPorPercentual(novo, cur.m);
+    }
+
+    // Vida: a emoção escolhida por este personagem acompanha o dano recebido.
+    // Cada ficha pode vincular uma emoção diferente, já que nem todo mundo reage igual a se machucar.
+    if (key === 'Vida' && charData.emocaoVida) {
+        updates[`emocoes.${charData.emocaoVida}.nivel`] = calcularNivelVidaPorPercentual(novo, cur.m);
+    }
+
+    await updateDoc(doc(db, "personagens", charID), updates);
+};
+
+// Define qual emoção reage automaticamente à Vida deste personagem e já recalcula o nível atual.
+window.setEmocaoVida = async (nome) => {
+    const updates = { emocaoVida: nome };
+    const anterior = charData.emocaoVida;
+
+    // Zera a emoção anterior, já que ela deixou de acompanhar a Vida.
+    if (anterior && anterior !== nome) {
+        updates[`emocoes.${anterior}.nivel`] = 0;
+    }
+    if (nome) {
+        const vida = charData.status?.Vida || { a: 10, m: 10 };
+        updates[`emocoes.${nome}.nivel`] = calcularNivelVidaPorPercentual(vida.a, vida.m);
+    }
+    await updateDoc(doc(db, "personagens", charID), updates);
+};
+
+// Define qual emoção reage automaticamente à Sanidade deste personagem e já recalcula o nível atual.
+window.setEmocaoSanidade = async (nome) => {
+    const updates = { emocaoSanidade: nome };
+    const anterior = charData.emocaoSanidade;
+
+    // Zera a emoção anterior, já que ela deixou de acompanhar a Sanidade.
+    if (anterior && anterior !== nome) {
+        updates[`emocoes.${anterior}.nivel`] = 0;
+    }
+    if (nome) {
+        const sanidade = charData.status?.Sanidade || { a: 10, m: 10 };
+        updates[`emocoes.${nome}.nivel`] = calcularNivelPorPercentual(sanidade.a, sanidade.m);
+    }
+    await updateDoc(doc(db, "personagens", charID), updates);
 };
 
 window.saveSkill = (s, f, v) => updateDoc(doc(db, "personagens", charID), { [`pericias.${s}.${f}`]: f==='t'?v:parseFloat(v) });
