@@ -1144,14 +1144,16 @@ function renderBars() {
 function renderDefesa() {
     const projecao = parseFloat(charData.atributos?.['Projeção']) || 0;
     const bonus = parseFloat(charData.defesaBonus) || 0;
-    const defesaTotal = 10 + (projecao * 3) + bonus;
+    const pb = getPassiveBonuses();
+    const passivoDefesa = pb.defesa || 0;
+    const defesaTotal = 10 + (projecao * 3) + bonus + passivoDefesa;
 
     document.getElementById('defesa-container').innerHTML = `
         <div class="flex items-center justify-between gap-3 bg-white/[0.02] border border-white/5 rounded-lg px-4 py-3">
             <div>
                 <div class="text-[9px] uppercase tracking-widest text-white/40 font-bold">Defesa</div>
                 <div class="font-mono text-2xl font-black text-[var(--accent)] leading-tight">${defesaTotal}</div>
-                <div class="text-[9px] text-white/30 font-mono">10 + (Projeção×3) + Bônus</div>
+                <div class="text-[9px] text-white/30 font-mono">10 + (Projeção×3) + Bônus${passivoDefesa ? ` + ${passivoDefesa} (Passiva)` : ''}</div>
             </div>
             <div class="text-center">
                 <label class="text-[9px] uppercase tracking-widest text-white/40 font-bold block mb-1">Bônus</label>
@@ -1167,6 +1169,9 @@ function getPassiveBonuses() {
     const atributos = {};
     const pericias = {};
     const treinoSet = new Set();
+    let defesa = 0;
+    let danoCorpo = 0;
+    let danoDistancia = 0;
 
     // Migra o formato antigo (um único atributo + uma única perícia por estágio) pra dentro
     // das listas novas, assim poderes já cadastrados antes continuam funcionando.
@@ -1202,9 +1207,13 @@ function getPassiveBonuses() {
             pericias[item.nome] = (pericias[item.nome] || 0) + v;
             if (item.treino) treinoSet.add(item.nome);
         });
+
+        defesa += parseFloat(est.passivoDefesa) || 0;
+        danoCorpo += parseFloat(est.passivoDanoCorpo) || 0;
+        danoDistancia += parseFloat(est.passivoDanoDistancia) || 0;
     });
 
-    return { atributos, pericias, treinoSet };
+    return { atributos, pericias, treinoSet, defesa, danoCorpo, danoDistancia };
 }
 
 function renderAttrs() {
@@ -1285,7 +1294,10 @@ function renderCombat() {
         
         // Lógica de Dano: Se corpo-a-corpo, mostra o bônus de influência
         const influ = (charData.atributos.Influencia || 0) + (pb.atributos.Influencia || 0);
-        const infoDano = item.tipo === 'corpo' ? `${item.dano} + ${influ} (Influ)` : item.dano;
+        const danoPassivo = item.tipo === 'corpo' ? (pb.danoCorpo || 0) : (pb.danoDistancia || 0);
+        const infoDano = item.tipo === 'corpo'
+            ? `${item.dano} + ${influ} (Influ)${danoPassivo ? ` + ${danoPassivo} (Passiva)` : ''}`
+            : `${item.dano}${danoPassivo ? ` + ${danoPassivo} (Passiva)` : ''}`;
         
         // Pega o valor da perícia selecionada
         const periciaNome = item.pericia || 'Luta';
@@ -1705,8 +1717,10 @@ window.resetarEmocoes = () => {
 
 // --- LÓGICA DE DANO COM SOMA AUTOMÁTICA ---
 window.executarDano = async (nome, formula, tipo) => {
-    const influ = charData.atributos.Influencia || 0;
-    const somaExtra = tipo === 'corpo' ? influ : 0;
+    const pb = getPassiveBonuses();
+    const influ = (charData.atributos.Influencia || 0) + (pb.atributos.Influencia || 0);
+    const danoPassivo = tipo === 'corpo' ? (pb.danoCorpo || 0) : (pb.danoDistancia || 0);
+    const somaExtra = (tipo === 'corpo' ? influ : 0) + danoPassivo;
     
     const regex = /(\d+)d(\d+)([\+\-]\d+)?/i;
     const match = formula.match(regex);
