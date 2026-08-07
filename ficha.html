@@ -925,19 +925,40 @@ window.rollCheck = (nome, valorAtrib, bonusSoma) => {
 };
 
     window.rollDamage = async (nomeItem, formula) => {
-        const regex = /(\d+)d(\d+)([\+\-]\d+)?/i;
-        const match = formula.match(regex);
+        // Aceita siglas de atributo dentro da fórmula (mesmas do console de dados: INF, CON,
+        // VIT, PRO, ENC, ESP) — ex: "2d6+INF" soma o valor atual de Influência ao dano.
+        // A sigla é trocada pelo número ANTES de interpretar a fórmula, então "+INF+2",
+        // "+INF-1" etc. também funcionam.
+        let expr = String(formula || '');
+        const substituticoes = {
+            'INF': charData.atributos?.Influencia || 0,
+            'CON': charData.atributos?.Conhecimento || 0,
+            'VIT': charData.atributos?.Vitalidade || 0,
+            'PRO': charData.atributos?.Projeção || 0,
+            'ENC': charData.atributos?.Encantamento || 0,
+            'ESP': charData.atributos?.Espiritualidade || 0
+        };
+        for (const [chave, valor] of Object.entries(substituticoes)) {
+            expr = expr.replace(new RegExp(chave, 'gi'), valor);
+        }
+
+        const regex = /(\d+)d(\d+)([\+\-].+)?/i;
+        const match = expr.match(regex);
         let total = 0, results = [];
-        
+
         if (match) {
             const qtd = parseInt(match[1]), faces = parseInt(match[2]);
-            const mod = match[3] ? parseInt(match[3]) : 0;
+            let mod = 0;
+            if (match[3]) {
+                try { mod = eval(match[3]) || 0; } catch (e) { mod = 0; }
+            }
             for(let i=0; i<qtd; i++) { let r = Math.floor(Math.random() * faces) + 1; results.push(r); total += r; }
             total += mod;
             await logRoll(`Dano: ${nomeItem}`, results, total);
             showPopup(`Dano: ${nomeItem}`, total, results, null);
         } else {
-            const val = parseInt(formula);
+            let val = 0;
+            try { val = eval(expr); } catch (e) { val = parseInt(expr); }
             if(!isNaN(val)) { await logRoll(`Dano: ${nomeItem}`, [], val); showPopup(nomeItem, val, [], null); }
         }
     };
