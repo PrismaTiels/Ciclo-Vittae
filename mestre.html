@@ -1218,7 +1218,7 @@ onSnapshot(query(collection(db, "logs_rolagens"), orderBy("timestamp", "desc"), 
         return {
             nome: '', desc: '', dano: '', pericia: '',
             passivoAtributos: [], passivoPericias: [], // podem ter várias entradas cada, uma por atributo/perícia
-            passivoDefesa: '', passivoDanoCorpo: '', passivoDanoDistancia: '', // bônus fixos de defesa e dano de arma por tipo
+            passivoDefesa: '', passivoDanoCorpo: '', passivoDanoDistancia: '', passivoDeslocamento: '', // bônus fixos de defesa, dano de arma por tipo e deslocamento
             passivoVidaTemp: '', passivoSanidadeTemp: '', // vida/sanidade temporária concedida enquanto ativado
             autoAtributo: '', autoAtributoValor: '', autoPericia: '', autoPericiaValor: '', autoTreino: false,
             passivoAtributo: '', passivoAtributoValor: '', passivoPericia: '', passivoPericiaValor: '', passivoTreino: false
@@ -1340,6 +1340,10 @@ onSnapshot(query(collection(db, "logs_rolagens"), orderBy("timestamp", "desc"), 
                         <span class="poder-passivo-row-nome">🏹 Dano à distância</span>
                         <input type="number" class="poder-input poder-passivo-row-valor" placeholder="Bônus" value="${est.passivoDanoDistancia ?? ''}" oninput="setPoderEstagioCampo('${poder.id}', ${stageAtiva}, 'passivoDanoDistancia', this.value)">
                     </div>
+                    <div class="poder-passivo-row">
+                        <span class="poder-passivo-row-nome">🏃 Deslocamento (m)</span>
+                        <input type="number" class="poder-input poder-passivo-row-valor" placeholder="Bônus" value="${est.passivoDeslocamento ?? ''}" oninput="setPoderEstagioCampo('${poder.id}', ${stageAtiva}, 'passivoDeslocamento', this.value)">
+                    </div>
                 </div>
                 <label style="font-size:8px; text-transform:uppercase; letter-spacing:0.15em; color:rgba(255,255,255,0.3); display:block; margin:8px 0 4px;">Vida & Sanidade temporária</label>
                 <div class="poder-passivo-rows">
@@ -1352,7 +1356,7 @@ onSnapshot(query(collection(db, "logs_rolagens"), orderBy("timestamp", "desc"), 
                         <input type="number" class="poder-input poder-passivo-row-valor" placeholder="Qtd" value="${est.passivoSanidadeTemp ?? ''}" oninput="setPoderEstagioCampo('${poder.id}', ${stageAtiva}, 'passivoSanidadeTemp', this.value)">
                     </div>
                 </div>
-                <div class="poder-passivo-hint">Vale só para este estágio (${cfg ? cfg.niveis[stageAtiva] : 'estágio ' + stageAtiva}). O jogador liga/desliga na ficha dele — some sozinho ao desligar. Dano corpo-a-corpo soma nas armas do tipo "Corpo"; dano à distância soma nas armas do tipo "Distância". Vida/Sanidade temporária é somada de verdade na barra ao ativar e, ao desativar, volta pro valor de antes — mas só se a barra ainda não tiver caído abaixo desse valor por dano/desgaste.</div>
+                <div class="poder-passivo-hint">Vale só para este estágio (${cfg ? cfg.niveis[stageAtiva] : 'estágio ' + stageAtiva}). O jogador liga/desliga na ficha dele — some sozinho ao desligar. Dano corpo-a-corpo soma nas armas do tipo "Corpo"; dano à distância soma nas armas do tipo "Distância"; Deslocamento soma direto no total de metros da ficha. Vida/Sanidade temporária é somada de verdade na barra ao ativar e, ao desativar, volta pro valor de antes — mas só se a barra ainda não tiver caído abaixo desse valor por dano/desgaste.</div>
             </div>`;
 
         const autoBox = `
