@@ -1131,6 +1131,7 @@ onSnapshot(query(collection(db, "logs_rolagens"), orderBy("timestamp", "desc"), 
         return {
             nome: '', desc: '', dano: '', pericia: '',
             passivoAtributos: [], passivoPericias: [], // podem ter várias entradas cada, uma por atributo/perícia
+            passivoDefesa: '', passivoDanoCorpo: '', passivoDanoDistancia: '', // bônus fixos de defesa e dano de arma por tipo
             autoAtributo: '', autoAtributoValor: '', autoPericia: '', autoPericiaValor: '', autoTreino: false,
             passivoAtributo: '', passivoAtributoValor: '', passivoPericia: '', passivoPericiaValor: '', passivoTreino: false
         };
@@ -1237,7 +1238,22 @@ onSnapshot(query(collection(db, "logs_rolagens"), orderBy("timestamp", "desc"), 
                 <label style="font-size:8px; text-transform:uppercase; letter-spacing:0.15em; color:rgba(255,255,255,0.3); display:block; margin:8px 0 4px;">Perícias passivas (marque quantas quiser)</label>
                 <div class="poder-chips-wrap">${chipsPassivoPericia}</div>
                 ${rowsPassivoPericia ? `<div class="poder-passivo-rows">${rowsPassivoPericia}</div>` : ''}
-                <div class="poder-passivo-hint">Vale só para este estágio (${cfg ? cfg.niveis[stageAtiva] : 'estágio ' + stageAtiva}). O jogador liga/desliga na ficha dele — some sozinho ao desligar.</div>
+                <label style="font-size:8px; text-transform:uppercase; letter-spacing:0.15em; color:rgba(255,255,255,0.3); display:block; margin:8px 0 4px;">Combate (bônus fixos)</label>
+                <div class="poder-passivo-rows">
+                    <div class="poder-passivo-row">
+                        <span class="poder-passivo-row-nome">🛡 Defesa</span>
+                        <input type="number" class="poder-input poder-passivo-row-valor" placeholder="Bônus" value="${est.passivoDefesa ?? ''}" oninput="setPoderEstagioCampo('${poder.id}', ${stageAtiva}, 'passivoDefesa', this.value)">
+                    </div>
+                    <div class="poder-passivo-row">
+                        <span class="poder-passivo-row-nome">⚔ Dano corpo-a-corpo</span>
+                        <input type="number" class="poder-input poder-passivo-row-valor" placeholder="Bônus" value="${est.passivoDanoCorpo ?? ''}" oninput="setPoderEstagioCampo('${poder.id}', ${stageAtiva}, 'passivoDanoCorpo', this.value)">
+                    </div>
+                    <div class="poder-passivo-row">
+                        <span class="poder-passivo-row-nome">🏹 Dano à distância</span>
+                        <input type="number" class="poder-input poder-passivo-row-valor" placeholder="Bônus" value="${est.passivoDanoDistancia ?? ''}" oninput="setPoderEstagioCampo('${poder.id}', ${stageAtiva}, 'passivoDanoDistancia', this.value)">
+                    </div>
+                </div>
+                <div class="poder-passivo-hint">Vale só para este estágio (${cfg ? cfg.niveis[stageAtiva] : 'estágio ' + stageAtiva}). O jogador liga/desliga na ficha dele — some sozinho ao desligar. Dano corpo-a-corpo soma nas armas do tipo "Corpo"; dano à distância soma nas armas do tipo "Distância".</div>
             </div>`;
 
         const autoBox = `
