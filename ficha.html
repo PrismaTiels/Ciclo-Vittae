@@ -204,11 +204,10 @@
         background: rgba(255,255,255,0.02);
         border: 1px solid rgba(255,255,255,0.07);
         border-radius: 14px;
-        padding: 16px;
-        min-height: 152px;
+        padding: 12px;
         display: flex;
         flex-direction: column;
-        gap: 8px;
+        gap: 6px;
         position: relative;
         overflow: hidden;
         transition: all 0.3s ease;
@@ -225,16 +224,16 @@
     .poder-card.poder-dormant { opacity: 0.55; }
     .poder-card.poder-bloqueado { align-items: center; justify-content: center; text-align: center; opacity: 0.4; }
 
-    .poder-top { display: flex; align-items: flex-start; gap: 8px; }
-    .poder-icon { font-size: 20px; line-height: 1; flex-shrink: 0; }
+    .poder-top { display: flex; align-items: flex-start; gap: 7px; }
+    .poder-icon { font-size: 18px; line-height: 1; flex-shrink: 0; }
     .poder-nome {
         font-family: 'Outfit', sans-serif;
-        font-size: 14px;
+        font-size: 13px;
         font-weight: 800;
         text-transform: uppercase;
         letter-spacing: 0.03em;
         color: white;
-        line-height: 1.25;
+        line-height: 1.2;
     }
     .poder-dano-badge {
         display: inline-block;
@@ -269,10 +268,8 @@
     .poder-desc {
         font-size: 11px;
         color: rgba(255,255,255,0.55);
-        line-height: 1.5;
-        overflow-y: auto;
+        line-height: 1.4;
         flex-grow: 1;
-        max-height: 76px;
     }
     .poder-estagio-dots { display: flex; gap: 4px; align-items: center; margin-top: auto; padding-top: 6px; }
     .poder-estagio-dot {
@@ -282,6 +279,61 @@
     }
     .poder-estagio-dot.preenchido { border-color: transparent; background: var(--poder-cor, var(--accent)); }
     .poder-estagio-label { font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.35; margin-left: 4px; }
+
+    /* Card de poder com TODOS os estágios empilhados (Raiva / Fúria / Ira Cega etc) */
+    /* Altura livre — cresce só o tanto que o conteúdo pedir, sem sobra de espaço vazio */
+    .poder-card-multi { display: flex; flex-direction: column; }
+    .poder-card-multi .poder-top { margin-bottom: 1px; flex-shrink: 0; }
+    .poder-estagios-stack { display: flex; flex-direction: column; gap: 6px; }
+    .poder-estagio-bloco {
+        border: 1px solid rgba(255,255,255,0.06);
+        border-left: 3px solid rgba(255,255,255,0.1);
+        border-radius: 8px;
+        padding: 8px 10px;
+        background: rgba(255,255,255,0.015);
+        opacity: 0.5;
+        transition: all 0.25s;
+        display: flex;
+        flex-direction: column;
+    }
+    .poder-estagio-bloco.ativo {
+        opacity: 1;
+        border-left-color: var(--stage-cor, var(--accent));
+        background: rgba(var(--accent-rgb, 139,92,246), 0.06);
+        box-shadow: 0 0 0 1px rgba(255,255,255,0.04), 0 4px 14px -6px var(--stage-cor, var(--accent));
+    }
+    .poder-estagio-topo { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 3px; }
+    .poder-estagio-titulo { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.15em; color: rgba(255,255,255,0.5); }
+    .poder-estagio-bloco.ativo .poder-estagio-titulo { color: var(--stage-cor, var(--accent)); }
+    .poder-estagio-badge-ativo {
+        font-size: 8px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em;
+        background: var(--stage-cor, var(--accent)); color: #000; border-radius: 999px; padding: 2px 8px;
+    }
+    .poder-estagio-nome { font-size: 12px; font-weight: 700; color: white; margin-bottom: 2px; }
+    /* Descrição com altura livre (cresce conforme o texto) — quem rola é a pilha toda, não o textinho */
+    .poder-estagio-bloco .poder-desc { margin-bottom: 5px; }
+    /* Área da rolagem sempre com a mesma altura, mesmo quando a habilidade é passiva e não tem botão */
+    .poder-roll-slot { min-height: 22px; margin-top: auto; padding-top: 3px; }
+    .btn-roll-mini {
+        background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+        color: var(--stage-cor, var(--accent)); font-size: 9px; font-weight: 800; text-transform: uppercase;
+        letter-spacing: 0.05em; padding: 4px 10px; border-radius: 6px; cursor: pointer; transition: 0.2s;
+        width: 100%;
+    }
+    .btn-roll-mini:hover { background: var(--stage-cor, var(--accent)); color: #000; box-shadow: 0 0 10px var(--stage-cor, var(--accent)); }
+
+    /* Botão de ligar/desligar habilidade passiva na ficha do jogador */
+    .btn-poder-toggle {
+        width: 100%; margin: 2px 0 4px; padding: 6px 10px; border-radius: 7px;
+        font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em;
+        background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15);
+        color: rgba(255,255,255,0.6); cursor: pointer; transition: 0.2s; flex-shrink: 0;
+    }
+    .btn-poder-toggle:hover { border-color: var(--poder-cor, var(--accent)); color: var(--poder-cor, var(--accent)); }
+    .btn-poder-toggle.ligado {
+        background: var(--poder-cor, var(--accent)); border-color: transparent; color: #000;
+        box-shadow: 0 0 10px var(--poder-cor, var(--accent));
+    }
 
 /* Container Principal */
 #inventory-list {
@@ -316,6 +368,31 @@
 .inv-name { flex: 2; min-width: 150px; }
 /* Qtd e Peso ficam menores */
 .inv-small { width: 70px; text-align: center; }
+/* Botão que abre/fecha a descrição — some economiza espaço quando fechado */
+.inv-desc-toggle {
+    width: 32px; height: 32px; flex-shrink: 0;
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px; color: rgba(255,255,255,0.35); font-size: 13px;
+    display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s;
+}
+.inv-desc-toggle:hover { border-color: var(--accent); color: var(--accent); }
+.inv-desc-toggle.tem-desc { color: var(--accent); border-color: var(--accent); background: rgba(var(--accent-rgb), 0.1); }
+/* Wrapper da descrição: recolhido por padrão, só aparece ao clicar no botão */
+.inv-desc-wrap {
+    flex: 1 1 100%;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.25s ease;
+}
+.inv-desc-wrap.aberto { max-height: 160px; margin-top: 4px; }
+.inv-desc {
+    width: 100%;
+    resize: none;
+    min-height: 60px;
+    font-size: 12px;
+    line-height: 1.4;
+    font-family: 'Inter', sans-serif;
+}
 /* Botão de excluir */
 .inv-del { 
     width: 32px; 
@@ -326,6 +403,7 @@
     align-items: center; 
     justify-content: center;
     cursor: pointer;
+    flex-shrink: 0;
 }
 
 /* Ajuste específico para Telas Pequenas */
@@ -650,7 +728,7 @@
                 <p class="text-[10px] text-white/30 uppercase tracking-widest mt-1">O estágio de cada poder muda com o nível da emoção vinculada</p>
             </div>
         </div>
-        <div id="habilidades-list" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"></div>
+        <div id="habilidades-list" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 items-start"></div>
     </section>
 
     <section id="view-inventario" class="hidden">
@@ -1032,20 +1110,71 @@ function renderBars() {
         }).join('');
     }
 
+// Soma os bônus temporários de habilidades passivas que o jogador tem "ligadas" no momento.
+// Aplica-se só ao estágio atualmente ativo de cada poder (o mesmo que o card mostra como ATUAL).
+// Cada poder pode ter várias entradas de atributo e/ou perícia passiva marcadas pelo mestre.
+function getPassiveBonuses() {
+    const atributos = {};
+    const pericias = {};
+    const treinoSet = new Set();
+
+    // Migra o formato antigo (um único atributo + uma única perícia por estágio) pra dentro
+    // das listas novas, assim poderes já cadastrados antes continuam funcionando.
+    const passivoAtributosDoEstagio = (est) => {
+        if (est.passivoAtributos && est.passivoAtributos.length) return est.passivoAtributos;
+        return est.passivoAtributo ? [{ nome: est.passivoAtributo, valor: est.passivoAtributoValor || 0 }] : [];
+    };
+    const passivoPericiasDoEstagio = (est) => {
+        if (est.passivoPericias && est.passivoPericias.length) return est.passivoPericias;
+        return est.passivoPericia ? [{ nome: est.passivoPericia, valor: est.passivoPericiaValor || 0, treino: !!est.passivoTreino }] : [];
+    };
+
+    (charData.poderes || []).forEach(poder => {
+        if (!poder.passivoHabilitado || !poder.ligado) return;
+        const estagios = poder.estagios || {};
+        let est = null;
+        if (!poder.emocao) {
+            est = estagios[1];
+        } else {
+            const nivel = charData.emocoes?.[poder.emocao]?.nivel || 0;
+            if (nivel > 0) est = estagios[nivel];
+        }
+        if (!est) return;
+
+        passivoAtributosDoEstagio(est).forEach(item => {
+            if (!item.nome) return;
+            const v = parseFloat(item.valor) || 0;
+            atributos[item.nome] = (atributos[item.nome] || 0) + v;
+        });
+        passivoPericiasDoEstagio(est).forEach(item => {
+            if (!item.nome) return;
+            const v = parseFloat(item.valor) || 0;
+            pericias[item.nome] = (pericias[item.nome] || 0) + v;
+            if (item.treino) treinoSet.add(item.nome);
+        });
+    });
+
+    return { atributos, pericias, treinoSet };
+}
+
 function renderAttrs() {
     let currentAttrs = ["Vitalidade", "Projeção", "Conhecimento", "Encantamento", "Influencia"];
     if (charData.estado === 'morto') currentAttrs.push("Espiritualidade");
 
+    const pb = getPassiveBonuses();
+
     document.getElementById('attrs-list').innerHTML = currentAttrs.map(attr => {
-        const val = charData.atributos[attr] || 0;
+        const base = charData.atributos[attr] || 0;
+        const bonus = pb.atributos[attr] || 0;
+        const val = base + bonus;
         return `
         <div class="flex justify-between items-center bg-white/5 px-3 py-2 rounded border border-white/5 hover:border-[var(--accent)] transition-all group">
             <span onclick="rollAttr('${attr}', ${val})" class="text-[10px] font-bold uppercase text-white/50 tracking-wider cursor-pointer hover:text-[var(--accent)] transition-colors">
-                ${attr} 🎲
+                ${attr} 🎲 ${bonus ? `<span class="text-[var(--accent)]">(+${bonus})</span>` : ''}
             </span>
             <div class="flex items-center gap-2">
                 <button onclick="changeVal('atributos.${attr}', -1)" class="ctrl-btn">-</button>
-                <input type="number" value="${val}" readonly
+                <input type="number" value="${base}" readonly
                     class="bg-transparent text-center text-white font-bold w-6 outline-none text-xs">
                 <button onclick="changeVal('atributos.${attr}', 1)" class="ctrl-btn">+</button>
             </div>
@@ -1054,21 +1183,23 @@ function renderAttrs() {
 }
 
 function renderSkills() {
+    const pb = getPassiveBonuses();
     document.getElementById('view-pericias').innerHTML = Object.keys(skillsMap).map(skill => {
         const attrKey = skillsMap[skill];
-        const attrVal = charData.atributos[attrKey] || 0;
+        const attrVal = (charData.atributos[attrKey] || 0) + (pb.atributos[attrKey] || 0);
         const skillData = (charData.pericias && charData.pericias[skill]) || { b: 0, t: false };
         
-        // Treinamento (+2) e Bônus de campo
-        const treino = skillData.t ? 2 : 0;
-        const bonusExtra = parseFloat(skillData.b) || 0;
+        // Treinamento (+2) e Bônus de campo (+ bônus temporário de habilidades passivas ligadas)
+        const treino = (skillData.t || pb.treinoSet.has(skill)) ? 2 : 0;
+        const bonusExtra = (parseFloat(skillData.b) || 0) + (pb.pericias[skill] || 0);
         const somaSemAtributo = treino + bonusExtra;
+        const temBonusPassivo = !!(pb.atributos[attrKey] || pb.pericias[skill] || (pb.treinoSet.has(skill) && !skillData.t));
 
         return `
         <div class="skill-card">
             <div class="skill-top">
                 <div>
-                    <div class="skill-name">${skill}</div>
+                    <div class="skill-name">${skill} ${temBonusPassivo ? '<span class="text-[var(--accent)]" title="Bônus de habilidade passiva ativa">🔁</span>' : ''}</div>
                     <div class="skill-attr text-[var(--accent)]">${attrKey.substring(0,3)}</div>
                 </div>
                 <div class="skill-val text-[10px] opacity-60">
@@ -1096,13 +1227,14 @@ function renderSkills() {
 function renderCombat() {
     const list = document.getElementById('combat-list');
     list.innerHTML = '';
+    const pb = getPassiveBonuses();
     
     (charData.combate || []).forEach((item, idx) => {
         const el = document.createElement('div');
         el.className = 'bg-white/5 border border-white/10 p-4 rounded-xl flex flex-col md:flex-row gap-4 items-center group';
         
         // Lógica de Dano: Se corpo-a-corpo, mostra o bônus de influência
-        const influ = charData.atributos.Influencia || 0;
+        const influ = (charData.atributos.Influencia || 0) + (pb.atributos.Influencia || 0);
         const infoDano = item.tipo === 'corpo' ? `${item.dano} + ${influ} (Influ)` : item.dano;
         
         // Pega o valor da perícia selecionada
@@ -1111,11 +1243,11 @@ function renderCombat() {
         
         // Pega o atributo da perícia
         const attrDaPericia = skillsMap[periciaNome] || "Influencia";
-        const valorAtrib = charData.atributos[attrDaPericia] || 0;
+        const valorAtrib = (charData.atributos[attrDaPericia] || 0) + (pb.atributos[attrDaPericia] || 0);
         
-        // Calcula bônus da perícia (treino + bônus)
-        const treinoBonus = skillData.t ? 2 : 0;
-        const bonusExtra = parseFloat(skillData.b) || 0;
+        // Calcula bônus da perícia (treino + bônus, incluindo bônus temporário de habilidades passivas ligadas)
+        const treinoBonus = (skillData.t || pb.treinoSet.has(periciaNome)) ? 2 : 0;
+        const bonusExtra = (parseFloat(skillData.b) || 0) + (pb.pericias[periciaNome] || 0);
         const bonusPericia = treinoBonus + bonusExtra;
         
         // Soma TOTAL para o ataque: atributo + bônus da perícia
@@ -1189,59 +1321,120 @@ function renderPoderes() {
             </div>`;
         }
 
-        const nivelEmocao = poder.emocao ? (charData.emocoes?.[poder.emocao]?.nivel || 0) : 1;
+        const nivelEmocao = poder.emocao ? (charData.emocoes?.[poder.emocao]?.nivel || 0) : 0;
         const estagios = poder.estagios || {};
 
-        // Sem emoção vinculada ou emoção neutra: mostra estado de repouso, mesma altura de card
-        if (!poder.emocao || nivelEmocao === 0) {
-            const estagioFixo = !poder.emocao ? (estagios[1] || {}) : null;
+        const btnToggle = !poder.passivoHabilitado ? '' : `
+            <button class="btn-poder-toggle ${poder.ligado ? 'ligado' : ''}" style="--poder-cor:${cor}" onclick="togglePoderPassivo('${poder.id}')">
+                ${poder.ligado ? '🔛 Ativado — clique para desligar' : '🔁 Ativar habilidade passiva'}
+            </button>`;
+
+        // Poder FIXO (sem emoção vinculada): só existe o estágio 1, mas já mostra rolagem
+        if (!poder.emocao) {
+            const est = estagios[1] || {};
             return `
-            <div class="poder-card poder-dormant" style="--poder-cor:${cor}">
+            <div class="poder-card poder-card-multi" style="--poder-cor:${cor}">
                 <div class="poder-top">
-                    ${cfg ? `<span class="poder-icon">${cfg.icon}</span>` : '<span class="poder-icon">✦</span>'}
+                    <span class="poder-icon">✦</span>
                     <div>
-                        <div class="poder-nome">${poderNomeComDano(poder.nome || 'Poder sem nome', estagioFixo?.dano)}</div>
-                        <div class="poder-tag">${poder.emocao ? `Adormecido · desperta com ${poder.emocao}` : 'Poder fixo'}</div>
+                        <div class="poder-nome" style="color:${cor}">${poder.nome || 'Poder sem nome'}</div>
+                        <div class="poder-tag">Poder fixo</div>
                     </div>
                 </div>
-                ${estagioFixo ? renderPoderEstagioConteudo(estagioFixo) : ''}
+                ${btnToggle}
+                <div class="poder-estagios-stack">
+                    ${renderPoderEstagioBloco(poder, est, 'Efeito', cor, true)}
+                </div>
             </div>`;
         }
 
-        const estagioAtual = estagios[nivelEmocao] || {};
-        const nomeEstagio = cfg.niveis[nivelEmocao];
-
+        // Poder com emoção vinculada: mostra TODAS as versões (todos os estágios) de uma vez,
+        // destacando qual está ativo no momento pelo nível atual da emoção
         const dots = [1, 2, 3].map(i => `<span class="poder-estagio-dot ${i <= nivelEmocao ? 'preenchido' : ''}" style="${i <= nivelEmocao ? `background:${cor};` : ''}"></span>`).join('');
 
         return `
-        <div class="poder-card" style="--poder-cor:${cor}">
+        <div class="poder-card poder-card-multi" style="--poder-cor:${cor}">
             <div class="poder-top">
                 <span class="poder-icon">${cfg.icon}</span>
                 <div>
-                    <div class="poder-nome" style="color:${cor}">${poderNomeComDano(estagioAtual.nome || poder.nome || nomeEstagio, estagioAtual.dano)}</div>
-                    <div class="poder-tag">${poder.nome ? poder.nome + ' · ' : ''}${nomeEstagio}</div>
+                    <div class="poder-nome" style="color:${cor}">${poder.nome || 'Poder sem nome'}</div>
+                    <div class="poder-tag">${poder.emocao} · nível atual: ${nivelEmocao === 0 ? 'Neutro' : cfg.niveis[nivelEmocao]} (${nivelEmocao}/3)</div>
                 </div>
             </div>
-            <div class="poder-desc">${estagioAtual.desc || '<span style="opacity:0.3">Sem descrição para este estágio.</span>'}</div>
-            <div class="poder-estagio-dots">${dots}<span class="poder-estagio-label">Estágio ${nivelEmocao}/3</span></div>
+            ${btnToggle}
+            <div class="poder-estagios-stack">
+                ${[1, 2, 3].map(n => renderPoderEstagioBloco(poder, estagios[n] || {}, cfg.niveis[n], cor, n === nivelEmocao)).join('')}
+            </div>
+            <div class="poder-estagio-dots" style="padding-top:2px;">${dots}<span class="poder-estagio-label">Estágio ${nivelEmocao}/3</span></div>
         </div>`;
     }).join('');
 }
 
+window.togglePoderPassivo = async (poderId) => {
+    const lista = JSON.parse(JSON.stringify(charData.poderes || []));
+    const p = lista.find(x => x.id === poderId);
+    if (!p || !p.passivoHabilitado) return;
+    p.ligado = !p.ligado;
+    await updateDoc(doc(db, "personagens", charID), { poderes: lista });
+};
+
+// Renderiza UM bloco de estágio (ex: "Raiva", "Fúria", "Ira Cega") dentro do card do poder,
+// já com botão de rolagem (1d20 + perícia configurada pelo mestre) integrado.
+function renderPoderEstagioBloco(poder, estagio, tituloEstagio, cor, ativo) {
+    const nomeMostrado = estagio.nome || poder.nome || tituloEstagio;
+    const periciaEstagio = estagio.pericia || '';
+
+    // Se não há perícia configurada pelo mestre, a habilidade é passiva: nenhum botão de rolagem aparece,
+    // mas o espaço fica reservado (poder-roll-slot) pra todos os blocos ficarem do mesmo tamanho.
+    let btnRolar = '';
+    if (periciaEstagio) {
+        const pb = getPassiveBonuses();
+        const skillData = charData.pericias?.[periciaEstagio] || { b: 0, t: false };
+        const attrKey = skillsMap[periciaEstagio] || 'Influencia';
+        const attrVal = (charData.atributos?.[attrKey] || 0) + (pb.atributos[attrKey] || 0);
+        const treino = (skillData.t || pb.treinoSet.has(periciaEstagio)) ? 2 : 0;
+        const bonus = (parseFloat(skillData.b) || 0) + (pb.pericias[periciaEstagio] || 0);
+        const somaSemAtributo = treino + bonus;
+        const labelRolagem = jsEsc(`${poder.nome || 'Poder'} · ${tituloEstagio}`);
+        btnRolar = `<button class="btn-roll-mini" onclick="rollCheck('${labelRolagem}', ${attrVal}, ${somaSemAtributo})">
+            🎲 1d20 + ${periciaEstagio} (${attrVal}d20 + ${attrVal + somaSemAtributo})
+        </button>`;
+    }
+
+    return `
+    <div class="poder-estagio-bloco ${ativo ? 'ativo' : ''}" style="--stage-cor:${cor}">
+        <div class="poder-estagio-topo">
+            <span class="poder-estagio-titulo">${tituloEstagio}</span>
+            ${ativo ? '<span class="poder-estagio-badge-ativo">ATUAL</span>' : ''}
+        </div>
+        <div class="poder-estagio-nome">${poderNomeComDano(nomeMostrado, estagio.dano)}</div>
+        <div class="poder-desc">${estagio.desc || '<span style="opacity:0.3">Sem descrição para este estágio.</span>'}</div>
+        <div class="poder-roll-slot">${btnRolar}</div>
+    </div>`;
+}
+
 function poderNomeComDano(nome, dano) {
     if (!dano) return nome;
-    const label = String(nome).replace(/'/g, "\\'");
-    const formula = String(dano).replace(/'/g, "\\'");
+    const label = jsEsc(nome);
+    const formula = jsEsc(dano);
     return `${nome}<span class="poder-dano-badge" onclick="event.stopPropagation(); rollDamage('${label}', '${formula}')" title="Rolar dano">🎲 ${dano}</span>`;
 }
 
-function renderPoderEstagioConteudo(estagio) {
-    if (!estagio) return '';
-    return `<div class="poder-desc">${estagio.desc || ''}</div>`;
+// Escapa aspas para uso seguro dentro de atributos onclick="..."
+function jsEsc(str) {
+    return String(str == null ? '' : str).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
 }
 
 
 // Função para atualizar e salvar no Firebase
+
+let invDescExpandido = new Set();
+
+window.toggleInvDesc = (idx) => {
+    if (invDescExpandido.has(idx)) invDescExpandido.delete(idx);
+    else invDescExpandido.add(idx);
+    renderInventory();
+};
 
 function renderInventory() {
     const list = document.getElementById('inventory-list');
@@ -1253,6 +1446,9 @@ function renderInventory() {
         const q = parseFloat(item.qtd) || 0;
         const p = parseFloat(item.peso) || 0;
         totalWeight += (q * p);
+
+        const aberto = invDescExpandido.has(idx);
+        const temDesc = !!(item.desc && item.desc.trim());
 
         const div = document.createElement('div');
         div.className = 'inventory-item';
@@ -1268,8 +1464,15 @@ function renderInventory() {
             <input type="number" value="${item.peso}" 
                 class="inv-small" placeholder="Kg" title="Peso Unitário"
                 onchange="updateInv(${idx}, 'peso', parseFloat(this.value))">
-            
+
+            <button type="button" class="inv-desc-toggle ${temDesc ? 'tem-desc' : ''}" onclick="toggleInvDesc(${idx})" title="Mostrar/ocultar descrição">📝</button>
+
             <div class="inv-del" onclick="removeInv(${idx})">×</div>
+
+            <div class="inv-desc-wrap ${aberto ? 'aberto' : ''}">
+                <textarea class="input-glass inv-desc" placeholder="Descrição do item (aparência, efeito, história...)"
+                    onchange="updateInv(${idx}, 'desc', this.value)">${item.desc || ''}</textarea>
+            </div>
         `;
         list.appendChild(div);
     });
@@ -1582,7 +1785,7 @@ window.addCombatItem = () => {
 window.updateCombat = (i, f, v) => { let l=[...charData.combate]; l[i][f]=v; updateDoc(doc(db,"personagens",charID), {combate:l}); };
 window.removeCombat = (i) => { let l=[...charData.combate]; l.splice(i,1); updateDoc(doc(db,"personagens",charID), {combate:l}); };
 
-window.addInventoryItem = () => updateDoc(doc(db, "personagens", charID), { inventario: [...(charData.inventario||[]), {nome:'Novo Item', qtd:1, peso:1}] });
+window.addInventoryItem = () => updateDoc(doc(db, "personagens", charID), { inventario: [...(charData.inventario||[]), {nome:'Novo Item', qtd:1, peso:1, desc:''}] });
 window.updateInv = (i, f, v) => { let l=[...charData.inventario]; l[i][f]=v; updateDoc(doc(db,"personagens",charID), {inventario:l}); };
 window.removeInv = (i) => { let l=[...charData.inventario]; l.splice(i,1); updateDoc(doc(db,"personagens",charID), {inventario:l}); };
 
