@@ -1768,9 +1768,13 @@ function renderEmocoes() {
 }
 
 window.setEmocao = (nome, nivel) => {
-    const emocoes = { ...(charData.emocoes || {}) };
-    emocoes[nome] = { nivel };
-    updateDoc(doc(db, "personagens", charID), { emocoes });
+    // Além de salvar o novo nível, reajusta na hora a Vida/Sanidade temporária de qualquer
+    // poder vinculado a essa emoção que esteja com a passiva ligada — soma o bônus do novo
+    // estágio automaticamente ao subir, e ao descer de estágio desfaz o temporário antigo só
+    // até a base salva (nunca "cura" dano já sofrido), sem precisar desligar/religar a habilidade.
+    const updates = { [`emocoes.${nome}.nivel`]: nivel };
+    reajustarTempPorEmocao(nome, nivel, updates);
+    updateDoc(doc(db, "personagens", charID), updates);
 };
 
 window.resetarEmocoes = () => {
