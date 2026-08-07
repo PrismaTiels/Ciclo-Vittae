@@ -971,7 +971,94 @@ onSnapshot(query(collection(db, "logs_rolagens"), orderBy("timestamp", "desc"), 
             [`emocoes.${nome}.nivel`]: nivel
         });
         await aplicarAutoProgressaoEmocao(charId, nome, nivel);
+        await reajustarTempMestre(charId, nome, nivel);
     };
+
+    // Cópias locais das fórmulas de nível por percentual (mesma lógica da ficha do jogador),
+    // usadas aqui só pra recalcular a emoção vinculada quando Vida/Sanidade mudam de valor
+    // por causa do reajuste de temporário abaixo.
+    function calcularNivelPorPercentualMestre(atual, maximo) {
+        if (!maximo || maximo <= 0) return 0;
+        if (atual <= 0) return 3;
+        const pct = atual / maximo;
+        if (pct <= 1 / 3) return 2;
+        if (pct <= 2 / 3) return 1;
+        return 0;
+    }
+    function calcularNivelVidaPorPercentualMestre(atual, maximo) {
+        if (!maximo || maximo <= 0) return 0;
+        const limiarExtremo = Math.max(1, Math.round(maximo * 0.05));
+        if (atual <= limiarExtremo) return 3;
+        const pct = atual / maximo;
+        if (pct <= 1 / 3) return 2;
+        if (pct <= 2 / 3) return 1;
+        return 0;
+    }
+
+    // Quando o mestre muda o nível de uma emoção, reajusta a Vida/Sanidade temporária de
+    // qualquer poder vinculado a ela que esteja ligado: primeiro desfaz o temporário antigo
+    // (só desce até a base salva — nunca "cura" dano/desgaste já sofrido), depois soma o
+    // temporário do novo estágio por cima dessa base. Assim a barra some/aparece sozinha
+    // ao subir ou descer de estágio, sem precisar desligar e religar a habilidade.
+    async function reajustarTempMestre(charId, nomeEmocao, novoNivel) {
+        const snap = await getDoc(doc(db, "personagens", charId));
+        if (!snap.exists()) return;
+        const p = snap.data();
+        const poderesRelevantes = (p.poderes || []).some(pd => pd.emocao === nomeEmocao && pd.passivoHabilitado && pd.ligado);
+        if (!poderesRelevantes) return;
+
+        let vidaAtual = p.status?.Vida?.a ?? 10;
+        let sanidadeAtual = p.status?.Sanidade?.a ?? 10;
+        const vidaMax = p.status?.Vida?.m ?? 10;
+        const sanidadeMax = p.status?.Sanidade?.m ?? 10;
+        let mudou = false;
+
+        const novaLista = (p.poderes || []).map(pd => ({ ...pd }));
+        novaLista.forEach(pd => {
+            if (pd.emocao !== nomeEmocao || !pd.passivoHabilitado || !pd.ligado) return;
+            const estagios = pd.estagios || {};
+            let novoVidaTemp = 0, novoSanidadeTemp = 0;
+            for (let n = 1; n <= novoNivel; n++) {
+                const est = estagios[n];
+                if (!est) continue;
+                novoVidaTemp += parseFloat(est.passivoVidaTemp) || 0;
+                novoSanidadeTemp += parseFloat(est.passivoSanidadeTemp) || 0;
+            }
+
+            if (pd.vidaTempBaseline !== undefined && pd.vidaTempBaseline !== null) {
+                vidaAtual = Math.min(vidaAtual, pd.vidaTempBaseline);
+            }
+            if (novoVidaTemp) {
+                pd.vidaTempBaseline = vidaAtual;
+                vidaAtual += novoVidaTemp;
+            } else {
+                delete pd.vidaTempBaseline;
+            }
+
+            if (pd.sanidadeTempBaseline !== undefined && pd.sanidadeTempBaseline !== null) {
+                sanidadeAtual = Math.min(sanidadeAtual, pd.sanidadeTempBaseline);
+            }
+            if (novoSanidadeTemp) {
+                pd.sanidadeTempBaseline = sanidadeAtual;
+                sanidadeAtual += novoSanidadeTemp;
+            } else {
+                delete pd.sanidadeTempBaseline;
+            }
+
+            mudou = true;
+        });
+
+        if (!mudou) return;
+
+        const updates = {
+            poderes: novaLista,
+            'status.Vida.a': vidaAtual,
+            'status.Sanidade.a': sanidadeAtual
+        };
+        if (p.emocaoVida) updates[`emocoes.${p.emocaoVida}.nivel`] = calcularNivelVidaPorPercentualMestre(vidaAtual, vidaMax);
+        if (p.emocaoSanidade) updates[`emocoes.${p.emocaoSanidade}.nivel`] = calcularNivelPorPercentualMestre(sanidadeAtual, sanidadeMax);
+        await updateDoc(doc(db, "personagens", charId), updates);
+    }
 
     // Quando uma emoção sobe de nível, verifica se algum poder vinculado a ela tem
     // progressão automática configurada para esse estágio e aplica na ficha (só sobe, nunca desce).
@@ -1132,6 +1219,7 @@ onSnapshot(query(collection(db, "logs_rolagens"), orderBy("timestamp", "desc"), 
             nome: '', desc: '', dano: '', pericia: '',
             passivoAtributos: [], passivoPericias: [], // podem ter várias entradas cada, uma por atributo/perícia
             passivoDefesa: '', passivoDanoCorpo: '', passivoDanoDistancia: '', // bônus fixos de defesa e dano de arma por tipo
+            passivoVidaTemp: '', passivoSanidadeTemp: '', // vida/sanidade temporária concedida enquanto ativado
             autoAtributo: '', autoAtributoValor: '', autoPericia: '', autoPericiaValor: '', autoTreino: false,
             passivoAtributo: '', passivoAtributoValor: '', passivoPericia: '', passivoPericiaValor: '', passivoTreino: false
         };
@@ -1253,7 +1341,18 @@ onSnapshot(query(collection(db, "logs_rolagens"), orderBy("timestamp", "desc"), 
                         <input type="number" class="poder-input poder-passivo-row-valor" placeholder="Bônus" value="${est.passivoDanoDistancia ?? ''}" oninput="setPoderEstagioCampo('${poder.id}', ${stageAtiva}, 'passivoDanoDistancia', this.value)">
                     </div>
                 </div>
-                <div class="poder-passivo-hint">Vale só para este estágio (${cfg ? cfg.niveis[stageAtiva] : 'estágio ' + stageAtiva}). O jogador liga/desliga na ficha dele — some sozinho ao desligar. Dano corpo-a-corpo soma nas armas do tipo "Corpo"; dano à distância soma nas armas do tipo "Distância".</div>
+                <label style="font-size:8px; text-transform:uppercase; letter-spacing:0.15em; color:rgba(255,255,255,0.3); display:block; margin:8px 0 4px;">Vida & Sanidade temporária</label>
+                <div class="poder-passivo-rows">
+                    <div class="poder-passivo-row">
+                        <span class="poder-passivo-row-nome">❤ Vida temporária</span>
+                        <input type="number" class="poder-input poder-passivo-row-valor" placeholder="Qtd" value="${est.passivoVidaTemp ?? ''}" oninput="setPoderEstagioCampo('${poder.id}', ${stageAtiva}, 'passivoVidaTemp', this.value)">
+                    </div>
+                    <div class="poder-passivo-row">
+                        <span class="poder-passivo-row-nome">🧠 Sanidade temporária</span>
+                        <input type="number" class="poder-input poder-passivo-row-valor" placeholder="Qtd" value="${est.passivoSanidadeTemp ?? ''}" oninput="setPoderEstagioCampo('${poder.id}', ${stageAtiva}, 'passivoSanidadeTemp', this.value)">
+                    </div>
+                </div>
+                <div class="poder-passivo-hint">Vale só para este estágio (${cfg ? cfg.niveis[stageAtiva] : 'estágio ' + stageAtiva}). O jogador liga/desliga na ficha dele — some sozinho ao desligar. Dano corpo-a-corpo soma nas armas do tipo "Corpo"; dano à distância soma nas armas do tipo "Distância". Vida/Sanidade temporária é somada de verdade na barra ao ativar e, ao desativar, volta pro valor de antes — mas só se a barra ainda não tiver caído abaixo desse valor por dano/desgaste.</div>
             </div>`;
 
         const autoBox = `
