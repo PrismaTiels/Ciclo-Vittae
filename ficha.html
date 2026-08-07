@@ -691,6 +691,7 @@
     <div id="bars-container" class="space-y-4"></div>
 
     <div id="defesa-container"></div>
+    <div id="deslocamento-container"></div>
 
     <div>
         <h3 class="text-[10px] uppercase tracking-[0.3em] font-black text-white/20 mb-3 border-b border-white/5 pb-2">Atributos</h3>
@@ -1084,6 +1085,7 @@ function recalculateStats() {
     
     renderBars();
     renderDefesa();
+    renderDeslocamento();
     renderAttrs();
     renderSkills();
     renderCombat();
@@ -1185,6 +1187,35 @@ function renderDefesa() {
         </div>`;
 }
 
+// DESLOCAMENTO (em metros): Base manual + Bônus manual + Passiva (habilidades ligadas)
+function renderDeslocamento() {
+    const base = charData.deslocamentoBase !== undefined && charData.deslocamentoBase !== null && charData.deslocamentoBase !== ''
+        ? parseFloat(charData.deslocamentoBase) : 9;
+    const bonus = parseFloat(charData.deslocamentoBonus) || 0;
+    const pb = getPassiveBonuses();
+    const passivoDeslocamento = pb.deslocamento || 0;
+    const deslocamentoTotal = base + bonus + passivoDeslocamento;
+
+    document.getElementById('deslocamento-container').innerHTML = `
+        <div class="flex items-center justify-between gap-3 bg-white/[0.02] border border-white/5 rounded-lg px-4 py-3">
+            <div>
+                <div class="text-[9px] uppercase tracking-widest text-white/40 font-bold">Deslocamento</div>
+                <div class="font-mono text-2xl font-black text-[var(--accent)] leading-tight">${deslocamentoTotal}m</div>
+                <div class="text-[9px] text-white/30 font-mono">Base + Bônus${passivoDeslocamento ? ` + ${passivoDeslocamento} (Passiva)` : ''}</div>
+            </div>
+            <div class="flex gap-2">
+                <div class="text-center">
+                    <label class="text-[9px] uppercase tracking-widest text-white/40 font-bold block mb-1">Base</label>
+                    <input type="number" id="inp-deslocamento-base" value="${base}" onchange="saveDeslocamentoBase(this.value)" class="input-glass w-16 text-sm text-center font-mono">
+                </div>
+                <div class="text-center">
+                    <label class="text-[9px] uppercase tracking-widest text-white/40 font-bold block mb-1">Bônus</label>
+                    <input type="number" id="inp-deslocamento-bonus" value="${bonus}" onchange="saveDeslocamentoBonus(this.value)" class="input-glass w-16 text-sm text-center font-mono">
+                </div>
+            </div>
+        </div>`;
+}
+
 // Soma os bônus temporários de habilidades passivas que o jogador tem "ligadas" no momento.
 // Poderes vinculados a uma emoção ACUMULAM os estágios: ao chegar no estágio 3, os bônus dos
 // estágios 1 e 2 continuam valendo, somados aos do 3 (progressão cumulativa, não substitutiva).
@@ -1196,6 +1227,7 @@ function getPassiveBonuses() {
     let defesa = 0;
     let danoCorpo = 0;
     let danoDistancia = 0;
+    let deslocamento = 0;
 
     // Migra o formato antigo (um único atributo + uma única perícia por estágio) pra dentro
     // das listas novas, assim poderes já cadastrados antes continuam funcionando.
@@ -1224,6 +1256,7 @@ function getPassiveBonuses() {
         defesa += parseFloat(est.passivoDefesa) || 0;
         danoCorpo += parseFloat(est.passivoDanoCorpo) || 0;
         danoDistancia += parseFloat(est.passivoDanoDistancia) || 0;
+        deslocamento += parseFloat(est.passivoDeslocamento) || 0;
     };
 
     (charData.poderes || []).forEach(poder => {
@@ -1239,7 +1272,7 @@ function getPassiveBonuses() {
         }
     });
 
-    return { atributos, pericias, treinoSet, defesa, danoCorpo, danoDistancia };
+    return { atributos, pericias, treinoSet, defesa, danoCorpo, danoDistancia, deslocamento };
 }
 
 function renderAttrs() {
@@ -2069,6 +2102,8 @@ window.setEmocaoSanidade = async (nome) => {
 window.saveSkill = (s, f, v) => updateDoc(doc(db, "personagens", charID), { [`pericias.${s}.${f}`]: f==='t'?v:parseFloat(v) });
 
 window.saveDefesaBonus = (v) => updateDoc(doc(db, "personagens", charID), { defesaBonus: parseFloat(v) || 0 });
+window.saveDeslocamentoBase = (v) => updateDoc(doc(db, "personagens", charID), { deslocamentoBase: parseFloat(v) || 0 });
+window.saveDeslocamentoBonus = (v) => updateDoc(doc(db, "personagens", charID), { deslocamentoBonus: parseFloat(v) || 0 });
 
 window.addCombatItem = () => {
     const novo = { nome: 'Nova Arma', pericia: 'Luta', dano: '1d6', tipo: 'corpo' };
