@@ -6,7 +6,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <meta charset="UTF-8"> 
-    <title>Ciclo Vitae - Ficha Final v3</title>
+    <title>Ciclo Vitae - Ficha</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
@@ -126,6 +126,34 @@
 
     .tabs-nav { display: flex; background: rgba(0,0,0,0.2); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.05); }
     .tab-btn { padding: 20px 30px; cursor: pointer; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); transition: 0.3s; border-bottom: 2px solid transparent; }
+
+    /* ======================== */
+    /* WIDGET DE COMBATE (só leitura) */
+    /* ======================== */
+    .combate-widget-box {
+        background: rgba(var(--accent-rgb, 139,92,246), 0.05);
+        border: 1px solid rgba(var(--accent-rgb, 139,92,246), 0.2);
+        border-radius: 14px; padding: 12px 16px; margin-bottom: 20px;
+    }
+    .combate-widget-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .combate-widget-title {
+        font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent);
+        font-family: 'Outfit', sans-serif;
+    }
+    .combate-widget-list { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; }
+    .cw-item {
+        flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 3px;
+        background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px;
+        padding: 8px 14px; min-width: 74px; opacity: 0.5; transition: 0.2s;
+    }
+    .cw-item.atual {
+        border-color: var(--accent); background: rgba(var(--accent-rgb, 139,92,246), 0.15); opacity: 1;
+        box-shadow: 0 0 14px rgba(var(--accent-rgb, 139,92,246), 0.25);
+    }
+    .cw-item.neutralizado { opacity: 0.28; }
+    .cw-item-tipo { font-size: 7px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.06em; color: rgba(255,255,255,0.35); }
+    .cw-item-nome { font-size: 10px; font-weight: 700; color: white; white-space: nowrap; }
+    .cw-item-pv { font-size: 9px; font-family: 'JetBrains Mono'; color: rgba(255,255,255,0.4); }
     .tab-active { color: white; border-bottom-color: var(--accent); background: linear-gradient(to top, rgba(var(--accent-rgb), 0.05), transparent); }
 
     main { flex-grow: 1; height: 100vh; overflow-y: auto; background-image: radial-gradient(circle at 50% 0%, rgba(var(--accent-rgb), 0.08), transparent 70%); }
@@ -700,6 +728,12 @@
 </aside>
 
 <main>
+<div id="combate-widget" class="combate-widget-box hidden">
+    <div class="combate-widget-header">
+        <span class="combate-widget-title">⚔ Combate — Rodada <span id="cw-rodada">1</span></span>
+    </div>
+    <div id="cw-lista" class="combate-widget-list"></div>
+</div>
 <nav class="flex flex-nowrap overflow-x-auto no-scrollbar border-b border-white/5 gap-2 mb-6">
     <button id="tab-pericias" onclick="setTab('pericias')" class="tab-btn whitespace-nowrap tab-active">Perícias</button>
     <button id="tab-combate" onclick="setTab('combate')" class="tab-btn whitespace-nowrap">Combate</button>
@@ -2233,6 +2267,41 @@ onSnapshot(doc(db, "personagens", charID), async (snap) => {
     }
 }, (error) => {
     console.error("Erro no Firebase Snapshot:", error);
+});
+
+// ========================
+// WIDGET DE COMBATE (só leitura, sincronizado com a mesa do mestre)
+// ========================
+onSnapshot(doc(db, "mesa", "iniciativa"), (snap) => {
+    const box = document.getElementById('combate-widget');
+    const lista = document.getElementById('cw-lista');
+    if (!box || !lista) return;
+
+    if (!snap.exists() || !(snap.data().ordem || []).length) {
+        box.classList.add('hidden');
+        return;
+    }
+
+    const d = snap.data();
+    const ordem = d.ordem || [];
+    const turnoAtual = d.turnoAtual || 0;
+    const rodada = d.rodada || 1;
+
+    document.getElementById('cw-rodada').innerText = rodada;
+
+    lista.innerHTML = ordem.map((e, idx) => {
+        const neutral = e.estadoInstancia === 'neutralizado';
+        return `
+        <div class="cw-item ${idx === turnoAtual ? 'atual' : ''} ${neutral ? 'neutralizado' : ''}">
+            <span class="cw-item-tipo">${e.tipo === 'personagem' ? 'PJ' : 'Ameaça'}</span>
+            <span class="cw-item-nome">${e.nome}</span>
+            <span class="cw-item-pv">${e.vidaAtual ?? 0}/${e.vidaMax ?? 0} PV</span>
+        </div>`;
+    }).join('');
+
+    box.classList.remove('hidden');
+}, (error) => {
+    console.error("Erro no Firebase Snapshot (combate):", error);
 });
 
 
