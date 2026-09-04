@@ -668,6 +668,16 @@ select option { background: #1a1a1f; color: white; padding: 10px; }
 }
 .ac-banner-icon-btn:hover { color: white; border-color: rgba(255,255,255,0.4); }
 .ac-banner-content { position: relative; z-index: 1; width: 100%; }
+.ac-crop-panel {
+    position: absolute; bottom: 8px; left: 8px; right: 8px; z-index: 2;
+    background: rgba(0,0,0,0.65); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px;
+    padding: 8px 12px; display: flex; gap: 14px; align-items: center; backdrop-filter: blur(4px);
+}
+.ac-crop-panel label {
+    font-size: 8px; font-weight: 800; color: rgba(255,255,255,0.6); display: flex; align-items: center;
+    gap: 6px; flex: 1; text-transform: uppercase; letter-spacing: 0.05em;
+}
+.ac-crop-panel input[type="range"] { flex: 1; accent-color: var(--accent); cursor: pointer; }
 .ac-banner-name-input {
     background: transparent; border: none; outline: none; color: white;
     font-family: 'Outfit', sans-serif; font-weight: 900; font-size: 19px; width: 100%; padding: 0;
@@ -817,8 +827,9 @@ select option { background: #1a1a1f; color: white; padding: 10px; }
 .ac-accordion-body-row { display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
 .ac-accordion-body-row select, .ac-accordion-body-row input { flex: 1; min-width: 90px; }
 
+.ac-descricao-img-wrap { position: relative; margin-bottom: 12px; }
 .ac-descricao-img {
-    width: 100%; height: 140px; border-radius: 12px; object-fit: cover; margin-bottom: 12px;
+    width: 100%; height: 140px; border-radius: 12px; object-fit: cover; display: block;
     background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); cursor: pointer;
 }
 .ac-descricao-img-empty {
@@ -826,6 +837,8 @@ select option { background: #1a1a1f; color: white; padding: 10px; }
     background: rgba(255,255,255,0.03); border: 1px dashed rgba(255,255,255,0.15); cursor: pointer;
     display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.25); font-size: 11px;
 }
+.ac-desc-crop-btn { position: absolute; top: 8px; right: 8px; z-index: 2; }
+.ac-descricao-img-wrap .ac-crop-panel { bottom: 8px; left: 8px; right: 8px; }
 
 .ac-notas-footer { border-top: 1px solid rgba(255,255,255,0.06); }
 .ac-notas-toggle {
@@ -945,7 +958,7 @@ select option { background: #1a1a1f; color: white; padding: 10px; }
 
     <div id="main-panel" class="master-grid">
         <aside class="sidebar">
-            <h1 class="font-title text-white uppercase italic tracking-tighter text-xl">Master <span class="text-purple-500">Deck</span></h1>
+            <h1 class="font-title text-white uppercase italic tracking-tighter text-xl">Dados do <span class="text-purple-500">Mestre</span></h1>
             
             <div class="space-y-4">
                 <div class="flex gap-2">
@@ -1597,7 +1610,7 @@ onSnapshot(query(collection(db, "logs_rolagens"), orderBy("timestamp", "desc"), 
     // Estado de UI (aba ativa, acordeões abertos) por ameaça — não persistido no Firestore
     const ameacaUI = {};
     function getAmeacaUI(id) {
-        if (!ameacaUI[id]) ameacaUI[id] = { tab: 'status', combateSub: 'acoes', expAcoes: {}, expPoderes: {}, notasAberta: false };
+        if (!ameacaUI[id]) ameacaUI[id] = { tab: 'status', combateSub: 'acoes', expAcoes: {}, expPoderes: {}, notasAberta: false, cropOpen: false, cropDescOpen: false };
         return ameacaUI[id];
     }
 
@@ -1610,6 +1623,10 @@ onSnapshot(query(collection(db, "logs_rolagens"), orderBy("timestamp", "desc"), 
             revelado: false,
             fotoURL: '',
             fotoDescricaoURL: '',
+            fotoDescricaoPosX: 50,
+            fotoDescricaoPosY: 50,
+            fotoPosX: 50,
+            fotoPosY: 25,
             status: { Vida: { a: 10, m: 10 } },
             defesa: 10,
             deslocamento: '',
@@ -1680,6 +1697,50 @@ onSnapshot(query(collection(db, "logs_rolagens"), orderBy("timestamp", "desc"), 
             console.error('Erro ao enviar foto da ameaça:', e);
             alert('Erro ao enviar a imagem. Tente novamente.');
         }
+    };
+
+    window.toggleCropPanel = (id) => {
+        const ui = getAmeacaUI(id);
+        ui.cropOpen = !ui.cropOpen;
+        rerenderAmeacaCard(id);
+    };
+
+    window.atualizarCropAoVivo = (id) => {
+        const banner = document.querySelector(`#ameaca-card-wrap-${id} .ac-banner`);
+        const xInput = document.getElementById(`ac-crop-x-${id}`);
+        const yInput = document.getElementById(`ac-crop-y-${id}`);
+        if (!banner || !xInput || !yInput) return;
+        banner.style.backgroundPosition = `${xInput.value}% ${yInput.value}%`;
+    };
+
+    window.persistCrop = async (id) => {
+        const xInput = document.getElementById(`ac-crop-x-${id}`);
+        const yInput = document.getElementById(`ac-crop-y-${id}`);
+        const x = parseInt(xInput?.value) || 0;
+        const y = parseInt(yInput?.value) || 0;
+        await updateDoc(doc(db, "ameacas", id), { fotoPosX: x, fotoPosY: y });
+    };
+
+    window.toggleCropPanelDesc = (id) => {
+        const ui = getAmeacaUI(id);
+        ui.cropDescOpen = !ui.cropDescOpen;
+        rerenderAmeacaCard(id);
+    };
+
+    window.atualizarCropDescAoVivo = (id) => {
+        const img = document.getElementById(`ac-desc-img-${id}`);
+        const xInput = document.getElementById(`ac-crop-desc-x-${id}`);
+        const yInput = document.getElementById(`ac-crop-desc-y-${id}`);
+        if (!img || !xInput || !yInput) return;
+        img.style.objectPosition = `${xInput.value}% ${yInput.value}%`;
+    };
+
+    window.persistCropDesc = async (id) => {
+        const xInput = document.getElementById(`ac-crop-desc-x-${id}`);
+        const yInput = document.getElementById(`ac-crop-desc-y-${id}`);
+        const x = parseInt(xInput?.value) || 0;
+        const y = parseInt(yInput?.value) || 0;
+        await updateDoc(doc(db, "ameacas", id), { fotoDescricaoPosX: x, fotoDescricaoPosY: y });
     };
 
     function escAttr(s) {
@@ -1792,7 +1853,7 @@ onSnapshot(query(collection(db, "logs_rolagens"), orderBy("timestamp", "desc"), 
     window.addAmeacaAcao = async (id) => {
         const a = ameacasCache.find(x => x.id === id);
         if (!a) return;
-        const nova = [...(a.combate || []), { nome: 'Nova Ação', tipoAcao: 'Padrão', pericia: 'Luta', dano: '1d6', tipo: 'corpo', descricao: '' }];
+        const nova = [...(a.combate || []), { nome: 'Nova Ação', tipoAcao: 'Padrão', pericia: 'Luta', atributo: '', dano: '1d6', tipo: 'corpo', descricao: '' }];
         await atualizarArrayAmeaca(id, 'combate', nova);
     };
 
@@ -1864,6 +1925,10 @@ onSnapshot(query(collection(db, "logs_rolagens"), orderBy("timestamp", "desc"), 
         const estado = a.estado || 'ativa';
         const v = a.status?.Vida || { a: 10, m: 10 };
         const foto = a.fotoURL || '';
+        const posX = a.fotoPosX ?? 50;
+        const posY = a.fotoPosY ?? 25;
+        const descPosX = a.fotoDescricaoPosX ?? 50;
+        const descPosY = a.fotoDescricaoPosY ?? 50;
         const atributos = { Vitalidade: 0, Projeção: 0, Conhecimento: 0, Encantamento: 0, Influencia: 0, Espiritualidade: 0, ...(a.atributos || {}) };
         const pericias = a.pericias || {};
         const traco = a.tracoSinatura || {};
@@ -1912,6 +1977,12 @@ onSnapshot(query(collection(db, "logs_rolagens"), orderBy("timestamp", "desc"), 
                         </select>
                     </div>
                     <div class="ac-accordion-body-row">
+                        <select class="poder-input" onchange="setAmeacaAcaoCampo('${id}', ${idx}, 'atributo', this.value)" title="Atributo usado no teste de ataque">
+                            <option value="" ${!item.atributo ? 'selected' : ''}>Auto (${ATRIBUTOS_ABREV[SKILLS_MAP[item.pericia] || 'Influencia']})</option>
+                            ${ATRIBUTOS_LISTA.map(attr => `<option value="${attr}" ${item.atributo === attr ? 'selected' : ''}>${ATRIBUTOS_ABREV[attr]}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div class="ac-accordion-body-row">
                         <input class="poder-input" value="${escAttr(item.dano || '')}" placeholder="Dano ex: 2d6+3" onchange="setAmeacaAcaoCampo('${id}', ${idx}, 'dano', this.value)">
                         <select class="poder-input" onchange="setAmeacaAcaoCampo('${id}', ${idx}, 'tipo', this.value)">
                             <option value="corpo" ${item.tipo === 'corpo' ? 'selected' : ''}>Corpo</option>
@@ -1941,14 +2012,20 @@ onSnapshot(query(collection(db, "logs_rolagens"), orderBy("timestamp", "desc"), 
 
         return `
         <div class="ac-card" style="${opacoStyle}">
-            <div class="ac-banner" style="${foto ? `background-image:url('${foto}');` : ''}" onclick="document.getElementById('ac-foto-input-${id}').click()">
+            <div class="ac-banner" style="${foto ? `background-image:url('${foto}'); background-position: ${posX}% ${posY}%;` : ''}" onclick="document.getElementById('ac-foto-input-${id}').click()">
                 <div class="ac-banner-overlay"></div>
                 <div class="ac-banner-top">
+                    <span class="ac-banner-icon-btn" title="Ajustar enquadramento da foto" onclick="event.stopPropagation(); toggleCropPanel('${id}')">🖼️</span>
                     <span class="ac-banner-icon-btn" title="${estado === 'ativa' ? 'Ativa (clique p/ neutralizar)' : 'Neutralizada (clique p/ reativar)'}" onclick="event.stopPropagation(); toggleAmeacaEstado('${id}','${estado}')">${estado === 'ativa' ? '☠' : '⭕'}</span>
                     <span class="ac-banner-icon-btn" title="${revelado ? 'Ocultar dos jogadores' : 'Revelar aos jogadores'}" style="${revelado ? 'color:#4ade80;border-color:rgba(74,222,128,0.4);' : ''}" onclick="event.stopPropagation(); toggleAmeacaRevelado('${id}', ${revelado})">${revelado ? '👁' : '🚫'}</span>
                     <span class="ac-banner-icon-btn" title="Deletar ameaça" onclick="event.stopPropagation(); deletarAmeaca('${id}','${escAttr(nome)}')">🗑</span>
                 </div>
                 <input type="file" id="ac-foto-input-${id}" accept="image/*" style="display:none" onclick="event.stopPropagation()" onchange="uploadFotoAmeaca('${id}', this.files[0], 'fotoURL')">
+                ${ui.cropOpen ? `
+                <div class="ac-crop-panel" onclick="event.stopPropagation()">
+                    <label>H <input type="range" min="0" max="100" id="ac-crop-x-${id}" value="${posX}" oninput="atualizarCropAoVivo('${id}')" onchange="persistCrop('${id}')"></label>
+                    <label>V <input type="range" min="0" max="100" id="ac-crop-y-${id}" value="${posY}" oninput="atualizarCropAoVivo('${id}')" onchange="persistCrop('${id}')"></label>
+                </div>` : ''}
                 <div class="ac-banner-content" onclick="event.stopPropagation()">
                     <input class="ac-banner-name-input" value="${escAttr(nome)}" onchange="setAmeacaCampo('${id}','nome', this.value)">
                     <div class="ac-banner-meta">
@@ -2032,7 +2109,15 @@ onSnapshot(query(collection(db, "logs_rolagens"), orderBy("timestamp", "desc"), 
 
             <div class="ac-tab-content ${ui.tab === 'descricao' ? '' : 'hidden'}">
                 ${a.fotoDescricaoURL
-                    ? `<img class="ac-descricao-img" src="${a.fotoDescricaoURL}" onclick="document.getElementById('ac-foto-desc-input-${id}').click()">`
+                    ? `<div class="ac-descricao-img-wrap">
+                        <img class="ac-descricao-img" id="ac-desc-img-${id}" src="${a.fotoDescricaoURL}" style="object-position: ${descPosX}% ${descPosY}%;" onclick="document.getElementById('ac-foto-desc-input-${id}').click()">
+                        <span class="ac-banner-icon-btn ac-desc-crop-btn" title="Ajustar enquadramento" onclick="event.stopPropagation(); toggleCropPanelDesc('${id}')">🖼️</span>
+                        ${ui.cropDescOpen ? `
+                        <div class="ac-crop-panel" onclick="event.stopPropagation()">
+                            <label>H <input type="range" min="0" max="100" id="ac-crop-desc-x-${id}" value="${descPosX}" oninput="atualizarCropDescAoVivo('${id}')" onchange="persistCropDesc('${id}')"></label>
+                            <label>V <input type="range" min="0" max="100" id="ac-crop-desc-y-${id}" value="${descPosY}" oninput="atualizarCropDescAoVivo('${id}')" onchange="persistCropDesc('${id}')"></label>
+                        </div>` : ''}
+                       </div>`
                     : `<div class="ac-descricao-img-empty" onclick="document.getElementById('ac-foto-desc-input-${id}').click()">Clique para adicionar uma imagem</div>`}
                 <input type="file" id="ac-foto-desc-input-${id}" accept="image/*" style="display:none" onchange="uploadFotoAmeaca('${id}', this.files[0], 'fotoDescricaoURL')">
                 <textarea class="poder-textarea" rows="6" placeholder="Descrição / lore que os jogadores veem quando a ameaça é revelada..." onblur="setAmeacaCampo('${id}','descricaoPublica', this.value)">${a.descricaoPublica || ''}</textarea>
@@ -2231,7 +2316,7 @@ onSnapshot(query(collection(db, "logs_rolagens"), orderBy("timestamp", "desc"), 
         if (modo === 'dano') {
             await executarRolagemDano(nomeOrigem, item.nome, item.dano, prefixo);
         } else {
-            const attrKey = SKILLS_MAP[item.pericia] || 'Influencia';
+            const attrKey = item.atributo || SKILLS_MAP[item.pericia] || 'Influencia';
             const attrVal = (source.atributos && source.atributos[attrKey]) || 0;
             const p = (source.pericias && source.pericias[item.pericia]) || { b: 0, t: false };
             const soma = attrVal + (p.t ? 2 : 0) + (parseFloat(p.b) || 0);
