@@ -2831,3 +2831,482 @@ onSnapshot(query(collection(db, "logs_rolagens"), orderBy("timestamp", "desc"), 
         persistIniciativa();
     };
 
+    window.ordenarIniciativaPorValor = () => {
+        const entryAtual = iniciativaData.ordem[iniciativaData.turnoAtual];
+        iniciativaData.ordem.sort((a, b) => (b.valor || 0) - (a.valor || 0));
+        if (entryAtual) iniciativaData.turnoAtual = iniciativaData.ordem.indexOf(entryAtual);
+        persistIniciativa();
+    };
+
+    window.proximoTurnoIniciativa = () => {
+        if (!iniciativaData.ordem.length) return;
+        iniciativaData.turnoAtual++;
+        if (iniciativaData.turnoAtual >= iniciativaData.ordem.length) {
+            iniciativaData.turnoAtual = 0;
+            iniciativaData.rodada = (iniciativaData.rodada || 1) + 1;
+        }
+        persistIniciativa();
+    };
+
+    window.limparIniciativa = () => {
+        if (!confirm('Limpar toda a ordem de combate e reiniciar a rodada?')) return;
+        iniciativaData = { ordem: [], turnoAtual: 0, rodada: 1 };
+        persistIniciativa();
+    };
+
+    // ========================
+    // PAINEL DE PODERES (cada personagem tem sua própria lista,
+    // e cada poder tem 3 estágios que acompanham o nível da emoção vinculada)
+    // ========================
+    const PERICIAS_LISTA = [
+        "Acrobacia","Adestramento","Atletismo","Atuação","Cura","Diplomacia",
+        "Enganação","Fortitude","Furtividade","Iniciativa","Intimidação","Intuição",
+        "Investigação","Ladinagem","Luta","Misticismo","Percepção","Pilotagem",
+        "Pontaria","Reflexos","Religião","Sobrevivência","Vontade"
+    ];
+
+    const ATRIBUTOS_LISTA = ["Vitalidade","Projeção","Conhecimento","Encantamento","Influencia","Espiritualidade"];
+
+    let poderModalCharId = null;
+    let poderModalPoderes = [];
+    let poderModalEmocoesAtual = {}; // emoções atuais do personagem cuja ficha de poderes está aberta
+    let poderStageTab = {}; // id do poder -> estágio (1,2,3) sendo editado no momento
+    let poderExpandido = {}; // id do poder -> true/false (cards compactos vs expandidos)
+
+    function estagioVazio() {
+        return {
+            nome: '', desc: '', dano: '', pericia: '',
+            passivoAtributos: [], passivoPericias: [], // podem ter várias entradas cada, uma por atributo/perícia
+            passivoDefesa: '', passivoDanoCorpo: '', passivoDanoDistancia: '', passivoDeslocamento: '', // bônus fixos de defesa, dano de arma por tipo e deslocamento
+            passivoVidaTemp: '', passivoSanidadeTemp: '', // vida/sanidade temporária concedida enquanto ativado
+            autoAtributo: '', autoAtributoValor: '', autoPericia: '', autoPericiaValor: '', autoTreino: false,
+            passivoAtributo: '', passivoAtributoValor: '', passivoPericia: '', passivoPericiaValor: '', passivoTreino: false
+        };
+    }
+
+    // Atributos/perícias passivas já marcados nesse estágio — migra os campos antigos (um único
+    // atributo + uma única perícia) pra dentro das listas novas, mantendo poderes já cadastrados.
+    function passivoAtributosDoEstagio(est) {
+        if (est.passivoAtributos && est.passivoAtributos.length) return est.passivoAtributos;
+        return est.passivoAtributo ? [{ nome: est.passivoAtributo, valor: est.passivoAtributoValor || 0 }] : [];
+    }
+    function passivoPericiasDoEstagio(est) {
+        if (est.passivoPericias && est.passivoPericias.length) return est.passivoPericias;
+        return est.passivoPericia ? [{ nome: est.passivoPericia, valor: est.passivoPericiaValor || 0, treino: !!est.passivoTreino }] : [];
+    }
+
+    function poderVazio() {
+        return {
+            id: String(Date.now()) + Math.random().toString(16).slice(2, 6),
+            nome: '',
+            emocao: '',
+            descoberto: false,
+            ativado: false,
+            passivoHabilitado: false,
+            ligado: false,
+            estagios: {
+                1: estagioVazio(),
+                2: estagioVazio(),
+                3: estagioVazio()
+            }
+        };
+    }
+
+    function persistPoderes() {
+        if (!poderModalCharId) return;
+        updateDoc(doc(db, "personagens", poderModalCharId), { poderes: poderModalPoderes });
+    }
+
+    function buildPoderCardHTML(poder) {
+        const cfg = poder.emocao ? EMOCOES_CONFIG[poder.emocao] : null;
+        const cor = cfg ? cfg.cor : '#8b5cf6';
+        const nivelAtual = poder.emocao ? (poderModalEmocoesAtual[poder.emocao]?.nivel || 0) : 0;
+        const expandido = !!poderExpandido[poder.id];
+
+        const tagCompacta = poder.emocao
+            ? (nivelAtual > 0 ? cfg.niveis[nivelAtual] : 'neutro')
+            : 'fixo';
+
+        const headerCompacto = `
+        <div class="poder-compacto-header" onclick="togglePoderExpandido('${poder.id}')">
+            <span class="poder-compacto-icon">${cfg ? cfg.icon : '✦'}</span>
+            <span class="poder-compacto-nome">${poder.nome || 'Poder sem nome'}</span>
+            <span class="poder-compacto-tag" style="${nivelAtual > 0 ? `color:${cor};border-color:${cor}55;` : ''}">${tagCompacta}</span>
+            <span class="poder-compacto-toggles">${poder.descoberto ? '👁' : ''}${poder.ativado ? '⚡' : ''}${poder.passivoHabilitado ? (poder.ligado ? '🔛' : '🔁') : ''}</span>
+            <span class="poder-compacto-expand">${expandido ? '▴' : '▾'}</span>
+        </div>`;
+
+        // Card compactado (habilidade neutra / recolhida) — só o cabeçalho
+        if (!expandido) {
+            return `<div class="poder-item-card poder-compacto" id="poder-card-${poder.id}" style="border-left: 3px solid ${cor}55;">${headerCompacto}</div>`;
+        }
+
+        const emocaoOptions = ['', ...Object.keys(EMOCOES_CONFIG)].map(k =>
+            `<option value="${k}" ${poder.emocao === k ? 'selected' : ''}>${k || '— Nenhuma (poder fixo) —'}</option>`
+        ).join('');
+
+        const stageAtiva = poderStageTab[poder.id] || 1;
+        const tabs = [1, 2, 3].map(n => {
+            const hint = cfg ? cfg.niveis[n] : `Estágio ${n}`;
+            return `<div class="poder-stage-tab ${stageAtiva === n ? 'ativo' : ''}" style="--stage-cor:${cor}" onclick="selecionarEstagioTab('${poder.id}', ${n})" title="Nível ${n}">${hint}</div>`;
+        }).join('');
+
+        const est = (poder.estagios && poder.estagios[stageAtiva]) || estagioVazio();
+        const optionsPericia = ['', ...PERICIAS_LISTA].map(p => `<option value="${p}" ${est.pericia === p ? 'selected' : ''}>${p || '— Nenhuma (passiva, sem rolagem) —'}</option>`).join('');
+        const optionsAtributoAlvo = ['', ...ATRIBUTOS_LISTA].map(a => `<option value="${a}" ${est.autoAtributo === a ? 'selected' : ''}>${a || '— Nenhum —'}</option>`).join('');
+        const optionsPericiaAlvo = ['', ...PERICIAS_LISTA].map(p => `<option value="${p}" ${est.autoPericia === p ? 'selected' : ''}>${p || '— Nenhuma —'}</option>`).join('');
+
+        const passivoAtributosList = passivoAtributosDoEstagio(est);
+        const passivoPericiasList = passivoPericiasDoEstagio(est);
+        const chipsPassivoAtributo = ATRIBUTOS_LISTA.map(a =>
+            `<span class="poder-chip poder-chip-atributo ${passivoAtributosList.some(i => i.nome === a) ? 'ativo' : ''}" onclick="togglePassivoItem('${poder.id}', ${stageAtiva}, 'passivoAtributos', '${a}')">${a}</span>`
+        ).join('');
+        const chipsPassivoPericia = PERICIAS_LISTA.map(p =>
+            `<span class="poder-chip ${passivoPericiasList.some(i => i.nome === p) ? 'ativo' : ''}" onclick="togglePassivoItem('${poder.id}', ${stageAtiva}, 'passivoPericias', '${p}')">${p}</span>`
+        ).join('');
+        const rowsPassivoAtributo = passivoAtributosList.map((item, idx) => `
+            <div class="poder-passivo-row">
+                <span class="poder-passivo-row-nome">${item.nome}</span>
+                <input type="number" class="poder-input poder-passivo-row-valor" placeholder="Bônus" value="${item.valor ?? 0}" oninput="setPassivoItemValor('${poder.id}', ${stageAtiva}, 'passivoAtributos', ${idx}, this.value)">
+            </div>`).join('');
+        const rowsPassivoPericia = passivoPericiasList.map((item, idx) => `
+            <div class="poder-passivo-row">
+                <span class="poder-passivo-row-nome">${item.nome}</span>
+                <input type="number" class="poder-input poder-passivo-row-valor" placeholder="Bônus" value="${item.valor ?? 0}" oninput="setPassivoItemValor('${poder.id}', ${stageAtiva}, 'passivoPericias', ${idx}, this.value)">
+                <label class="poder-passivo-row-treino"><input type="checkbox" ${item.treino ? 'checked' : ''} onchange="setPassivoItemTreino('${poder.id}', ${stageAtiva}, ${idx}, this.checked)">treino</label>
+            </div>`).join('');
+
+        const passivoBox = !poder.passivoHabilitado ? '' : `
+            <div class="poder-passivo-box">
+                <div class="poder-passivo-label">🔁 Bônus enquanto o jogador mantiver ativado (some ao desligar)</div>
+                <label style="font-size:8px; text-transform:uppercase; letter-spacing:0.15em; color:rgba(255,255,255,0.3); display:block; margin-bottom:4px;">Atributos passivos (marque quantos quiser)</label>
+                <div class="poder-chips-wrap">${chipsPassivoAtributo}</div>
+                ${rowsPassivoAtributo ? `<div class="poder-passivo-rows">${rowsPassivoAtributo}</div>` : ''}
+                <label style="font-size:8px; text-transform:uppercase; letter-spacing:0.15em; color:rgba(255,255,255,0.3); display:block; margin:8px 0 4px;">Perícias passivas (marque quantas quiser)</label>
+                <div class="poder-chips-wrap">${chipsPassivoPericia}</div>
+                ${rowsPassivoPericia ? `<div class="poder-passivo-rows">${rowsPassivoPericia}</div>` : ''}
+                <label style="font-size:8px; text-transform:uppercase; letter-spacing:0.15em; color:rgba(255,255,255,0.3); display:block; margin:8px 0 4px;">Combate (bônus fixos)</label>
+                <div class="poder-passivo-rows">
+                    <div class="poder-passivo-row">
+                        <span class="poder-passivo-row-nome">🛡 Defesa</span>
+                        <input type="number" class="poder-input poder-passivo-row-valor" placeholder="Bônus" value="${est.passivoDefesa ?? ''}" oninput="setPoderEstagioCampo('${poder.id}', ${stageAtiva}, 'passivoDefesa', this.value)">
+                    </div>
+                    <div class="poder-passivo-row">
+                        <span class="poder-passivo-row-nome">⚔ Dano corpo-a-corpo</span>
+                        <input type="number" class="poder-input poder-passivo-row-valor" placeholder="Bônus" value="${est.passivoDanoCorpo ?? ''}" oninput="setPoderEstagioCampo('${poder.id}', ${stageAtiva}, 'passivoDanoCorpo', this.value)">
+                    </div>
+                    <div class="poder-passivo-row">
+                        <span class="poder-passivo-row-nome">🏹 Dano à distância</span>
+                        <input type="number" class="poder-input poder-passivo-row-valor" placeholder="Bônus" value="${est.passivoDanoDistancia ?? ''}" oninput="setPoderEstagioCampo('${poder.id}', ${stageAtiva}, 'passivoDanoDistancia', this.value)">
+                    </div>
+                    <div class="poder-passivo-row">
+                        <span class="poder-passivo-row-nome">🏃 Deslocamento (m)</span>
+                        <input type="number" class="poder-input poder-passivo-row-valor" placeholder="Bônus" value="${est.passivoDeslocamento ?? ''}" oninput="setPoderEstagioCampo('${poder.id}', ${stageAtiva}, 'passivoDeslocamento', this.value)">
+                    </div>
+                </div>
+                <label style="font-size:8px; text-transform:uppercase; letter-spacing:0.15em; color:rgba(255,255,255,0.3); display:block; margin:8px 0 4px;">Vida & Sanidade temporária</label>
+                <div class="poder-passivo-rows">
+                    <div class="poder-passivo-row">
+                        <span class="poder-passivo-row-nome">❤ Vida temporária</span>
+                        <input type="number" class="poder-input poder-passivo-row-valor" placeholder="Qtd" value="${est.passivoVidaTemp ?? ''}" oninput="setPoderEstagioCampo('${poder.id}', ${stageAtiva}, 'passivoVidaTemp', this.value)">
+                    </div>
+                    <div class="poder-passivo-row">
+                        <span class="poder-passivo-row-nome">🧠 Sanidade temporária</span>
+                        <input type="number" class="poder-input poder-passivo-row-valor" placeholder="Qtd" value="${est.passivoSanidadeTemp ?? ''}" oninput="setPoderEstagioCampo('${poder.id}', ${stageAtiva}, 'passivoSanidadeTemp', this.value)">
+                    </div>
+                </div>
+                <div class="poder-passivo-hint">Vale só para este estágio (${cfg ? cfg.niveis[stageAtiva] : 'estágio ' + stageAtiva}). O jogador liga/desliga na ficha dele — some sozinho ao desligar. Dano corpo-a-corpo soma nas armas do tipo "Corpo"; dano à distância soma nas armas do tipo "Distância"; Deslocamento soma direto no total de metros da ficha. Vida/Sanidade temporária é somada de verdade na barra ao ativar e, ao desativar, volta pro valor de antes — mas só se a barra ainda não tiver caído abaixo desse valor por dano/desgaste.</div>
+            </div>`;
+
+        const autoBox = `
+            <div class="poder-auto-box">
+                <div class="poder-auto-label">⚙ Progressão automática ao alcançar este estágio</div>
+                <div class="poder-auto-grid">
+                    <div>
+                        <label>Atributo alvo</label>
+                        <select class="poder-input" onchange="setPoderEstagioCampo('${poder.id}', ${stageAtiva}, 'autoAtributo', this.value)">${optionsAtributoAlvo}</select>
+                    </div>
+                    <div>
+                        <label>Valor</label>
+                        <input type="number" class="poder-input" value="${est.autoAtributoValor ?? ''}" oninput="setPoderEstagioCampo('${poder.id}', ${stageAtiva}, 'autoAtributoValor', this.value)">
+                    </div>
+                    <div>
+                        <label>Perícia alvo</label>
+                        <select class="poder-input" onchange="setPoderEstagioCampo('${poder.id}', ${stageAtiva}, 'autoPericia', this.value)">${optionsPericiaAlvo}</select>
+                    </div>
+                    <div>
+                        <label>Bônus</label>
+                        <input type="number" class="poder-input" value="${est.autoPericiaValor ?? ''}" oninput="setPoderEstagioCampo('${poder.id}', ${stageAtiva}, 'autoPericiaValor', this.value)">
+                    </div>
+                </div>
+                <label class="poder-auto-treino">
+                    <input type="checkbox" ${est.autoTreino ? 'checked' : ''} onchange="setPoderEstagioCampo('${poder.id}', ${stageAtiva}, 'autoTreino', this.checked)">
+                    Marcar a perícia como treinada automaticamente
+                </label>
+                ${!poder.emocao
+                    ? `<button class="btn-aplicar-sem-emocao" onclick="aplicarMudancaSemEmocao('${poder.id}')">✓ Ativar mudanças agora (poder sem emoção)</button>`
+                    : `<div class="poder-auto-hint">Some sozinho quando ${poder.emocao || 'a emoção'} atingir este estágio (${cfg ? cfg.niveis[stageAtiva] : ''}). Só sobe o valor — nunca reduz o que o personagem já tem.</div>`
+                }
+            </div>`;
+
+        return `
+        <div class="poder-item-card" id="poder-card-${poder.id}" style="border-left: 3px solid ${cor}55;">
+            ${headerCompacto}
+            <div class="poder-item-topo">
+                <div>
+                    <label style="font-size:8px; text-transform:uppercase; letter-spacing:0.15em; color:rgba(255,255,255,0.25); display:block; margin-bottom:4px;">Nome do Poder</label>
+                    <input class="poder-input" placeholder="Ex: Ressonância, Eco da Alma..." value="${poder.nome || ''}" oninput="setPoderCampo('${poder.id}', 'nome', this.value)">
+                </div>
+                <div>
+                    <label style="font-size:8px; text-transform:uppercase; letter-spacing:0.15em; color:rgba(255,255,255,0.25); display:block; margin-bottom:4px;">Emoção Vinculada</label>
+                    <select class="poder-input" onchange="setPoderCampoRender('${poder.id}', 'emocao', this.value)">${emocaoOptions}</select>
+                </div>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div class="poder-item-toggles">
+                    <div class="poder-toggle-mini ${poder.descoberto ? 'ativo' : ''}" onclick="toggleDescoberto('${poder.id}')" title="O jogador sabe que o poder existe, mas não vê o conteúdo">👁 Descoberto</div>
+                    <div class="poder-toggle-mini ${poder.ativado ? 'ativo' : ''}" onclick="toggleAtivado('${poder.id}')" title="O jogador pode ver e usar o conteúdo do poder">⚡ Ativado</div>
+                    <div class="poder-toggle-mini ${poder.passivoHabilitado ? 'ativo' : ''}" onclick="togglePassivoHabilitado('${poder.id}')" title="Mostra o botão Ativar/Desativar na ficha do jogador para aplicar bônus passivos">🔁 Passiva</div>
+                </div>
+                <button class="btn-remove-poder" onclick="removePoderMestre('${poder.id}')">Remover</button>
+            </div>
+
+            <div>
+                <div class="poder-stage-tabs">${tabs}</div>
+                <div class="poder-stage-hint">${cfg ? `Estágio ${stageAtiva} de 3 — ativa quando ${poder.emocao} chega no nível ${stageAtiva}` : 'Sem emoção vinculada — o jogador sempre vê o estágio 1'}</div>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:8px;">
+                    <div>
+                        <label style="font-size:8px; text-transform:uppercase; letter-spacing:0.15em; color:rgba(255,255,255,0.25); display:block; margin-bottom:4px;">Nome nesse estágio</label>
+                        <input class="poder-input" style="font-size:12px;" placeholder="Ex: Chama Frenética..." value="${est.nome || ''}" oninput="setPoderEstagioCampo('${poder.id}', ${stageAtiva}, 'nome', this.value)">
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
+                        <div>
+                            <label style="font-size:8px; text-transform:uppercase; letter-spacing:0.15em; color:rgba(255,255,255,0.25); display:block; margin-bottom:4px;">Dano (aceita INF/CON/VIT/PRO/ENC/ESP)</label>
+                            <input class="poder-input" style="font-size:12px; font-family:monospace;" placeholder="2d6+INF" value="${est.dano || ''}" oninput="setPoderEstagioCampo('${poder.id}', ${stageAtiva}, 'dano', this.value)">
+                        </div>
+                        <div>
+                            <label style="font-size:8px; text-transform:uppercase; letter-spacing:0.15em; color:rgba(255,255,255,0.25); display:block; margin-bottom:4px;">Perícia (usada na rolagem 1d20 do jogador)</label>
+                            <select class="poder-input" style="font-size:11px; padding: 8px 10px;" onchange="setPoderEstagioCampo('${poder.id}', ${stageAtiva}, 'pericia', this.value)">${optionsPericia}</select>
+                        </div>
+                    </div>
+                </div>
+                <label style="font-size:8px; text-transform:uppercase; letter-spacing:0.15em; color:rgba(255,255,255,0.25); display:block; margin-bottom:4px;">Descrição / Efeito</label>
+                <textarea class="poder-textarea" rows="2" placeholder="O que esse poder faz nesse estágio..." oninput="setPoderEstagioCampo('${poder.id}', ${stageAtiva}, 'desc', this.value)">${est.desc || ''}</textarea>
+                ${autoBox}
+                ${passivoBox}
+            </div>
+        </div>`;
+    }
+
+    function renderPoderesList() {
+        const container = document.getElementById('pm-poderes-list');
+        if (!container) return;
+        if (!poderModalPoderes.length) {
+            container.innerHTML = `<div style="font-size:11px; color:rgba(255,255,255,0.25); text-align:center; padding:24px 0;">Nenhum poder cadastrado ainda. Clique em "+ Novo Poder".</div>`;
+            return;
+        }
+        container.innerHTML = poderModalPoderes.map(p => buildPoderCardHTML(p)).join('');
+    }
+
+    function refreshPoderCard(poderId) {
+        const el = document.getElementById('poder-card-' + poderId);
+        const poder = poderModalPoderes.find(p => p.id === poderId);
+        if (el && poder) el.outerHTML = buildPoderCardHTML(poder);
+    }
+
+    window.abrirPoderModal = async (charId) => {
+        poderModalCharId = charId;
+        const snap = await getDoc(doc(db, "personagens", charId));
+        if (!snap.exists()) return;
+        const p = snap.data();
+        poderModalPoderes = JSON.parse(JSON.stringify(p.poderes || []));
+        poderModalEmocoesAtual = p.emocoes || {};
+        poderStageTab = {};
+
+        // Habilidades "neutras" (emoção no nível 0, ou poder ainda sem emoção definida)
+        // começam compactadas; as que já estão ativas no personagem começam expandidas.
+        poderExpandido = {};
+        poderModalPoderes.forEach(pd => {
+            const nivelAtual = pd.emocao ? (poderModalEmocoesAtual[pd.emocao]?.nivel || 0) : 0;
+            poderExpandido[pd.id] = nivelAtual > 0;
+        });
+
+        document.getElementById('poder-modal-char-nome').innerText = p.info?.nome || charId;
+        renderPoderesList();
+        document.getElementById('poder-modal-overlay').style.display = 'flex';
+    };
+
+    window.fecharPoderModal = (event) => {
+        if (event && event.target !== document.getElementById('poder-modal-overlay')) return;
+        document.getElementById('poder-modal-overlay').style.display = 'none';
+        poderModalCharId = null;
+        poderModalPoderes = [];
+        poderModalEmocoesAtual = {};
+        poderStageTab = {};
+        poderExpandido = {};
+    };
+
+    window.togglePoderExpandido = (poderId) => {
+        poderExpandido[poderId] = !poderExpandido[poderId];
+        refreshPoderCard(poderId);
+    };
+
+    window.addPoderMestre = () => {
+        poderModalPoderes.push(poderVazio());
+        persistPoderes();
+        renderPoderesList();
+    };
+
+    window.removePoderMestre = (poderId) => {
+        poderModalPoderes = poderModalPoderes.filter(p => p.id !== poderId);
+        persistPoderes();
+        renderPoderesList();
+    };
+
+    window.setPoderCampo = (poderId, campo, valor) => {
+        const p = poderModalPoderes.find(x => x.id === poderId);
+        if (!p) return;
+        p[campo] = valor;
+        persistPoderes();
+    };
+
+    window.setPoderCampoRender = (poderId, campo, valor) => {
+        const p = poderModalPoderes.find(x => x.id === poderId);
+        if (!p) return;
+        p[campo] = valor;
+        persistPoderes();
+        poderStageTab[poderId] = 1;
+        refreshPoderCard(poderId);
+    };
+
+    window.setPoderEstagioCampo = (poderId, nivel, campo, valor) => {
+        const p = poderModalPoderes.find(x => x.id === poderId);
+        if (!p) return;
+        p.estagios = p.estagios || {};
+        p.estagios[nivel] = p.estagios[nivel] || estagioVazio();
+        p.estagios[nivel][campo] = valor;
+        persistPoderes();
+    };
+
+    // Liga/desliga UM atributo ou perícia dentro da lista de passivas desse estágio (campo:
+    // 'passivoAtributos' ou 'passivoPericias'), permitindo marcar quantos quiser de uma vez.
+    window.togglePassivoItem = (poderId, nivel, campo, nome) => {
+        const p = poderModalPoderes.find(x => x.id === poderId);
+        if (!p) return;
+        p.estagios = p.estagios || {};
+        p.estagios[nivel] = p.estagios[nivel] || estagioVazio();
+        const est = p.estagios[nivel];
+        est[campo] = est[campo] || [];
+        const idx = est[campo].findIndex(i => i.nome === nome);
+        if (idx >= 0) {
+            est[campo].splice(idx, 1);
+        } else {
+            const item = { nome, valor: 0 };
+            if (campo === 'passivoPericias') item.treino = false;
+            est[campo].push(item);
+        }
+        // limpa os campos antigos (um único atributo/perícia) pra não conflitar com a lista nova
+        if (campo === 'passivoAtributos') { est.passivoAtributo = ''; est.passivoAtributoValor = ''; }
+        if (campo === 'passivoPericias') { est.passivoPericia = ''; est.passivoPericiaValor = ''; est.passivoTreino = false; }
+        persistPoderes();
+        refreshPoderCard(poderId);
+    };
+
+    // Ajusta o valor do bônus de um item já marcado na lista de passivas (não precisa re-renderizar o card)
+    window.setPassivoItemValor = (poderId, nivel, campo, idx, valor) => {
+        const p = poderModalPoderes.find(x => x.id === poderId);
+        if (!p) return;
+        const est = p.estagios?.[nivel];
+        if (!est || !est[campo] || !est[campo][idx]) return;
+        est[campo][idx].valor = valor;
+        persistPoderes();
+    };
+
+    // Marca/desmarca o treino de UMA perícia passiva específica da lista
+    window.setPassivoItemTreino = (poderId, nivel, idx, checked) => {
+        const p = poderModalPoderes.find(x => x.id === poderId);
+        if (!p) return;
+        const est = p.estagios?.[nivel];
+        if (!est || !est.passivoPericias || !est.passivoPericias[idx]) return;
+        est.passivoPericias[idx].treino = checked;
+        persistPoderes();
+    };
+
+    // Aplica de uma vez a progressão automática (atributo/perícia) configurada no estágio 1
+    // de um poder SEM emoção vinculada — já que esses poderes não sobem sozinhos com uma emoção.
+    window.aplicarMudancaSemEmocao = async (poderId) => {
+        const poder = poderModalPoderes.find(x => x.id === poderId);
+        if (!poder || poder.emocao || !poderModalCharId) return;
+        const est = (poder.estagios && poder.estagios[1]) || {};
+
+        const snap = await getDoc(doc(db, "personagens", poderModalCharId));
+        if (!snap.exists()) return;
+        const p = snap.data();
+        const updates = {};
+        let mudou = false;
+
+        if (est.autoAtributo && est.autoAtributoValor !== '' && est.autoAtributoValor !== undefined && est.autoAtributoValor !== null) {
+            const alvo = parseFloat(est.autoAtributoValor);
+            const atual = parseFloat(p.atributos?.[est.autoAtributo]) || 0;
+            if (!isNaN(alvo) && alvo > atual) { updates[`atributos.${est.autoAtributo}`] = alvo; mudou = true; }
+        }
+        if (est.autoPericia) {
+            if (est.autoPericiaValor !== '' && est.autoPericiaValor !== undefined && est.autoPericiaValor !== null) {
+                const alvoB = parseFloat(est.autoPericiaValor);
+                const atualB = parseFloat(p.pericias?.[est.autoPericia]?.b) || 0;
+                if (!isNaN(alvoB) && alvoB > atualB) { updates[`pericias.${est.autoPericia}.b`] = alvoB; mudou = true; }
+            }
+            if (est.autoTreino && !p.pericias?.[est.autoPericia]?.t) {
+                updates[`pericias.${est.autoPericia}.t`] = true;
+                mudou = true;
+            }
+        }
+
+        if (mudou) {
+            await updateDoc(doc(db, "personagens", poderModalCharId), updates);
+            alert(`Mudanças de "${poder.nome || 'poder'}" aplicadas na ficha de ${p.info?.nome || poderModalCharId}!`);
+        } else {
+            alert('Nada para aplicar — defina um atributo e/ou perícia alvo na progressão automática desse poder.');
+        }
+    };
+
+    window.toggleDescoberto = (poderId) => {
+        const p = poderModalPoderes.find(x => x.id === poderId);
+        if (!p) return;
+        p.descoberto = !p.descoberto;
+        if (!p.descoberto) p.ativado = false;
+        persistPoderes();
+        refreshPoderCard(poderId);
+    };
+
+    window.toggleAtivado = (poderId) => {
+        const p = poderModalPoderes.find(x => x.id === poderId);
+        if (!p) return;
+        p.ativado = !p.ativado;
+        if (p.ativado) p.descoberto = true;
+        persistPoderes();
+        refreshPoderCard(poderId);
+    };
+
+    window.togglePassivoHabilitado = (poderId) => {
+        const p = poderModalPoderes.find(x => x.id === poderId);
+        if (!p) return;
+        p.passivoHabilitado = !p.passivoHabilitado;
+        if (!p.passivoHabilitado) p.ligado = false;
+        persistPoderes();
+        refreshPoderCard(poderId);
+    };
+
+    window.selecionarEstagioTab = (poderId, nivel) => {
+        poderStageTab[poderId] = nivel;
+        refreshPoderCard(poderId);
+    };
+
+    // NOTAS DO MESTRE (mantido)
+    const nt = document.getElementById('master-notes');
+    nt.value = localStorage.getItem('ciclo_m_notes') || "";
+    nt.addEventListener('input', () => localStorage.setItem('ciclo_m_notes', nt.value));
+</script>
+</body>
+</html>
