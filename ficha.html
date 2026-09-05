@@ -6,7 +6,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <meta charset="UTF-8"> 
-    <title>Ciclo Vitae - Ficha</title>
+    <title>Ciclo Vitae - Ficha Final v3</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
@@ -251,6 +251,9 @@
     .poder-card:hover { border-color: var(--poder-cor, var(--accent)); background: rgba(255,255,255,0.04); }
     .poder-card.poder-dormant { opacity: 0.55; }
     .poder-card.poder-bloqueado { align-items: center; justify-content: center; text-align: center; opacity: 0.4; }
+    .poder-card.poder-medium-card { border-color: rgba(244,114,182,0.25); }
+    .poder-card.poder-medium-card::before { background: #f472b6; }
+    .poder-medium-desc { font-size: 11px; color: rgba(255,255,255,0.55); line-height: 1.5; margin-top: 2px; }
 
     .poder-top { display: flex; align-items: flex-start; gap: 7px; }
     .poder-icon { font-size: 18px; line-height: 1; flex-shrink: 0; }
@@ -1452,6 +1455,22 @@ function renderPoderes() {
     container.innerHTML = poderes.map((poder) => {
         const cfg = poder.emocao ? EMOCOES_CONFIG[poder.emocao] : null;
         const cor = cfg ? cfg.cor : 'var(--accent)';
+
+        // Revelar Médium: mostra SÓ o vislumbre fraco — nem o nome principal nem os 3 estágios aparecem
+        if (poder.revelarMedium) {
+            const med = poder.estagioMedium || {};
+            return `
+            <div class="poder-card poder-medium-card">
+                <div class="poder-top">
+                    <span class="poder-icon">🩸</span>
+                    <div>
+                        <div class="poder-nome" style="color:#f472b6;">${med.nome || 'Vislumbre sem nome'}</div>
+                        <div class="poder-tag">Vislumbre</div>
+                    </div>
+                </div>
+                ${med.desc ? `<div class="poder-medium-desc">${med.desc}</div>` : ''}
+            </div>`;
+        }
 
         // Bloqueado: jogador ainda nem sabe que o poder existe
         if (!poder.descoberto) {
