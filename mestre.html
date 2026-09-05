@@ -561,6 +561,19 @@ select option { background: #1a1a1f; color: white; padding: 10px; }
     color: rgba(16,185,129,0.75); margin-bottom: 8px;
 }
 .poder-passivo-hint { font-size: 9px; color: rgba(16,185,129,0.4); font-style: italic; margin-top: 6px; }
+
+/* Versão médium — vislumbre mais fraco do poder, revelável isoladamente */
+.poder-medium-box {
+    border: 1px dashed rgba(244,114,182,0.35);
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin-top: 8px;
+    background: rgba(244,114,182,0.04);
+}
+.poder-medium-label {
+    font-size: 9px; line-height: 1.5; color: rgba(244,114,182,0.65); margin-bottom: 8px;
+}
+
 /* Linhas dos atributos/perícias passivas já marcados, cada uma com seu próprio bônus */
 .poder-passivo-rows { display: flex; flex-direction: column; gap: 4px; margin-top: 6px; }
 .poder-passivo-row {
@@ -786,10 +799,10 @@ select option { background: #1a1a1f; color: white; padding: 10px; }
     background: rgba(239,68,68,0.06); border: 1px solid rgba(239,68,68,0.2); border-radius: 12px;
     padding: 12px 14px; margin-bottom: 16px;
 }
-.ac-traco-box input.ac-traco-nome {
+.ac-traco-nome {
     background: transparent; border: none; outline: none; color: #f87171;
     font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 13px; text-transform: uppercase;
-    letter-spacing: 0.04em; width: 100%; margin-bottom: 6px;
+    letter-spacing: 0.04em; width: 100%; margin-bottom: 6px; display: block;
 }
 .ac-traco-row { display: flex; gap: 8px; align-items: center; }
 .ac-traco-row input {
@@ -871,10 +884,6 @@ select option { background: #1a1a1f; color: white; padding: 10px; }
     text-transform: uppercase; letter-spacing: 0.05em; color: rgba(255,255,255,0.4); cursor: pointer;
 }
 .npc-fields-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 16px 16px 0 16px; }
-.npc-fields-grid label {
-    display: block; font-size: 8px; font-weight: 800; text-transform: uppercase;
-    letter-spacing: 0.08em; color: rgba(255,255,255,0.35); margin-bottom: 4px;
-}
 .npc-body-pad { padding: 0 16px 16px 16px; }
 .npc-vida-nav {
     display: flex; align-items: center; justify-content: center; gap: 4px;
@@ -2210,7 +2219,7 @@ onSnapshot(query(collection(db, "logs_rolagens"), orderBy("timestamp", "desc"), 
     // ========================
     const npcUI = {};
     function getNpcUI(id) {
-        if (!npcUI[id]) npcUI[id] = { expAcoes: {}, cropOpen: false };
+        if (!npcUI[id]) npcUI[id] = { expAcoes: {}, cropOpen: false, tab: 'status' };
         return npcUI[id];
     }
 
@@ -2218,11 +2227,8 @@ onSnapshot(query(collection(db, "logs_rolagens"), orderBy("timestamp", "desc"), 
         return {
             nome: 'Novo NPC',
             ocupacao: '',
-            localizacao: '',
-            faccao: '',
             atitude: 'neutro', // aliado | neutro | hostil | desconhecido
             personalidade: '',
-            segredos: '',
             fotoURL: '',
             fotoPosX: 50,
             fotoPosY: 25,
@@ -2393,6 +2399,11 @@ onSnapshot(query(collection(db, "logs_rolagens"), orderBy("timestamp", "desc"), 
         rerenderNpcCard(id);
     };
 
+    window.setNpcTab = (id, tab) => {
+        getNpcUI(id).tab = tab;
+        rerenderNpcCard(id);
+    };
+
     function rerenderNpcCard(id) {
         const wrap = document.getElementById('npc-card-wrap-' + id);
         const n = npcsCache.find(x => x.id === id);
@@ -2467,55 +2478,65 @@ onSnapshot(query(collection(db, "logs_rolagens"), orderBy("timestamp", "desc"), 
         }).join('') : '<div class="text-[10px] text-white/20 italic mb-2">Nenhuma ação cadastrada.</div>';
 
         return `
-        <div class="ameaca-section-label" style="margin-top:20px;">⚔ Ficha de Combate</div>
-        <div class="npc-vida-nav">
-            <button class="ac-vida-btn" onclick="ajustarVidaNpc('${id}', -10)" title="-10">«</button>
-            <button class="ac-vida-btn" onclick="ajustarVidaNpc('${id}', -1)" title="-1">‹</button>
-            <div class="ac-vida-display">
-                <input value="${v.a}" onchange="setNpcVidaAtual('${id}', this.value)">
-                <span>/</span>
-                <input class="ac-vida-max" value="${v.m}" onchange="setNpcVidaMax('${id}', this.value)">
-            </div>
-            <button class="ac-vida-btn" onclick="ajustarVidaNpc('${id}', 1)" title="+1">›</button>
-            <button class="ac-vida-btn" onclick="ajustarVidaNpc('${id}', 10)" title="+10">»</button>
+        <div class="ac-tabs" style="padding:0; margin-top:16px;">
+            <button class="ac-tab-btn ${ui.tab === 'status' ? 'active' : ''}" style="${ui.tab === 'status' ? 'color:#2dd4bf;border-bottom-color:#2dd4bf;' : ''}" onclick="setNpcTab('${id}','status')">Status</button>
+            <button class="ac-tab-btn ${ui.tab === 'pericias' ? 'active' : ''}" style="${ui.tab === 'pericias' ? 'color:#2dd4bf;border-bottom-color:#2dd4bf;' : ''}" onclick="setNpcTab('${id}','pericias')">Perícias</button>
+            <button class="ac-tab-btn ${ui.tab === 'combate' ? 'active' : ''}" style="${ui.tab === 'combate' ? 'color:#2dd4bf;border-bottom-color:#2dd4bf;' : ''}" onclick="setNpcTab('${id}','combate')">Combate</button>
         </div>
-        <div class="ac-stats-row">
-            <div class="ac-stat-box"><label>Defesa</label><input type="number" value="${n.defesa ?? 10}" onchange="setNpcCampoNumero('${id}','defesa', this.value)"></div>
-            <div class="ac-stat-box"><label>Deslocamento</label><input value="${escAttr(n.deslocamento || '')}" placeholder="9m" onchange="setNpcCampo('${id}','deslocamento', this.value)"></div>
-        </div>
-        <div class="ac-attrs-row">
-            ${ATRIBUTOS_LISTA.map(attr => `
-                <div class="ac-attr-box">
-                    <label>${ATRIBUTOS_ABREV[attr] || attr.slice(0,3).toUpperCase()}</label>
-                    <input type="number" value="${atributos[attr]}" onchange="setNpcAtributo('${id}','${attr}', this.value)">
+
+        <div class="ac-tab-content ${ui.tab === 'status' ? '' : 'hidden'}" style="padding: 14px 0 0 0;">
+            <div class="npc-vida-nav">
+                <button class="ac-vida-btn" onclick="ajustarVidaNpc('${id}', -10)" title="-10">«</button>
+                <button class="ac-vida-btn" onclick="ajustarVidaNpc('${id}', -1)" title="-1">‹</button>
+                <div class="ac-vida-display">
+                    <input value="${v.a}" onchange="setNpcVidaAtual('${id}', this.value)">
+                    <span>/</span>
+                    <input class="ac-vida-max" value="${v.m}" onchange="setNpcVidaMax('${id}', this.value)">
                 </div>
-            `).join('')}
-        </div>
-
-        <div class="ameaca-section-label">🛡️ Perícias</div>
-        ${periciasHtml}
-        <div class="ameaca-add-row">
-            <select id="npc-pericia-select-${id}" class="poder-input">
-                ${opcoesPericia.map(p => `<option value="${p}">${p}</option>`).join('')}
-            </select>
-            <button onclick="addNpcPericiaSelect('${id}')" class="btn-add-poder" style="width:auto; padding:8px 16px;">+ Add</button>
-        </div>
-
-        <div class="ameaca-section-label">💥 Traço de Assinatura</div>
-        <div class="npc-traco-box">
-            <input class="ac-traco-nome" value="${escAttr(traco.nome || '')}" placeholder="Ex: Golpe Certeiro" onchange="setNpcTraco('${id}','nome', this.value)">
-            <div class="ac-traco-row">
-                <span style="font-size:9px; color:rgba(255,255,255,0.4); font-weight:800;">DT</span>
-                <input style="width:44px;" value="${escAttr(traco.dt || '')}" onchange="setNpcTraco('${id}','dt', this.value)">
-                <span style="font-size:9px; color:rgba(255,255,255,0.4); font-weight:800;">DANO</span>
-                <input style="width:70px;" value="${escAttr(traco.dano || '')}" placeholder="2d8" onchange="setNpcTraco('${id}','dano', this.value)">
-                <button class="npc-dice-btn" onclick="rolarTracoNpc('${id}')" title="Rolar dano">🎲</button>
+                <button class="ac-vida-btn" onclick="ajustarVidaNpc('${id}', 1)" title="+1">›</button>
+                <button class="ac-vida-btn" onclick="ajustarVidaNpc('${id}', 10)" title="+10">»</button>
+            </div>
+            <div class="ac-stats-row">
+                <div class="ac-stat-box"><label>Defesa</label><input type="number" value="${n.defesa ?? 10}" onchange="setNpcCampoNumero('${id}','defesa', this.value)"></div>
+                <div class="ac-stat-box"><label>Deslocamento</label><input value="${escAttr(n.deslocamento || '')}" placeholder="9m" onchange="setNpcCampo('${id}','deslocamento', this.value)"></div>
+            </div>
+            <div class="ac-attrs-row">
+                ${ATRIBUTOS_LISTA.map(attr => `
+                    <div class="ac-attr-box">
+                        <label>${ATRIBUTOS_ABREV[attr] || attr.slice(0,3).toUpperCase()}</label>
+                        <input type="number" value="${atributos[attr]}" onchange="setNpcAtributo('${id}','${attr}', this.value)">
+                    </div>
+                `).join('')}
             </div>
         </div>
 
-        <div class="ameaca-section-label">⚔️ Ações</div>
-        ${acoesHtml}
-        <button onclick="addNpcAcao('${id}')" class="btn-add-poder">+ Nova Ação</button>
+        <div class="ac-tab-content ${ui.tab === 'pericias' ? '' : 'hidden'}" style="padding: 14px 0 0 0;">
+            ${periciasHtml}
+            <div class="ameaca-add-row">
+                <select id="npc-pericia-select-${id}" class="poder-input">
+                    ${opcoesPericia.map(p => `<option value="${p}">${p}</option>`).join('')}
+                </select>
+                <button onclick="addNpcPericiaSelect('${id}')" class="btn-add-poder" style="width:auto; padding:8px 16px;">+ Add</button>
+            </div>
+        </div>
+
+        <div class="ac-tab-content ${ui.tab === 'combate' ? '' : 'hidden'}" style="padding: 14px 0 0 0;">
+            <div class="ameaca-section-label" style="margin-top:0;">💥 Traço de Assinatura</div>
+            <div class="npc-traco-box">
+                <input class="ac-traco-nome" value="${escAttr(traco.nome || '')}" placeholder="Ex: Golpe Certeiro" onchange="setNpcTraco('${id}','nome', this.value)">
+                <div class="ac-traco-row">
+                    <span style="font-size:9px; color:rgba(255,255,255,0.4); font-weight:800;">DT</span>
+                    <input style="width:44px;" value="${escAttr(traco.dt || '')}" onchange="setNpcTraco('${id}','dt', this.value)">
+                    <span style="font-size:9px; color:rgba(255,255,255,0.4); font-weight:800;">DANO</span>
+                    <input style="width:70px;" value="${escAttr(traco.dano || '')}" placeholder="2d8" onchange="setNpcTraco('${id}','dano', this.value)">
+                    <button class="npc-dice-btn" onclick="rolarTracoNpc('${id}')" title="Rolar dano">🎲</button>
+                </div>
+            </div>
+
+            <div class="ameaca-section-label">⚔️ Ações</div>
+            ${acoesHtml}
+            <button onclick="addNpcAcao('${id}')" class="btn-add-poder">+ Nova Ação</button>
+        </div>
         `;
     }
 
@@ -2564,17 +2585,9 @@ onSnapshot(query(collection(db, "logs_rolagens"), orderBy("timestamp", "desc"), 
                 </label>
             </div>
 
-            <div class="npc-fields-grid">
-                <div><label>Localização</label><input class="poder-input" value="${escAttr(n.localizacao || '')}" onchange="setNpcCampo('${id}','localizacao', this.value)"></div>
-                <div><label>Facção / Ligação</label><input class="poder-input" value="${escAttr(n.faccao || '')}" onchange="setNpcCampo('${id}','faccao', this.value)"></div>
-            </div>
-
             <div class="npc-body-pad">
-                <div class="ameaca-section-label">🎭 Personalidade & Maneirismos</div>
+                <div class="ameaca-section-label" style="margin-top:14px;">🎭 Personalidade & Maneirismos</div>
                 <textarea class="poder-textarea" rows="2" placeholder="Como fala, tiques, jeito de agir..." onblur="setNpcCampo('${id}','personalidade', this.value)">${n.personalidade || ''}</textarea>
-
-                <div class="ameaca-section-label">🔒 Segredos & Motivações</div>
-                <textarea class="poder-textarea" rows="2" placeholder="Só você vê..." onblur="setNpcCampo('${id}','segredos', this.value)">${n.segredos || ''}</textarea>
 
                 ${combateAtivo ? renderNpcCombateBlock(id, n, ui) : ''}
             </div>
@@ -2904,6 +2917,8 @@ onSnapshot(query(collection(db, "logs_rolagens"), orderBy("timestamp", "desc"), 
             ativado: false,
             passivoHabilitado: false,
             ligado: false,
+            revelarMedium: false,
+            estagioMedium: { nome: '', desc: '' },
             estagios: {
                 1: estagioVazio(),
                 2: estagioVazio(),
@@ -2932,7 +2947,7 @@ onSnapshot(query(collection(db, "logs_rolagens"), orderBy("timestamp", "desc"), 
             <span class="poder-compacto-icon">${cfg ? cfg.icon : '✦'}</span>
             <span class="poder-compacto-nome">${poder.nome || 'Poder sem nome'}</span>
             <span class="poder-compacto-tag" style="${nivelAtual > 0 ? `color:${cor};border-color:${cor}55;` : ''}">${tagCompacta}</span>
-            <span class="poder-compacto-toggles">${poder.descoberto ? '👁' : ''}${poder.ativado ? '⚡' : ''}${poder.passivoHabilitado ? (poder.ligado ? '🔛' : '🔁') : ''}</span>
+            <span class="poder-compacto-toggles">${poder.descoberto ? '👁' : ''}${poder.ativado ? '⚡' : ''}${poder.passivoHabilitado ? (poder.ligado ? '🔛' : '🔁') : ''}${poder.revelarMedium ? '🩸' : ''}</span>
             <span class="poder-compacto-expand">${expandido ? '▴' : '▾'}</span>
         </div>`;
 
@@ -3068,8 +3083,23 @@ onSnapshot(query(collection(db, "logs_rolagens"), orderBy("timestamp", "desc"), 
                     <div class="poder-toggle-mini ${poder.descoberto ? 'ativo' : ''}" onclick="toggleDescoberto('${poder.id}')" title="O jogador sabe que o poder existe, mas não vê o conteúdo">👁 Descoberto</div>
                     <div class="poder-toggle-mini ${poder.ativado ? 'ativo' : ''}" onclick="toggleAtivado('${poder.id}')" title="O jogador pode ver e usar o conteúdo do poder">⚡ Ativado</div>
                     <div class="poder-toggle-mini ${poder.passivoHabilitado ? 'ativo' : ''}" onclick="togglePassivoHabilitado('${poder.id}')" title="Mostra o botão Ativar/Desativar na ficha do jogador para aplicar bônus passivos">🔁 Passiva</div>
+                    <div class="poder-toggle-mini ${poder.revelarMedium ? 'ativo' : ''}" style="${poder.revelarMedium ? 'border-color:#f472b6; color:#f472b6;' : ''}" onclick="toggleRevelarMedium('${poder.id}')" title="Revela SÓ a versão médium (esconde o nome principal e os 3 estágios)">🩸 Revelar Médium</div>
                 </div>
                 <button class="btn-remove-poder" onclick="removePoderMestre('${poder.id}')">Remover</button>
+            </div>
+
+            <div class="poder-medium-box">
+                <div class="poder-medium-label">🩸 Versão Médium — um vislumbre mais fraco do poder, com nome próprio, pra um NPC médium ou similar. Quando "Revelar Médium" estiver ligado, o jogador vê só isso — nada do poder verdadeiro aparece.</div>
+                <div style="display:grid; grid-template-columns: 1fr 2fr; gap:8px;">
+                    <div>
+                        <label style="font-size:8px; text-transform:uppercase; letter-spacing:0.15em; color:rgba(244,114,182,0.6); display:block; margin-bottom:4px;">Nome Médium</label>
+                        <input class="poder-input" placeholder="Ex: Eco Fraco da Ira..." value="${(poder.estagioMedium && poder.estagioMedium.nome) || ''}" oninput="setPoderMediumCampo('${poder.id}', 'nome', this.value)">
+                    </div>
+                    <div>
+                        <label style="font-size:8px; text-transform:uppercase; letter-spacing:0.15em; color:rgba(244,114,182,0.6); display:block; margin-bottom:4px;">Descrição Médium</label>
+                        <input class="poder-input" placeholder="O que essa versão fraca faz..." value="${(poder.estagioMedium && poder.estagioMedium.desc) || ''}" oninput="setPoderMediumCampo('${poder.id}', 'desc', this.value)">
+                    </div>
+                </div>
             </div>
 
             <div>
@@ -3296,6 +3326,22 @@ onSnapshot(query(collection(db, "logs_rolagens"), orderBy("timestamp", "desc"), 
         if (!p.passivoHabilitado) p.ligado = false;
         persistPoderes();
         refreshPoderCard(poderId);
+    };
+
+    window.toggleRevelarMedium = (poderId) => {
+        const p = poderModalPoderes.find(x => x.id === poderId);
+        if (!p) return;
+        p.revelarMedium = !p.revelarMedium;
+        persistPoderes();
+        refreshPoderCard(poderId);
+    };
+
+    window.setPoderMediumCampo = (poderId, campo, valor) => {
+        const p = poderModalPoderes.find(x => x.id === poderId);
+        if (!p) return;
+        p.estagioMedium = p.estagioMedium || { nome: '', desc: '' };
+        p.estagioMedium[campo] = valor;
+        persistPoderes();
     };
 
     window.selecionarEstagioTab = (poderId, nivel) => {
