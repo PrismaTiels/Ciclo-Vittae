@@ -6,33 +6,127 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <meta charset="UTF-8"> 
-    <title>Ciclo Vitae - Ficha Final v3</title>
+    <title>Ciclo Vittae - Ficha</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;700&family=Cormorant+Garamond:ital,wght@0,300;1,300;1,400&family=Inter:wght@400;500;600&family=Outfit:wght@700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
     :root {
-        --bg-color: #050507;
-        --panel-bg: #0a0a0f;
-        --accent: #8b5cf6;
-        --accent-rgb: 139, 92, 246;
-        --text-muted: #71717a;
+        --bg-color: #06040c;
+        --panel-bg: rgba(13, 10, 24, 0.88);
+        --panel-bg-solid: #0d0a18;
+        --accent: #c4a56a;
+        --accent-rgb: 196, 165, 106;
+        --accent-light: #e0c88a;
+        --accent-dark: #8a6f3c;
+        --text-muted: #6a6255;
+        --text-main: #e8e2d5;
+
+        --sky-top: #16121f;
+        --sky-mid: #0c0914;
+        --sky-bot: #040308;
+        --sun-core: rgba(170, 155, 215, 0.32);
+        --sun-mid: rgba(140, 120, 195, 0.14);
+        --sun-edge: rgba(120, 100, 175, 0.04);
+        --rays-color: rgba(150, 130, 210, 0.11);
+        --vignette: rgba(0, 0, 0, 0.38);
     }
 
     /* TEMA DINÂMICO */
-    .tema-vivo { --accent: #8b5cf6; --accent-rgb: 139, 92, 246; }
-    .tema-morto { --accent: #10b981; --accent-rgb: 16, 185, 129; }
+    .tema-vivo { --accent: #c4a56a; --accent-rgb: 196, 165, 106; --accent-light: #e0c88a; --accent-dark: #8a6f3c; }
+    .tema-morto { --accent: #8ab8a0; --accent-rgb: 138, 184, 160; --accent-light: #a8cfb8; --accent-dark: #527a68; }
 
-    /* SEU BODY ORIGINAL (MANTIDO) */
-    body { background-color: var(--bg-color); color: #e4e4e7; font-family: 'Inter', sans-serif; min-height: 100vh; margin: 0; display: flex; overflow: hidden; }
-    
+    * { box-sizing: border-box; }
+
+    body {
+        background-color: var(--bg-color);
+        color: var(--text-main);
+        font-family: 'Inter', sans-serif;
+        min-height: 100vh;
+        margin: 0;
+        display: flex;
+        overflow: hidden;
+        position: relative;
+    }
+
+    /* =============================== */
+    /* CÉU: gradiente + sol + raios    */
+    /* =============================== */
+    .sky-bg {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        overflow: hidden;
+        transition: opacity 0.8s ease;
+    }
+
+    .sky-gradient {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg,
+            var(--sky-top) 0%,
+            var(--sky-mid) 45%,
+            var(--sky-mid) 55%,
+            var(--sky-bot) 100%);
+    }
+
+    .sun-glow {
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(ellipse 80% 70% at 50% 0%,
+            var(--sun-core) 0%,
+            var(--sun-mid) 30%,
+            var(--sun-edge) 60%,
+            transparent 90%);
+        animation: sunPulse 10s ease-in-out infinite alternate;
+    }
+    @keyframes sunPulse {
+        from { opacity: 0.85; }
+        to   { opacity: 1; }
+    }
+
+    .god-rays {
+        position: absolute;
+        top: -50vh;
+        left: -30vw;
+        width: 160vw;
+        height: 200vh;
+        background:
+            conic-gradient(from 165deg at 50% 25%,
+                transparent 0deg,
+                var(--rays-color) 12deg,
+                transparent 24deg,
+                transparent 40deg,
+                var(--rays-color) 52deg,
+                transparent 64deg,
+                transparent 82deg,
+                var(--rays-color) 94deg,
+                transparent 106deg
+            );
+        filter: blur(40px);
+        animation: raysBreathe 14s ease-in-out infinite alternate;
+    }
+    @keyframes raysBreathe {
+        from { opacity: 0.7; }
+        to   { opacity: 1; }
+    }
+
+    .vignette {
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(ellipse 90% 85% at center,
+            transparent 50%,
+            var(--vignette) 100%);
+    }
+        
     /* 📱 ADIÇÃO PARA TABLET/MOBILE (NÃO AFETA O PC) */
     @media (max-width: 1024px) {
         body { 
-            display: block; /* Permite empilhar em vez de flex lateral */
-            overflow-y: auto; /* Libera a rolagem que estava travada no hidden */
+            display: block;
+            overflow-y: auto;
         }
         .sidebar { 
-            width: 100% !important; /* Sidebar ocupa a largura toda no tablet */
+            width: 100% !important;
             height: auto !important; 
             position: relative !important; 
             border-right: none !important;
@@ -46,35 +140,64 @@
             position: sticky;
             top: 0;
             z-index: 50;
-            overflow-x: auto; /* Permite deslizar as abas se não couberem */
-            background: var(--panel-bg);
+            overflow-x: auto;
+            background: var(--panel-bg-solid);
         }
         .content-area { padding: 20px; padding-bottom: 60px; }
     }
 
     .font-title { font-family: 'Outfit', sans-serif; }
     .font-mono { font-family: 'JetBrains Mono', monospace; }
+    .font-cinzel { font-family: 'Cinzel', serif; }
+    .font-cormorant { font-family: 'Cormorant Garamond', serif; }
 
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+    ::-webkit-scrollbar-thumb { background: rgba(196, 165, 106, 0.15); border-radius: 10px; }
     ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 
     .sidebar { 
-        width: 380px; background: var(--panel-bg); border-right: 1px solid rgba(255, 255, 255, 0.05); 
-        height: 100vh; position: sticky; top: 0; padding: 30px; overflow-y: auto; flex-shrink: 0;
-        display: flex; flex-direction: column; gap: 2rem;
+        width: 380px; 
+        background: var(--panel-bg);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        border-right: 1px solid rgba(196, 165, 106, 0.12); 
+        height: 100vh; 
+        position: sticky; 
+        top: 0; 
+        padding: 30px; 
+        overflow-y: auto; 
+        flex-shrink: 0;
+        display: flex; 
+        flex-direction: column; 
+        gap: 2rem;
+        z-index: 2;
     }
 
     .input-glass {
-        background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
-        color: white; border-radius: 6px; padding: 8px; outline: none; transition: 0.3s;
+        background: rgba(196, 165, 106, 0.04);
+        border: 1px solid rgba(196, 165, 106, 0.15);
+        color: var(--text-main);
+        border-radius: 6px; 
+        padding: 8px; 
+        outline: none; 
+        transition: 0.3s;
     }
-    .input-glass:focus { border-color: var(--accent); box-shadow: 0 0 10px rgba(var(--accent-rgb), 0.2); }
+    .input-glass:focus { 
+        border-color: var(--accent); 
+        box-shadow: 0 0 12px rgba(var(--accent-rgb), 0.2); 
+    }
 
     /* BARRAS DE PROGRESSO */
     .progress-container { display: flex; flex-direction: column; gap: 4px; }
-    .progress-bg { background: rgba(0,0,0,0.4); height: 28px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); position: relative; }
+    .progress-bg { 
+        background: rgba(0,0,0,0.4); 
+        height: 28px; 
+        border-radius: 6px; 
+        overflow: hidden; 
+        border: 1px solid rgba(196, 165, 106, 0.1); 
+        position: relative; 
+    }
     .progress-fill { height: 100%; transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); position: relative; }
     .progress-text { position: absolute; inset: 0; display: flex; justify-content: center; align-items: center; font-size: 12px; font-weight: 700; text-shadow: 0 1px 2px black; z-index: 2; pointer-events: none; }
     .progress-inputs { position: absolute; inset: 0; display: flex; justify-content: space-between; opacity: 0; transition: 0.2s; z-index: 3; }
@@ -102,8 +225,8 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background: rgba(255,255,255,0.05);
-        border: 1px solid rgba(255,255,255,0.1);
+        background: rgba(196, 165, 106, 0.08);
+        border: 1px solid rgba(196, 165, 106, 0.2);
         border-radius: 3px;
         color: var(--accent);
         font-size: 10px;
@@ -124,16 +247,35 @@
         }
     }  
 
-    .tabs-nav { display: flex; background: rgba(0,0,0,0.2); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.05); }
-    .tab-btn { padding: 20px 30px; cursor: pointer; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); transition: 0.3s; border-bottom: 2px solid transparent; }
+    .tabs-nav { 
+        display: flex; 
+        background: rgba(6, 4, 12, 0.5); 
+        backdrop-filter: blur(10px); 
+        border-bottom: 1px solid rgba(196, 165, 106, 0.1); 
+    }
+    .tab-btn { 
+        padding: 20px 30px; 
+        cursor: pointer; 
+        font-size: 11px; 
+        font-weight: 700; 
+        text-transform: uppercase; 
+        letter-spacing: 1px; 
+        color: var(--text-muted); 
+        transition: 0.3s; 
+        border-bottom: 2px solid transparent; 
+        font-family: 'Inter', sans-serif;
+    }
 
     /* ======================== */
     /* WIDGET DE COMBATE (só leitura) */
     /* ======================== */
     .combate-widget-box {
-        background: rgba(var(--accent-rgb, 139,92,246), 0.05);
-        border: 1px solid rgba(var(--accent-rgb, 139,92,246), 0.2);
-        border-radius: 14px; padding: 12px 16px; margin-bottom: 20px;
+        background: rgba(var(--accent-rgb), 0.05);
+        border: 1px solid rgba(var(--accent-rgb), 0.2);
+        border-radius: 14px; 
+        padding: 12px 16px; 
+        margin-bottom: 20px;
+        backdrop-filter: blur(10px);
     }
     .combate-widget-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
     .combate-widget-title {
@@ -143,58 +285,81 @@
     .combate-widget-list { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; }
     .cw-item {
         flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 3px;
-        background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px;
+        background: rgba(255,255,255,0.03); border: 1px solid rgba(196, 165, 106, 0.1); border-radius: 10px;
         padding: 8px 14px; min-width: 74px; opacity: 0.5; transition: 0.2s;
     }
     .cw-item.atual {
-        border-color: var(--accent); background: rgba(var(--accent-rgb, 139,92,246), 0.15); opacity: 1;
-        box-shadow: 0 0 14px rgba(var(--accent-rgb, 139,92,246), 0.25);
+        border-color: var(--accent); background: rgba(var(--accent-rgb), 0.15); opacity: 1;
+        box-shadow: 0 0 14px rgba(var(--accent-rgb), 0.25);
     }
     .cw-item.neutralizado { opacity: 0.28; }
     .cw-item-tipo { font-size: 7px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.06em; color: rgba(255,255,255,0.35); }
-    .cw-item-nome { font-size: 10px; font-weight: 700; color: white; white-space: nowrap; }
+    .cw-item-nome { font-size: 10px; font-weight: 700; color: var(--text-main); white-space: nowrap; }
     .cw-item-pv { font-size: 9px; font-family: 'JetBrains Mono'; color: rgba(255,255,255,0.4); }
-    .tab-active { color: white; border-bottom-color: var(--accent); background: linear-gradient(to top, rgba(var(--accent-rgb), 0.05), transparent); }
+    .tab-active { 
+        color: var(--accent-light); 
+        border-bottom-color: var(--accent); 
+        background: linear-gradient(to top, rgba(var(--accent-rgb), 0.08), transparent); 
+    }
 
-    main { flex-grow: 1; height: 100vh; overflow-y: auto; background-image: radial-gradient(circle at 50% 0%, rgba(var(--accent-rgb), 0.08), transparent 70%); }
+    main { 
+        flex-grow: 1; 
+        height: 100vh; 
+        overflow-y: auto; 
+        position: relative;
+        z-index: 1;
+    }
     .content-area { padding: 40px; max-width: 1200px; margin: 0 auto; }
 
     .skills-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
     .skill-card {
-        background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);
+        background: rgba(13, 10, 24, 0.55); 
+        border: 1px solid rgba(196, 165, 106, 0.1);
         border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 8px;
         transition: all 0.2s; position: relative; overflow: hidden;
+        backdrop-filter: blur(8px);
     }
-    .skill-card:hover { transform: translateY(-2px); border-color: var(--accent); background: rgba(var(--accent-rgb), 0.05); }
+    .skill-card:hover { 
+        transform: translateY(-2px); 
+        border-color: var(--accent); 
+        background: rgba(var(--accent-rgb), 0.06); 
+    }
     .skill-top { display: flex; justify-content: space-between; align-items: flex-start; }
     .skill-name { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
     .skill-attr { font-size: 9px; opacity: 0.4; font-weight: 600; margin-top: 2px; }
     .skill-val { font-size: 18px; font-family: 'JetBrains Mono'; font-weight: 700; color: var(--accent); }
     
     .btn-roll { 
-        flex-grow: 1; background: var(--accent); color: #000; border: none; border-radius: 4px; 
+        flex-grow: 1; background: var(--accent); color: #0a0812; border: none; border-radius: 4px; 
         padding: 4px; font-size: 10px; font-weight: 800; cursor: pointer; text-transform: uppercase;
         transition: 0.2s;
     }
-    .btn-roll:hover { filter: brightness(1.2); box-shadow: 0 0 10px var(--accent); }
+    .btn-roll:hover { filter: brightness(1.15); box-shadow: 0 0 10px var(--accent); }
 
     .item-list { display: flex; flex-direction: column; gap: 8px; }
     .item-row { 
         display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 10px; align-items: center;
-        background: rgba(255,255,255,0.02); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);
+        background: rgba(255,255,255,0.02); padding: 12px; border-radius: 8px; border: 1px solid rgba(196, 165, 106, 0.08);
     }
     .combat-row { grid-template-columns: 2fr 1fr 1fr auto auto; }
     
-    .btn-icon { background: transparent; border: 1px solid rgba(255,255,255,0.1); color: #ef4444; border-radius: 4px; width: 24px; height: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .btn-icon { background: transparent; border: 1px solid rgba(196, 165, 106, 0.15); color: #ef4444; border-radius: 4px; width: 24px; height: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
     .btn-icon:hover { background: #ef4444; color: white; }
-    .btn-add { width: 100%; padding: 10px; border: 1px dashed rgba(255,255,255,0.2); background: transparent; color: rgba(255,255,255,0.5); cursor: pointer; border-radius: 8px; margin-top: 10px; }
+    .btn-add { width: 100%; padding: 10px; border: 1px dashed rgba(196, 165, 106, 0.3); background: transparent; color: rgba(232, 226, 213, 0.6); cursor: pointer; border-radius: 8px; margin-top: 10px; }
     .btn-add:hover { border-color: var(--accent); color: var(--accent); background: rgba(var(--accent-rgb), 0.05); }
 
     #pop-container { position: fixed; bottom: 30px; right: 30px; display: flex; flex-direction: column; gap: 10px; pointer-events: none; z-index: 999; }
     .pop-card { 
-        width: 260px; background: #0e0e12; border-left: 3px solid var(--accent); border-radius: 6px; 
-        padding: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); pointer-events: auto;
-        animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1); position: relative;
+        width: 260px; 
+        background: rgba(13, 10, 24, 0.95); 
+        border-left: 3px solid var(--accent); 
+        border-radius: 6px; 
+        padding: 16px; 
+        box-shadow: 0 10px 30px rgba(0,0,0,0.6), 0 0 30px rgba(var(--accent-rgb), 0.08); 
+        pointer-events: auto;
+        animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1); 
+        position: relative;
+        backdrop-filter: blur(12px);
     }
     @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
     
@@ -206,7 +371,7 @@
 
     select {
         appearance: none;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23c4a56a'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
         background-repeat: no-repeat;
         background-position: right 8px center;
         background-size: 12px;
@@ -214,11 +379,11 @@
         cursor: pointer;
     }
 
-    select option { background: #1a1a1f; color: white; padding: 10px; }
+    select option { background: #100c1c; color: var(--text-main); padding: 10px; }
 
     .hab-card {
-        background: linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
-        border: 1px solid rgba(255,255,255,0.08);
+        background: linear-gradient(145deg, rgba(196, 165, 106, 0.06) 0%, rgba(196, 165, 106, 0.01) 100%);
+        border: 1px solid rgba(196, 165, 106, 0.12);
         border-radius: 12px;
         padding: 16px;
         transition: 0.3s;
@@ -229,8 +394,8 @@
     /* PODERES (3 estágios)     */
     /* ======================== */
     .poder-card {
-        background: rgba(255,255,255,0.02);
-        border: 1px solid rgba(255,255,255,0.07);
+        background: rgba(13, 10, 24, 0.55);
+        border: 1px solid rgba(196, 165, 106, 0.1);
         border-radius: 14px;
         padding: 12px;
         display: flex;
@@ -239,6 +404,7 @@
         position: relative;
         overflow: hidden;
         transition: all 0.3s ease;
+        backdrop-filter: blur(8px);
     }
     .poder-card::before {
         content: '';
@@ -248,12 +414,12 @@
         background: var(--poder-cor, var(--accent));
         opacity: 0.55;
     }
-    .poder-card:hover { border-color: var(--poder-cor, var(--accent)); background: rgba(255,255,255,0.04); }
+    .poder-card:hover { border-color: var(--poder-cor, var(--accent)); background: rgba(196, 165, 106, 0.04); }
     .poder-card.poder-dormant { opacity: 0.55; }
     .poder-card.poder-bloqueado { align-items: center; justify-content: center; text-align: center; opacity: 0.4; }
     .poder-card.poder-medium-card { border-color: rgba(244,114,182,0.25); }
     .poder-card.poder-medium-card::before { background: #f472b6; }
-    .poder-medium-desc { font-size: 11px; color: rgba(255,255,255,0.55); line-height: 1.5; margin-top: 2px; }
+    .poder-medium-desc { font-size: 11px; color: rgba(232, 226, 213, 0.6); line-height: 1.5; margin-top: 2px; }
 
     .poder-top { display: flex; align-items: flex-start; gap: 7px; }
     .poder-icon { font-size: 18px; line-height: 1; flex-shrink: 0; }
@@ -263,7 +429,7 @@
         font-weight: 800;
         text-transform: uppercase;
         letter-spacing: 0.03em;
-        color: white;
+        color: var(--text-main);
         line-height: 1.2;
     }
     .poder-dano-badge {
@@ -274,8 +440,8 @@
         text-transform: none;
         letter-spacing: 0;
         color: var(--poder-cor, var(--accent));
-        background: rgba(255,255,255,0.06);
-        border: 1px solid rgba(255,255,255,0.12);
+        background: rgba(196, 165, 106, 0.08);
+        border: 1px solid rgba(196, 165, 106, 0.15);
         border-radius: 5px;
         padding: 1px 6px;
         margin-left: 7px;
@@ -298,7 +464,7 @@
     }
     .poder-desc {
         font-size: 11px;
-        color: rgba(255,255,255,0.55);
+        color: rgba(232, 226, 213, 0.6);
         line-height: 1.4;
         flex-grow: 1;
     }
@@ -311,17 +477,15 @@
     .poder-estagio-dot.preenchido { border-color: transparent; background: var(--poder-cor, var(--accent)); }
     .poder-estagio-label { font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.35; margin-left: 4px; }
 
-    /* Card de poder com TODOS os estágios empilhados (Raiva / Fúria / Ira Cega etc) */
-    /* Altura livre — cresce só o tanto que o conteúdo pedir, sem sobra de espaço vazio */
     .poder-card-multi { display: flex; flex-direction: column; }
     .poder-card-multi .poder-top { margin-bottom: 1px; flex-shrink: 0; }
     .poder-estagios-stack { display: flex; flex-direction: column; gap: 6px; }
     .poder-estagio-bloco {
-        border: 1px solid rgba(255,255,255,0.06);
-        border-left: 3px solid rgba(255,255,255,0.1);
+        border: 1px solid rgba(196, 165, 106, 0.08);
+        border-left: 3px solid rgba(196, 165, 106, 0.15);
         border-radius: 8px;
         padding: 8px 10px;
-        background: rgba(255,255,255,0.015);
+        background: rgba(196, 165, 106, 0.02);
         opacity: 0.5;
         transition: all 0.25s;
         display: flex;
@@ -330,39 +494,36 @@
     .poder-estagio-bloco.ativo {
         opacity: 1;
         border-left-color: var(--stage-cor, var(--accent));
-        background: rgba(var(--accent-rgb, 139,92,246), 0.06);
+        background: rgba(var(--accent-rgb), 0.08);
         box-shadow: 0 0 0 1px rgba(255,255,255,0.04), 0 4px 14px -6px var(--stage-cor, var(--accent));
     }
     .poder-estagio-topo { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 3px; }
-    .poder-estagio-titulo { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.15em; color: rgba(255,255,255,0.5); }
+    .poder-estagio-titulo { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.15em; color: rgba(232, 226, 213, 0.5); }
     .poder-estagio-bloco.ativo .poder-estagio-titulo { color: var(--stage-cor, var(--accent)); }
     .poder-estagio-badge-ativo {
         font-size: 8px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em;
-        background: var(--stage-cor, var(--accent)); color: #000; border-radius: 999px; padding: 2px 8px;
+        background: var(--stage-cor, var(--accent)); color: #0a0812; border-radius: 999px; padding: 2px 8px;
     }
-    .poder-estagio-nome { font-size: 12px; font-weight: 700; color: white; margin-bottom: 2px; }
-    /* Descrição com altura livre (cresce conforme o texto) — quem rola é a pilha toda, não o textinho */
+    .poder-estagio-nome { font-size: 12px; font-weight: 700; color: var(--text-main); margin-bottom: 2px; }
     .poder-estagio-bloco .poder-desc { margin-bottom: 5px; }
-    /* Área da rolagem sempre com a mesma altura, mesmo quando a habilidade é passiva e não tem botão */
     .poder-roll-slot { min-height: 22px; margin-top: auto; padding-top: 3px; }
     .btn-roll-mini {
-        background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+        background: rgba(196, 165, 106, 0.08); border: 1px solid rgba(196, 165, 106, 0.18);
         color: var(--stage-cor, var(--accent)); font-size: 9px; font-weight: 800; text-transform: uppercase;
         letter-spacing: 0.05em; padding: 4px 10px; border-radius: 6px; cursor: pointer; transition: 0.2s;
         width: 100%;
     }
-    .btn-roll-mini:hover { background: var(--stage-cor, var(--accent)); color: #000; box-shadow: 0 0 10px var(--stage-cor, var(--accent)); }
+    .btn-roll-mini:hover { background: var(--stage-cor, var(--accent)); color: #0a0812; box-shadow: 0 0 10px var(--stage-cor, var(--accent)); }
 
-    /* Botão de ligar/desligar habilidade passiva na ficha do jogador */
     .btn-poder-toggle {
         width: 100%; margin: 2px 0 4px; padding: 6px 10px; border-radius: 7px;
         font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em;
-        background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15);
-        color: rgba(255,255,255,0.6); cursor: pointer; transition: 0.2s; flex-shrink: 0;
+        background: rgba(196, 165, 106, 0.06); border: 1px solid rgba(196, 165, 106, 0.18);
+        color: rgba(232, 226, 213, 0.7); cursor: pointer; transition: 0.2s; flex-shrink: 0;
     }
     .btn-poder-toggle:hover { border-color: var(--poder-cor, var(--accent)); color: var(--poder-cor, var(--accent)); }
     .btn-poder-toggle.ligado {
-        background: var(--poder-cor, var(--accent)); border-color: transparent; color: #000;
+        background: var(--poder-cor, var(--accent)); border-color: transparent; color: #0a0812;
         box-shadow: 0 0 10px var(--poder-cor, var(--accent));
     }
 
@@ -374,41 +535,36 @@
     width: 100%;
 }
 
-/* Cada Item do Inventário */
 .inventory-item {
     display: flex;
-    flex-wrap: wrap; /* Permite quebrar linha no celular */
+    flex-wrap: wrap;
     gap: 8px;
-    background: rgba(255, 255, 255, 0.03);
+    background: rgba(13, 10, 24, 0.5);
     padding: 10px;
     border-radius: 12px;
     align-items: center;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(196, 165, 106, 0.1);
+    backdrop-filter: blur(8px);
 }
 
-/* Estilo dos inputs dentro do inventário */
 .inventory-item input {
-    background: rgba(0, 0, 0, 0.3) !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    background: rgba(0, 0, 0, 0.35) !important;
+    border: 1px solid rgba(196, 165, 106, 0.15) !important;
     border-radius: 8px !important;
-    color: white !important;
+    color: var(--text-main) !important;
     padding: 8px !important;
 }
 
-/* O nome do item ocupa o espaço que sobrar */
 .inv-name { flex: 2; min-width: 150px; }
-/* Qtd e Peso ficam menores */
 .inv-small { width: 70px; text-align: center; }
-/* Botão que abre/fecha a descrição — some economiza espaço quando fechado */
 .inv-desc-toggle {
     width: 32px; height: 32px; flex-shrink: 0;
-    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 8px; color: rgba(255,255,255,0.35); font-size: 13px;
+    background: rgba(196, 165, 106, 0.05); border: 1px solid rgba(196, 165, 106, 0.15);
+    border-radius: 8px; color: rgba(232, 226, 213, 0.4); font-size: 13px;
     display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s;
 }
 .inv-desc-toggle:hover { border-color: var(--accent); color: var(--accent); }
 .inv-desc-toggle.tem-desc { color: var(--accent); border-color: var(--accent); background: rgba(var(--accent-rgb), 0.1); }
-/* Wrapper da descrição: recolhido por padrão, só aparece ao clicar no botão */
 .inv-desc-wrap {
     flex: 1 1 100%;
     max-height: 0;
@@ -424,7 +580,6 @@
     line-height: 1.4;
     font-family: 'Inter', sans-serif;
 }
-/* Botão de excluir */
 .inv-del { 
     width: 32px; 
     height: 32px; 
@@ -437,13 +592,11 @@
     flex-shrink: 0;
 }
 
-/* Ajuste específico para Telas Pequenas */
 @media (max-width: 480px) {
-    .inv-name { flex: 1 1 100%; } /* Nome ocupa a linha toda */
-    .inv-small { flex: 1; } /* Qtd e Peso dividem a segunda linha */
+    .inv-name { flex: 1 1 100%; }
+    .inv-small { flex: 1; }
 }
 
-/* Adicionar no ficha.css (após .crit-blue) */
 .crit-red { 
     color: #ef4444 !important; 
     text-shadow: 0 0 10px rgba(239, 68, 68, 0.4) !important; 
@@ -465,19 +618,19 @@
     height: 120px;
     border-radius: 50%;
     object-fit: cover;
-    border: 3px solid rgba(var(--accent-rgb), 0.3);
-    box-shadow: 0 0 20px rgba(var(--accent-rgb), 0.2);
+    border: 3px solid rgba(var(--accent-rgb), 0.35);
+    box-shadow: 0 0 20px rgba(var(--accent-rgb), 0.25);
     transition: all 0.3s ease;
 }
 
 .avatar-preview:hover {
     border-color: var(--accent);
-    box-shadow: 0 0 25px rgba(var(--accent-rgb), 0.4);
+    box-shadow: 0 0 28px rgba(var(--accent-rgb), 0.5);
 }
 
 .avatar-upload-btn {
     background: rgba(var(--accent-rgb), 0.1);
-    border: 1px solid rgba(var(--accent-rgb), 0.3);
+    border: 1px solid rgba(var(--accent-rgb), 0.35);
     color: var(--accent);
     padding: 8px 16px;
     border-radius: 6px;
@@ -490,11 +643,13 @@
     display: flex;
     align-items: center;
     gap: 6px;
+    font-family: 'Cinzel', serif;
 }
 
 .avatar-upload-btn:hover {
     background: rgba(var(--accent-rgb), 0.2);
     border-color: var(--accent);
+    box-shadow: 0 0 12px rgba(var(--accent-rgb), 0.2);
 }
 
 .avatar-upload-btn svg {
@@ -532,26 +687,33 @@
     width: 120px;
     height: 120px;
     border-radius: 50%;
-    background: linear-gradient(145deg, rgba(var(--accent-rgb), 0.1), rgba(var(--accent-rgb), 0.05));
-    border: 3px dashed rgba(var(--accent-rgb), 0.2);
+    background: linear-gradient(145deg, rgba(var(--accent-rgb), 0.12), rgba(var(--accent-rgb), 0.04));
+    border: 3px dashed rgba(var(--accent-rgb), 0.25);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: rgba(var(--accent-rgb), 0.5);
+    color: rgba(var(--accent-rgb), 0.55);
     font-size: 36px;
+}
+
+/* Nome principal */
+#char-name-display {
+    font-family: 'Cinzel', serif !important;
+    letter-spacing: 0.02em;
 }
 
 /* ======================== */
 /* SISTEMA DE EMOÇÕES       */
 /* ======================== */
 .emocao-card {
-    background: rgba(255,255,255,0.02);
-    border: 1px solid rgba(255,255,255,0.07);
+    background: rgba(13, 10, 24, 0.55);
+    border: 1px solid rgba(196, 165, 106, 0.1);
     border-radius: 16px;
     padding: 20px;
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
+    backdrop-filter: blur(8px);
 }
 .emocao-card::before {
     content: '';
@@ -563,7 +725,7 @@
     transition: opacity 0.3s;
 }
 .emocao-card:hover::before { opacity: 1; }
-.emocao-card:hover { border-color: var(--emocao-cor, var(--accent)); background: rgba(255,255,255,0.04); }
+.emocao-card:hover { border-color: var(--emocao-cor, var(--accent)); background: rgba(196, 165, 106, 0.04); }
 
 .emocao-header {
     display: flex;
@@ -581,7 +743,7 @@
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    color: white;
+    color: var(--text-main);
 }
 .emocao-nivel-label {
     font-size: 9px;
@@ -593,10 +755,10 @@
 }
 .emocao-intensidade-bar {
     height: 8px;
-    background: rgba(0,0,0,0.3);
+    background: rgba(0,0,0,0.35);
     border-radius: 999px;
     overflow: hidden;
-    border: 1px solid rgba(255,255,255,0.05);
+    border: 1px solid rgba(196, 165, 106, 0.08);
     margin-bottom: 14px;
     position: relative;
 }
@@ -619,19 +781,19 @@
     letter-spacing: 0.08em;
     cursor: pointer;
     transition: all 0.2s;
-    border: 1px solid rgba(255,255,255,0.08);
+    border: 1px solid rgba(196, 165, 106, 0.1);
     background: rgba(0,0,0,0.2);
-    color: rgba(255,255,255,0.4);
+    color: rgba(232, 226, 213, 0.45);
     text-align: center;
 }
 .emocao-estado-btn:hover {
     border-color: var(--emocao-cor, var(--accent));
-    color: white;
-    background: rgba(255,255,255,0.05);
+    color: var(--text-main);
+    background: rgba(196, 165, 106, 0.06);
 }
 .emocao-estado-btn.ativo {
     background: var(--emocao-cor, var(--accent));
-    color: black;
+    color: #0a0812;
     border-color: transparent;
     box-shadow: 0 0 12px color-mix(in srgb, var(--emocao-cor, var(--accent)) 50%, transparent);
 }
@@ -655,18 +817,261 @@
     align-items: center;
     gap: 10px;
     padding: 10px 14px;
-    background: rgba(255,255,255,0.02);
-    border: 1px solid rgba(255,255,255,0.05);
+    background: rgba(13, 10, 24, 0.5);
+    border: 1px solid rgba(196, 165, 106, 0.1);
     border-radius: 10px;
     transition: border-color 0.3s;
 }
-.emocao-resumo-bar:hover { border-color: rgba(255,255,255,0.12); }
+.emocao-resumo-bar:hover { border-color: rgba(196, 165, 106, 0.25); }
 
+.ameaca-card-ficha {
+    position: relative;
+    border-radius: 14px;
+    overflow: hidden;
+    background: rgba(13, 10, 24, 0.6);
+    border: 1px solid rgba(196, 100, 80, 0.18);
+    backdrop-filter: blur(8px);
+    transition: all 0.3s ease;
+}
+.ameaca-card-ficha:hover {
+    border-color: rgba(196, 100, 80, 0.4);
+    box-shadow: 0 0 24px rgba(196, 100, 80, 0.12);
+}
+.ameaca-banner {
+    position: relative;
+    height: 160px;
+    background-size: cover;
+    background-position: center 25%;
+    background-color: rgba(196, 100, 80, 0.06);
+}
+.ameaca-banner-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg,
+        rgba(6, 4, 12, 0.1) 0%,
+        rgba(6, 4, 12, 0.75) 70%,
+        rgba(6, 4, 12, 0.95) 100%);
+}
+.ameaca-banner-content {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    padding: 14px 16px;
+    z-index: 1;
+}
+.ameaca-nome {
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    font-size: 18px;
+    letter-spacing: 0.02em;
+    color: #f0dcc0;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.7);
+    line-height: 1.1;
+}
+.ameaca-meta {
+    display: flex;
+    gap: 10px;
+    margin-top: 4px;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: rgba(240, 220, 192, 0.65);
+}
+.ameaca-body {
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.ameaca-desc-img {
+    width: 100%;
+    height: 130px;
+    border-radius: 10px;
+    object-fit: cover;
+    background: rgba(196, 100, 80, 0.05);
+    border: 1px solid rgba(196, 100, 80, 0.15);
+}
+.ameaca-descricao {
+    font-size: 12px;
+    line-height: 1.55;
+    color: rgba(232, 226, 213, 0.7);
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+}
+.ameaca-secao-label {
+    font-size: 9px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: rgba(240, 200, 160, 0.5);
+    margin-bottom: 6px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid rgba(196, 100, 80, 0.12);
+}
+.ameaca-attrs-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 4px;
+}
+.ameaca-attr-box {
+    text-align: center;
+    background: rgba(196, 100, 80, 0.06);
+    border: 1px solid rgba(196, 100, 80, 0.12);
+    border-radius: 6px;
+    padding: 5px 2px;
+}
+.ameaca-attr-box-label {
+    font-size: 7px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: rgba(240, 220, 192, 0.5);
+}
+.ameaca-attr-box-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 700;
+    color: #e0c88a;
+}
+.ameaca-traco-box {
+    background: rgba(196, 100, 80, 0.06);
+    border: 1px solid rgba(196, 100, 80, 0.18);
+    border-radius: 8px;
+    padding: 8px 10px;
+}
+.ameaca-traco-nome {
+    font-family: 'Outfit', sans-serif;
+    font-size: 12px;
+    font-weight: 800;
+    color: #e0a88a;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.ameaca-traco-meta {
+    font-size: 10px;
+    color: rgba(232, 226, 213, 0.5);
+    margin-top: 2px;
+    font-family: 'JetBrains Mono', monospace;
+}
+/* ======================== */
+/* NPCs CONHECIDOS          */
+/* ======================== */
+.npc-card-ficha {
+    position: relative;
+    border-radius: 14px;
+    overflow: hidden;
+    background: rgba(13, 10, 24, 0.6);
+    border: 1px solid color-mix(in srgb, var(--npc-cor) 20%, transparent);
+    backdrop-filter: blur(8px);
+    transition: all 0.3s ease;
+}
+.npc-card-ficha:hover {
+    border-color: color-mix(in srgb, var(--npc-cor) 45%, transparent);
+    box-shadow: 0 0 24px color-mix(in srgb, var(--npc-cor) 12%, transparent);
+}
+.npc-banner {
+    position: relative;
+    height: 160px;
+    background-size: cover;
+    background-position: center 25%;
+    background-color: rgba(255, 255, 255, 0.02);
+}
+.npc-banner-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg,
+        rgba(6, 4, 12, 0.1) 0%,
+        rgba(6, 4, 12, 0.7) 70%,
+        rgba(6, 4, 12, 0.95) 100%);
+}
+.npc-banner-content {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    padding: 14px 16px;
+    z-index: 1;
+}
+.npc-nome {
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    font-size: 18px;
+    letter-spacing: 0.02em;
+    color: #f0dcc0;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.7);
+    line-height: 1.1;
+}
+.npc-ocupacao {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: rgba(240, 220, 192, 0.6);
+    margin-top: 3px;
+}
+.npc-atitude-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    font-size: 8px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    padding: 3px 9px;
+    border-radius: 999px;
+    z-index: 2;
+}
+.npc-body {
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.npc-personalidade {
+    font-size: 12px;
+    line-height: 1.5;
+    color: rgba(232, 226, 213, 0.65);
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+}
+.npc-secao-label {
+    font-size: 9px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: rgba(240, 220, 192, 0.5);
+    margin-bottom: 6px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+.npc-vida-info {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    font-family: 'JetBrains Mono', monospace;
+}
+.npc-vida-atual {
+    font-size: 22px;
+    font-weight: 900;
+}
+.npc-vida-sep {
+    color: rgba(255, 255, 255, 0.3);
+    font-size: 14px;
+}
+.npc-vida-max {
+    font-size: 14px;
+    color: rgba(232, 226, 213, 0.5);
+    font-weight: 700;
+}
 </style>
 </head>
 <body class="tema-vivo" id="body-tag">
+
+    <!-- Céu divino de fundo -->
+    <div class="sky-bg" id="sky-bg">
+        <div class="sky-gradient"></div>
+        <div class="god-rays"></div>
+        <div class="sun-glow"></div>
+        <div class="vignette"></div>
+    </div>
+
 <div id="pop-container"></div>
-<div id="grid-main" class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8"></div>
 
 <aside class="sidebar">
     <div>
@@ -743,6 +1148,7 @@
     <button id="tab-habilidades" onclick="setTab('habilidades')" class="tab-btn whitespace-nowrap">Habilidades</button>
     <button id="tab-inventario" onclick="setTab('inventario')" class="tab-btn whitespace-nowrap">Inventário</button>
     <button id="tab-emocoes" onclick="setTab('emocoes')" class="tab-btn whitespace-nowrap">Emoções</button>
+    <button id="tab-ameacas" onclick="setTab('ameacas')" class="tab-btn whitespace-nowrap">Encontros</button> 
     <button id="tab-anotacoes" onclick="setTab('anotacoes')" class="tab-btn whitespace-nowrap">Anotações</button>
 </nav>
 
@@ -769,6 +1175,28 @@
             </div>
         </div>
         <div id="habilidades-list" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 items-start"></div>
+    </section>
+
+      <section id="view-ameacas" class="hidden space-y-8">
+        <div>
+            <div class="flex justify-between items-center mb-4">
+                <div>
+                    <h2 class="text-xl font-title text-white uppercase italic">Ameaças Encontradas</h2>
+                    <p class="text-[10px] text-white/30 uppercase tracking-widest mt-1">Seres que se revelaram a você</p>
+                </div>
+            </div>
+            <div id="ameacas-reveladas-list" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 items-start"></div>
+        </div>
+
+        <div>
+            <div class="flex justify-between items-center mb-4">
+                <div>
+                    <h2 class="text-xl font-title text-white uppercase italic">Conhecidos</h2>
+                    <p class="text-[10px] text-white/30 uppercase tracking-widest mt-1">Pessoas que cruzaram seu caminho</p>
+                </div>
+            </div>
+            <div id="npcs-revelados-list" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 items-start"></div>
+        </div>
     </section>
 
     <section id="view-inventario" class="hidden">
@@ -803,6 +1231,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getFirestore, collection, onSnapshot, doc, updateDoc, addDoc, setDoc, query, orderBy, getDocs, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
     import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyAzDHaOYApynTHqdvhWy4FhUvwLXr5zfuc",
@@ -816,6 +1245,21 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const storage = getStorage(app);
+    const auth = getAuth(app);
+
+    // Login anônimo automático — sem isso, o Firestore bloqueia toda leitura/escrita
+    await new Promise((resolve) => {
+        const unsub = onAuthStateChanged(auth, async (user) => {
+            if (user) { unsub(); resolve(); }
+            else {
+                try { await signInAnonymously(auth); }
+                catch (e) {
+                    console.error('Falha no login anônimo:', e);
+                    alert('Não foi possível conectar. Recarregue a página.');
+                }
+            }
+        });
+    });
     
     // PRIMEIRO: Pega da URL (sempre prioridade)
 const urlParams = new URLSearchParams(window.location.search);
@@ -851,7 +1295,7 @@ const getDefaultData = (nomeInformado = "Novo Jogador") => ({
         profissao: '', 
         idade: '', 
         altura: '',
-        avatarURL: '' // Adicionado campo para URL do avatar
+        avatarURL: ''
     },
     status: {
         Vida: { a: 10, m: 10 },
@@ -875,7 +1319,7 @@ const getDefaultData = (nomeInformado = "Novo Jogador") => ({
     emocaoVida: '',
     emocaoSanidade: 'Medo',
     emocoes: {
-        Alegria:   { nivel: 0 }, // 0=neutro, 1=base, 2=forte, 3=extremo
+        Alegria:   { nivel: 0 },
         Tristeza:  { nivel: 0 },
         Medo:      { nivel: 0 },
         Raiva:     { nivel: 0 },
@@ -901,7 +1345,6 @@ async function limparLogsAntigos() {
     }
 }
 
-    // LOGS E ROLAGEM
 async function logRoll(acao, dados, total, tipoRolagem = 'normal', dadoRelevante = null) {
     await addDoc(collection(db, "logs_rolagens"), {
         charNome: charData.info.nome || "Desconhecido",
@@ -909,7 +1352,7 @@ async function logRoll(acao, dados, total, tipoRolagem = 'normal', dadoRelevante
         dados,
         total,
         tipoRolagem,
-        dadoRelevante: dadoRelevante, // ← DEVE ESTAR AQUI
+        dadoRelevante: dadoRelevante,
         timestamp: serverTimestamp()
     });
 
@@ -921,7 +1364,6 @@ async function rollPool(nome, qtdDados, somaFinal, tipoRolagem = 'normal') {
     let resultadoDado = 0;
     let dadoRelevante = null;
     
-    // Regra de Desvantagem para 0 ou menos
     if (qtdDados <= 0) {
         for (let i = 0; i < 2; i++) results.push(Math.floor(Math.random() * 20) + 1);
         resultadoDado = Math.min(...results);
@@ -929,16 +1371,13 @@ async function rollPool(nome, qtdDados, somaFinal, tipoRolagem = 'normal') {
         nome += " (Desvantagem)";
         tipoRolagem = 'desvantagem';
     } else {
-        // Pool normal (vantagem - melhor de N)
         for (let i = 0; i < qtdDados; i++) results.push(Math.floor(Math.random() * 20) + 1);
         
-        // Se for mais de 1 dado, é vantagem (melhor de N)
         if (qtdDados > 1) {
             resultadoDado = Math.max(...results);
             dadoRelevante = resultadoDado;
             tipoRolagem = 'vantagem';
         } else {
-            // Apenas 1 dado
             resultadoDado = results[0];
             dadoRelevante = resultadoDado;
             tipoRolagem = 'normal';
@@ -951,22 +1390,15 @@ async function rollPool(nome, qtdDados, somaFinal, tipoRolagem = 'normal') {
     showPopup(nome, totalFinal, results, resultadoDado); 
 }
 
-// Rolar ATRIBUTO PURO: (Valor)d20 + ZERO
 window.rollAttr = (nome, valor) => {
     rollPool(`Atributo: ${nome}`, valor, 0); 
 };
 
-// Rolar PERÍCIA: (Atrib)d20 + Atrib + Treino + Bonus
 window.rollCheck = (nome, valorAtrib, bonusSoma) => {
-    // Aqui a soma final inclui o próprio valor do atributo
     rollPool(nome, valorAtrib, (valorAtrib + bonusSoma));
 };
 
     window.rollDamage = async (nomeItem, formula) => {
-        // Aceita siglas de atributo dentro da fórmula (mesmas do console de dados: INF, CON,
-        // VIT, PRO, ENC, ESP) — ex: "2d6+INF" soma o valor atual de Influência ao dano.
-        // A sigla é trocada pelo número ANTES de interpretar a fórmula, então "+INF+2",
-        // "+INF-1" etc. também funcionam.
         let expr = String(formula || '');
         const substituticoes = {
             'INF': charData.atributos?.Influencia || 0,
@@ -1008,11 +1440,9 @@ function showPopup(titulo, total, dados, dadoRelevante) {
     
     let colorClass = 'text-white';
     
-    // Verificar se é uma rolagem de D20
     const isD20Roll = dados.length > 0 && dados.every(d => d >= 1 && d <= 20);
     
     if (isD20Roll) {
-        // Se temos um dado relevante (vantagem/desvantagem)
         if (dadoRelevante !== null && dadoRelevante !== undefined) {
             if (dadoRelevante === 20) {
                 colorClass = 'crit-gold';
@@ -1020,7 +1450,6 @@ function showPopup(titulo, total, dados, dadoRelevante) {
                 colorClass = 'crit-blue';
             }
         } 
-        // Se não tem dado relevante, verifica os dados normais
         else if (dados.length === 1) {
             if (dados[0] === 20) {
                 colorClass = 'crit-gold';
@@ -1029,7 +1458,6 @@ function showPopup(titulo, total, dados, dadoRelevante) {
             }
         }
     } 
-    // Para DANO - usa crit-red para danos altos
     else if (titulo.includes('Dano') && total > 20) {
         colorClass = 'crit-red';
     }
@@ -1046,42 +1474,31 @@ function showPopup(titulo, total, dados, dadoRelevante) {
 function recalculateStats() {
     if (!charData || !charData.atributos) return;
 
-    // Converte atributos para números para evitar erros de cálculo
     const getAttr = (n) => parseFloat(charData.atributos[n]) || 0;
     const vit = getAttr("Vitalidade");
     const inf = getAttr("Influencia");
     const con = getAttr("Conhecimento");
     const esp = getAttr("Espiritualidade");
 
-    // --- CÁLCULO DAS FÓRMULAS ---
-    
-    // 1. Vida Máxima (Mantendo a lógica de estado)
     let vidaMax = (charData.estado === 'vivo') 
         ? (vit + inf) + (vit * inf) + 5 
         : (vit + con) + (vit * con) + 5;
 
-    // 2. Sanidade Máxima: Conhecimento + 5
     let sanidadeMax = con + 5;
-
-    // 3. Metafísica Máxima: (Con + Esp + Vit) * 1.5 arredondado para baixo
     let metafisicaMax = Math.floor((con + esp + vit) * 1.5);
 
-    // --- SINCRONIZAÇÃO COM O FIREBASE ---
     let updates = {};
     let needUpdate = false;
 
-    // Verificação de Vida
     if (charData.status?.Vida?.m !== vidaMax) {
         updates['status.Vida.m'] = vidaMax;
         needUpdate = true;
     }
 
-    // Verificação de Sanidade
     if (charData.status?.Sanidade?.m !== sanidadeMax) {
         updates['status.Sanidade.m'] = sanidadeMax;
         needUpdate = true;
 
-        // Recalcula o estágio da emoção vinculada com o novo máximo de Sanidade
         const sanidadeAtual = charData.status?.Sanidade?.a ?? sanidadeMax;
         if (charData.emocaoSanidade) {
             const novoNivel = calcularNivelPorPercentual(sanidadeAtual, sanidadeMax);
@@ -1090,10 +1507,8 @@ function recalculateStats() {
         }
     }
 
-    // Verificação de Metafísica (usando o nome exato do seu banco: 'Metafísica')
     const currentMetaM = charData.status?.['Metafísica']?.m || charData.status?.['Metafisica']?.m;
     if (currentMetaM !== metafisicaMax) {
-        // Tenta atualizar com o nome que existir no seu banco
         const fieldName = charData.status?.['Metafísica'] ? 'status.Metafísica.m' : 'status.Metafisica.m';
         updates[fieldName] = metafisicaMax;
         needUpdate = true;
@@ -1105,21 +1520,17 @@ function recalculateStats() {
     }
 }
 
-    // RENDERIZAÇÃO
     function renderAll() {
     document.body.className = `tema-${charData.estado}`;
     document.getElementById('char-name-display').innerText = charData.info.nome || "SEM NOME";
     document.getElementById('char-state-display').innerText = charData.estado.toUpperCase();
     
-    // Adicionado 'profissao' na lista abaixo:
     ['nome', 'profissao', 'idade', 'altura'].forEach(k => {
         const el = document.getElementById(`inp-${k}`);
         if (el) el.value = charData.info[k] || "";
     });
 
-    // Renderizar avatar
     renderAvatar();
-    
     renderBars();
     renderDefesa();
     renderDeslocamento();
@@ -1132,13 +1543,11 @@ function recalculateStats() {
     renderEmocoes();
 }
 
-// FUNÇÃO PARA RENDERIZAR AVATAR
 function renderAvatar() {
     const avatarDisplay = document.getElementById('avatar-display');
     const removeBtn = document.getElementById('remove-avatar-btn');
     
     if (charData.info?.avatarURL) {
-        // Se há URL do avatar, mostrar imagem
         avatarDisplay.innerHTML = '';
         const img = document.createElement('img');
         img.src = charData.info.avatarURL;
@@ -1147,7 +1556,6 @@ function renderAvatar() {
         avatarDisplay.appendChild(img);
         removeBtn.style.display = 'block';
     } else {
-        // Se não há avatar, mostrar placeholder
         avatarDisplay.innerHTML = '👤';
         avatarDisplay.className = 'avatar-placeholder';
         removeBtn.style.display = 'none';
@@ -1162,9 +1570,6 @@ function renderBars() {
             const v = charData.status[k] || { a: 10, m: 10 };
             const pct = Math.min(100, Math.max(0, (v.a / v.m) * 100));
 
-            // Vida e Sanidade: permitem escolher qual emoção reage automaticamente ao dano/desgaste.
-            // Nem todo personagem reage igual — um que se acha poderoso pode reagir
-            // com Surpresa em vez de Medo, por exemplo.
             const camposVinculo = { 'Vida': { campo: 'emocaoVida', fn: 'setEmocaoVida', label: 'Reação a dano' }, 'Sanidade': { campo: 'emocaoSanidade', fn: 'setEmocaoSanidade', label: 'Reação ao trauma' } };
             const vinculo = camposVinculo[k];
             const seletorEmocao = vinculo ? `
@@ -1202,7 +1607,6 @@ function renderBars() {
         }).join('');
     }
 
-// DEFESA: 10 + (Projeção * 3) + Bônus manual
 function renderDefesa() {
     const projecao = parseFloat(charData.atributos?.['Projeção']) || 0;
     const bonus = parseFloat(charData.defesaBonus) || 0;
@@ -1224,7 +1628,6 @@ function renderDefesa() {
         </div>`;
 }
 
-// DESLOCAMENTO (em metros): Base manual + Bônus manual + Passiva (habilidades ligadas)
 function renderDeslocamento() {
     const base = charData.deslocamentoBase !== undefined && charData.deslocamentoBase !== null && charData.deslocamentoBase !== ''
         ? parseFloat(charData.deslocamentoBase) : 9;
@@ -1253,10 +1656,6 @@ function renderDeslocamento() {
         </div>`;
 }
 
-// Soma os bônus temporários de habilidades passivas que o jogador tem "ligadas" no momento.
-// Poderes vinculados a uma emoção ACUMULAM os estágios: ao chegar no estágio 3, os bônus dos
-// estágios 1 e 2 continuam valendo, somados aos do 3 (progressão cumulativa, não substitutiva).
-// Cada poder pode ter várias entradas de atributo e/ou perícia passiva marcadas pelo mestre.
 function getPassiveBonuses() {
     const atributos = {};
     const pericias = {};
@@ -1266,8 +1665,6 @@ function getPassiveBonuses() {
     let danoDistancia = 0;
     let deslocamento = 0;
 
-    // Migra o formato antigo (um único atributo + uma única perícia por estágio) pra dentro
-    // das listas novas, assim poderes já cadastrados antes continuam funcionando.
     const passivoAtributosDoEstagio = (est) => {
         if (est.passivoAtributos && est.passivoAtributos.length) return est.passivoAtributos;
         return est.passivoAtributo ? [{ nome: est.passivoAtributo, valor: est.passivoAtributoValor || 0 }] : [];
@@ -1344,7 +1741,6 @@ function renderSkills() {
         const attrVal = (charData.atributos[attrKey] || 0) + (pb.atributos[attrKey] || 0);
         const skillData = (charData.pericias && charData.pericias[skill]) || { b: 0, t: false };
         
-        // Treinamento (+2) e Bônus de campo (+ bônus temporário de habilidades passivas ligadas)
         const treino = (skillData.t || pb.treinoSet.has(skill)) ? 2 : 0;
         const bonusExtra = (parseFloat(skillData.b) || 0) + (pb.pericias[skill] || 0);
         const somaSemAtributo = treino + bonusExtra;
@@ -1388,27 +1784,22 @@ function renderCombat() {
         const el = document.createElement('div');
         el.className = 'bg-white/5 border border-white/10 p-4 rounded-xl flex flex-col md:flex-row gap-4 items-center group';
         
-        // Lógica de Dano: Se corpo-a-corpo, mostra o bônus de influência
         const influ = (charData.atributos.Influencia || 0) + (pb.atributos.Influencia || 0);
         const danoPassivo = item.tipo === 'corpo' ? (pb.danoCorpo || 0) : (pb.danoDistancia || 0);
         const infoDano = item.tipo === 'corpo'
             ? `${item.dano} + ${influ} (Influ)${danoPassivo ? ` + ${danoPassivo} (Passiva)` : ''}`
             : `${item.dano}${danoPassivo ? ` + ${danoPassivo} (Passiva)` : ''}`;
         
-        // Pega o valor da perícia selecionada
         const periciaNome = item.pericia || 'Luta';
         const skillData = charData.pericias?.[periciaNome] || { b: 0, t: false };
         
-        // Pega o atributo da perícia
         const attrDaPericia = skillsMap[periciaNome] || "Influencia";
         const valorAtrib = (charData.atributos[attrDaPericia] || 0) + (pb.atributos[attrDaPericia] || 0);
         
-        // Calcula bônus da perícia (treino + bônus, incluindo bônus temporário de habilidades passivas ligadas)
         const treinoBonus = (skillData.t || pb.treinoSet.has(periciaNome)) ? 2 : 0;
         const bonusExtra = (parseFloat(skillData.b) || 0) + (pb.pericias[periciaNome] || 0);
         const bonusPericia = treinoBonus + bonusExtra;
         
-        // Soma TOTAL para o ataque: atributo + bônus da perícia
         const somaAtaque = valorAtrib + bonusPericia;
 
         el.innerHTML = `
@@ -1456,7 +1847,6 @@ function renderPoderes() {
         const cfg = poder.emocao ? EMOCOES_CONFIG[poder.emocao] : null;
         const cor = cfg ? cfg.cor : 'var(--accent)';
 
-        // Revelar Médium: mostra SÓ o vislumbre fraco — nem o nome principal nem os 3 estágios aparecem
         if (poder.revelarMedium) {
             const med = poder.estagioMedium || {};
             return `
@@ -1472,7 +1862,6 @@ function renderPoderes() {
             </div>`;
         }
 
-        // Bloqueado: jogador ainda nem sabe que o poder existe
         if (!poder.descoberto) {
             return `
             <div class="poder-card poder-bloqueado">
@@ -1481,7 +1870,6 @@ function renderPoderes() {
             </div>`;
         }
 
-        // Descoberto mas ainda não ativado: só o nome aparece
         if (!poder.ativado) {
             return `
             <div class="poder-card poder-dormant" style="--poder-cor:${cor}">
@@ -1503,7 +1891,6 @@ function renderPoderes() {
                 ${poder.ligado ? '🔛 Ativado — clique para desligar' : '🔁 Ativar habilidade passiva'}
             </button>`;
 
-        // Poder FIXO (sem emoção vinculada): só existe o estágio 1, mas já mostra rolagem
         if (!poder.emocao) {
             const est = estagios[1] || {};
             return `
@@ -1522,8 +1909,6 @@ function renderPoderes() {
             </div>`;
         }
 
-        // Poder com emoção vinculada: mostra TODAS as versões (todos os estágios) de uma vez,
-        // destacando qual está ativo no momento pelo nível atual da emoção
         const dots = [1, 2, 3].map(i => `<span class="poder-estagio-dot ${i <= nivelEmocao ? 'preenchido' : ''}" style="${i <= nivelEmocao ? `background:${cor};` : ''}"></span>`).join('');
 
         return `
@@ -1554,9 +1939,6 @@ window.togglePoderPassivo = async (poderId) => {
 
     const updates = {};
 
-    // Soma quanta Vida/Sanidade temporária este poder concede, acumulando pelos estágios já
-    // alcançados (igual aos demais bônus passivos: fixo usa só o estágio 1; vinculado a emoção
-    // acumula do estágio 1 até o nível atual).
     const estagiosPoder = p.estagios || {};
     let vidaTemp = 0, sanidadeTemp = 0;
     const somarEstagioTemp = (est) => {
@@ -1572,7 +1954,6 @@ window.togglePoderPassivo = async (poderId) => {
     }
 
     if (ligarAgora) {
-        // Ao ativar: guarda o valor "de antes" e soma o temporário por cima, de verdade, na barra.
         if (vidaTemp) {
             const cur = charData.status?.Vida || { a: 10, m: 10 };
             p.vidaTempBaseline = cur.a;
@@ -1586,9 +1967,6 @@ window.togglePoderPassivo = async (poderId) => {
             if (charData.emocaoSanidade) updates[`emocoes.${charData.emocaoSanidade}.nivel`] = calcularNivelPorPercentual(cur.a + sanidadeTemp, cur.m);
         }
     } else {
-        // Ao desativar: a barra só volta pro valor de antes do bônus. Se ela já estiver abaixo
-        // desse valor (o personagem levou dano/desgaste que consumiu o extra e mais um pouco
-        // da vida/sanidade real), não mexe em nada — evita "curar" dano que já foi sofrido.
         if (p.vidaTempBaseline !== undefined && p.vidaTempBaseline !== null) {
             const cur = charData.status?.Vida || { a: 10, m: 10 };
             const novo = Math.min(cur.a, p.vidaTempBaseline);
@@ -1613,14 +1991,10 @@ window.togglePoderPassivo = async (poderId) => {
     await updateDoc(doc(db, "personagens", charID), updates);
 };
 
-// Renderiza UM bloco de estágio (ex: "Raiva", "Fúria", "Ira Cega") dentro do card do poder,
-// já com botão de rolagem (1d20 + perícia configurada pelo mestre) integrado.
 function renderPoderEstagioBloco(poder, estagio, tituloEstagio, cor, ativo) {
     const nomeMostrado = estagio.nome || poder.nome || tituloEstagio;
     const periciaEstagio = estagio.pericia || '';
 
-    // Se não há perícia configurada pelo mestre, a habilidade é passiva: nenhum botão de rolagem aparece,
-    // mas o espaço fica reservado (poder-roll-slot) pra todos os blocos ficarem do mesmo tamanho.
     let btnRolar = '';
     if (periciaEstagio) {
         const pb = getPassiveBonuses();
@@ -1655,13 +2029,9 @@ function poderNomeComDano(nome, dano) {
     return `${nome}<span class="poder-dano-badge" onclick="event.stopPropagation(); rollDamage('${label}', '${formula}')" title="Rolar dano">🎲 ${dano}</span>`;
 }
 
-// Escapa aspas para uso seguro dentro de atributos onclick="..."
 function jsEsc(str) {
     return String(str == null ? '' : str).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
 }
-
-
-// Função para atualizar e salvar no Firebase
 
 let invDescExpandido = new Set();
 
@@ -1712,7 +2082,6 @@ function renderInventory() {
         list.appendChild(div);
     });
 
-    // Atualização da Carga (Influência * 3)
     const inf = parseFloat(charData.atributos?.Influencia) || 0;
     const maxW = inf * 3;
     const display = document.getElementById('inv-weight-display');
@@ -1725,7 +2094,6 @@ function renderInventory() {
     }
 }
 
-    // No seu HTML ou função de renderização das anotações
 function renderAnotacoes() {
     const area = document.getElementById('view-anotacoes');
     area.innerHTML = `
@@ -1737,36 +2105,27 @@ function renderAnotacoes() {
     `;
 }
 
-// ========================
-// SISTEMA DE EMOÇÕES
-// ========================
-
-// Calcula o nível de uma emoção (0=Neutro, 1=base, 2=forte, 3=extremo) a partir do % restante de um status.
-// Estágio final (extremo) só é atingido com o status zerado.
 function calcularNivelPorPercentual(atual, maximo) {
     if (!maximo || maximo <= 0) return 0;
-    if (atual <= 0) return 3;                 // Status zerado -> extremo
+    if (atual <= 0) return 3;
     const pct = atual / maximo;
-    if (pct <= 1 / 3) return 2;                // até 33% -> forte
-    if (pct <= 2 / 3) return 1;                // até 66% -> base
-    return 0;                                  // acima de 66% -> Neutro
+    if (pct <= 1 / 3) return 2;
+    if (pct <= 2 / 3) return 1;
+    return 0;
 }
 
-// Mantido por compatibilidade com o vínculo Sanidade -> Medo.
 function calcularNivelMedoPorSanidade(atual, maximo) {
     return calcularNivelPorPercentual(atual, maximo);
 }
 
-// Versão para Vida: o extremo dispara em ~5% da Vida máxima (mínimo 1 ponto),
-// não em zero — com zero o personagem já está morto/inconsciente, não "surpreso".
 function calcularNivelVidaPorPercentual(atual, maximo) {
     if (!maximo || maximo <= 0) return 0;
     const limiarExtremo = Math.max(1, Math.round(maximo * 0.05));
-    if (atual <= limiarExtremo) return 3;      // ~5% (ou 1 ponto) -> extremo
+    if (atual <= limiarExtremo) return 3;
     const pct = atual / maximo;
-    if (pct <= 1 / 3) return 2;                // até 33% -> forte
-    if (pct <= 2 / 3) return 1;                // até 66% -> base
-    return 0;                                  // acima de 66% -> Neutro
+    if (pct <= 1 / 3) return 2;
+    if (pct <= 2 / 3) return 1;
+    return 0;
 }
 
 const EMOCOES_CONFIG = {
@@ -1825,7 +2184,6 @@ function renderEmocoes() {
         const nivel = estado.nivel || 0;
         const pct = (nivel / 3) * 100;
 
-        // Cor da barra interpolada por nível
         const corFill = nivel === 0
             ? 'rgba(255,255,255,0.1)'
             : nivel === 3
@@ -1850,7 +2208,7 @@ function renderEmocoes() {
             <div class="emocao-header">
                 <span class="emocao-icon">${cfg.icon}</span>
                 <div>
-                    <div class="emocao-nome" style="color: ${nivel > 0 ? cfg.cor : 'rgba(255,255,255,0.8)'}">
+                    <div class="emocao-nome" style="color: ${nivel > 0 ? cfg.cor : 'rgba(232,226,213,0.85)'}">
                         ${nomeAtual}
                     </div>
                     <div style="font-size:9px; opacity:0.35; text-transform:uppercase; letter-spacing:0.15em; font-weight:700; margin-top:2px;">
@@ -1875,10 +2233,6 @@ function renderEmocoes() {
 }
 
 window.setEmocao = (nome, nivel) => {
-    // Além de salvar o novo nível, reajusta na hora a Vida/Sanidade temporária de qualquer
-    // poder vinculado a essa emoção que esteja com a passiva ligada — soma o bônus do novo
-    // estágio automaticamente ao subir, e ao descer de estágio desfaz o temporário antigo só
-    // até a base salva (nunca "cura" dano já sofrido), sem precisar desligar/religar a habilidade.
     const updates = { [`emocoes.${nome}.nivel`]: nivel };
     reajustarTempPorEmocao(nome, nivel, updates);
     updateDoc(doc(db, "personagens", charID), updates);
@@ -1892,7 +2246,6 @@ window.resetarEmocoes = () => {
     updateDoc(doc(db, "personagens", charID), { emocoes });
 };
 
-// --- LÓGICA DE DANO COM SOMA AUTOMÁTICA ---
 window.executarDano = async (nome, formula, tipo) => {
     const pb = getPassiveBonuses();
     const influ = (charData.atributos.Influencia || 0) + (pb.atributos.Influencia || 0);
@@ -1920,7 +2273,6 @@ window.executarDano = async (nome, formula, tipo) => {
     }
 };
 
-// --- AJUSTE NO UPDATE DE COMBATE ---
 window.addCombatItem = () => {
     const novo = { nome: 'Nova Arma', pericia: 'Luta', dano: '1d6', tipo: 'corpo' };
     updateDoc(doc(db, "personagens", charID), { 
@@ -1928,7 +2280,6 @@ window.addCombatItem = () => {
     });
 };
 
-    // --- CONSOLE DE DADOS (ESTILO MESTRE COM LOG) ---
 window.playerMasterRoll = async () => {
     const commandInput = document.getElementById('dice-command');
     let command = commandInput.value.trim();
@@ -1988,7 +2339,6 @@ window.playerMasterRoll = async () => {
         tipoRolagem = 'desvantagem';
     } else { 
         escolhido = resultados.reduce((a, b) => a + b, 0); 
-        // Para rolagens normais com múltiplos dados, não há dado relevante
         if (resultados.length === 1) {
             dadoRelevante = resultados[0];
         }
@@ -1996,18 +2346,16 @@ window.playerMasterRoll = async () => {
     
     const totalFinal = escolhido + soma;
 
-    // Envia para o log do mestre
     await logRoll(`Console: ${commandInput.value}`, resultados, totalFinal, tipoRolagem, dadoRelevante);
     showPopup(`Console: ${commandInput.value}`, totalFinal, resultados, dadoRelevante);
     
     commandInput.value = '';
 };
 
-    // --- FUNÇÕES DE UPDATE ---
 window.setTab = (t) => {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('tab-active'));
     document.getElementById(`tab-${t}`).classList.add('tab-active');
-    const tabs = ['pericias', 'combate', 'habilidades', 'inventario', 'emocoes', 'anotacoes'];
+    const tabs = ['pericias', 'combate', 'habilidades', 'ameacas', 'inventario', 'emocoes', 'anotacoes'];
     tabs.forEach(x => {
         const el = document.getElementById(`view-${x}`);
         if (el) x === t ? el.classList.remove('hidden') : el.classList.add('hidden');
@@ -2015,9 +2363,7 @@ window.setTab = (t) => {
 };
 
 window.saveInfo = (k, v) => updateDoc(doc(db, "personagens", charID), { [`info.${k}`]: v });
-
 window.saveNotes = (v) => updateDoc(doc(db, "personagens", charID), { anotacoes: v });
-
 window.saveAnotacoes = (v) => updateDoc(doc(db, "personagens", charID), { anotacoes: v });
 
 window.toggleEstado = () => {
@@ -2038,11 +2384,6 @@ window.changeVal = async (path, delta) => {
     if (parts[0] === 'atributos') recalculateStats();
 };
 
-// Reajusta a Vida/Sanidade temporária de poderes vinculados a uma emoção quando o nível dela
-// muda (enquanto o poder estiver ligado) — sem precisar desligar e religar a habilidade.
-// Funciona em 2 passos: primeiro desfaz o temporário antigo (só desce até a base salva,
-// nunca "cura" dano/desgaste já sofrido), depois soma o temporário do novo estágio por cima
-// dessa base. Escreve direto no objeto `updates` que a função chamadora vai enviar ao Firebase.
 function reajustarTempPorEmocao(nomeEmocao, novoNivel, updates) {
     const poderes = charData.poderes || [];
     const temPoderRelevante = poderes.some(p => p.emocao === nomeEmocao && p.passivoHabilitado && p.ligado);
@@ -2095,22 +2436,16 @@ function reajustarTempPorEmocao(nomeEmocao, novoNivel, updates) {
 
 window.modStatus = async (key, delta) => {
     const cur = charData.status[key] || { a: 10, m: 10 };
-    // Se a barra estiver acima do máximo por causa de vida/sanidade temporária, o teto
-    // pros botões -/+ acompanha o valor atual (não "achata" de volta pro máximo sozinho).
     const teto = Math.max(cur.m, cur.a);
     const novo = Math.min(teto, Math.max(0, cur.a + delta));
     const updates = { [`status.${key}.a`]: novo };
 
-    // Sanidade: a emoção escolhida por este personagem acompanha o trauma sofrido.
-    // Aqui zera de fato no 0%, já que Sanidade zerada não significa morte.
     if (key === 'Sanidade' && charData.emocaoSanidade) {
         const novoNivel = calcularNivelPorPercentual(novo, cur.m);
         updates[`emocoes.${charData.emocaoSanidade}.nivel`] = novoNivel;
         reajustarTempPorEmocao(charData.emocaoSanidade, novoNivel, updates);
     }
 
-    // Vida: a emoção escolhida por este personagem acompanha o dano recebido.
-    // Cada ficha pode vincular uma emoção diferente, já que nem todo mundo reage igual a se machucar.
     if (key === 'Vida' && charData.emocaoVida) {
         const novoNivel = calcularNivelVidaPorPercentual(novo, cur.m);
         updates[`emocoes.${charData.emocaoVida}.nivel`] = novoNivel;
@@ -2120,12 +2455,10 @@ window.modStatus = async (key, delta) => {
     await updateDoc(doc(db, "personagens", charID), updates);
 };
 
-// Define qual emoção reage automaticamente à Vida deste personagem e já recalcula o nível atual.
 window.setEmocaoVida = async (nome) => {
     const updates = { emocaoVida: nome };
     const anterior = charData.emocaoVida;
 
-    // Zera a emoção anterior, já que ela deixou de acompanhar a Vida.
     if (anterior && anterior !== nome) {
         updates[`emocoes.${anterior}.nivel`] = 0;
     }
@@ -2136,12 +2469,10 @@ window.setEmocaoVida = async (nome) => {
     await updateDoc(doc(db, "personagens", charID), updates);
 };
 
-// Define qual emoção reage automaticamente à Sanidade deste personagem e já recalcula o nível atual.
 window.setEmocaoSanidade = async (nome) => {
     const updates = { emocaoSanidade: nome };
     const anterior = charData.emocaoSanidade;
 
-    // Zera a emoção anterior, já que ela deixou de acompanhar a Sanidade.
     if (anterior && anterior !== nome) {
         updates[`emocoes.${anterior}.nivel`] = 0;
     }
@@ -2175,7 +2506,6 @@ const IMGBB_API_KEY = '27f5e02f2aefe0e203049fd80b7f628b';
 window.uploadAvatar = async (file) => {
     if (!file) return;
     
-    // Validar tipo e tamanho
     if (!file.type.startsWith('image/')) {
         alert('Por favor, selecione apenas arquivos de imagem.');
         return;
@@ -2190,14 +2520,12 @@ window.uploadAvatar = async (file) => {
         const avatarDisplay = document.getElementById('avatar-display');
         avatarDisplay.innerHTML = '<div class="avatar-preview avatar-loading">Carregando...</div>';
         
-        // Converter para Base64
         const reader = new FileReader();
         reader.readAsDataURL(file);
         
         reader.onload = async (e) => {
-            const base64Image = e.target.result.split(',')[1]; // Remove o prefixo
+            const base64Image = e.target.result.split(',')[1];
             
-            // Fazer upload para ImgBB
             const formData = new FormData();
             formData.append('image', base64Image);
             
@@ -2209,7 +2537,6 @@ window.uploadAvatar = async (file) => {
             const data = await response.json();
             
             if (data.success) {
-                // Salvar URL no Firestore
                 await updateDoc(doc(db, "personagens", charID), {
                     'info.avatarURL': data.data.url
                 });
@@ -2222,7 +2549,7 @@ window.uploadAvatar = async (file) => {
     } catch (error) {
         console.error('Erro ao fazer upload do avatar:', error);
         alert('Erro ao fazer upload da imagem. Tente novamente.');
-        renderAvatar(); // Restaurar avatar anterior
+        renderAvatar();
     }
 };
 
@@ -2232,20 +2559,16 @@ window.removeAvatar = async () => {
     }
     
     try {
-        // Remover URL do Firestore
         await updateDoc(doc(db, "personagens", charID), {
             'info.avatarURL': ''
         });
-        
         console.log('Avatar removido com sucesso');
-        
     } catch (error) {
         console.error('Erro ao remover avatar:', error);
         alert('Erro ao remover a imagem.');
     }
 };
 
-// Configurar input de arquivo
 document.addEventListener('DOMContentLoaded', () => {
     const avatarInput = document.getElementById('avatar-input');
     if (avatarInput) {
@@ -2254,21 +2577,17 @@ document.addEventListener('DOMContentLoaded', () => {
             if (file) {
                 uploadAvatar(file);
             }
-            // Resetar input para permitir selecionar o mesmo arquivo novamente
             avatarInput.value = '';
         });
     }
 });
 
-// Torne o charID global para o HTML encontrar
 window.charID = charID; 
 
 onSnapshot(doc(db, "personagens", charID), async (snap) => {
     if (snap.exists()) { 
-        // Pega os dados do Firebase e completa o que estiver faltando com o default
         const data = snap.data();
         charData = { ...getDefaultData(), ...data };
-        // Garante que sub-objetos não venham nulos
         charData.info = { ...getDefaultData().info, ...data.info };
         charData.atributos = { ...getDefaultData().atributos, ...data.atributos };
         charData.emocoes = { ...getDefaultData().emocoes, ...(data.emocoes || {}) };
@@ -2279,7 +2598,6 @@ onSnapshot(doc(db, "personagens", charID), async (snap) => {
         const nomeDaURL = charID.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
         const dataNova = getDefaultData(nomeDaURL);
         
-        // Tenta gravar. Se falhar aqui, o problema é conexão ou configuração do Firebase.
         await setDoc(doc(db, "personagens", charID), dataNova);
         charData = dataNova;
         renderAll();
@@ -2288,9 +2606,6 @@ onSnapshot(doc(db, "personagens", charID), async (snap) => {
     console.error("Erro no Firebase Snapshot:", error);
 });
 
-// ========================
-// WIDGET DE COMBATE (só leitura, sincronizado com a mesa do mestre)
-// ========================
 onSnapshot(doc(db, "mesa", "iniciativa"), (snap) => {
     const box = document.getElementById('combate-widget');
     const lista = document.getElementById('cw-lista');
@@ -2323,15 +2638,158 @@ onSnapshot(doc(db, "mesa", "iniciativa"), (snap) => {
     console.error("Erro no Firebase Snapshot (combate):", error);
 });
 
+// ========================
+// AMEAÇAS REVELADAS (só as que o mestre marcou como revelado=true)
+// ========================
+const SKILLS_MAP_FICHA = {
+    "Acrobacia": "Projeção", "Adestramento": "Encantamento", "Atletismo": "Influencia",
+    "Atuação": "Encantamento", "Cura": "Conhecimento", "Diplomacia": "Encantamento",
+    "Enganação": "Encantamento", "Fortitude": "Vitalidade", "Furtividade": "Projeção",
+    "Iniciativa": "Projeção", "Intimidação": "Encantamento", "Intuição": "Espiritualidade",
+    "Investigação": "Conhecimento", "Ladinagem": "Projeção", "Luta": "Influencia",
+    "Misticismo": "Espiritualidade", "Percepção": "Projeção", "Pilotagem": "Projeção",
+    "Pontaria": "Projeção", "Reflexos": "Projeção", "Religião": "Conhecimento",
+    "Sobrevivência": "Conhecimento", "Vontade": "Espiritualidade"
+};
+// ========================
+// ENCONTROS — Ameaças reveladas + NPCs conhecidos
+// ========================
+const ATRIBUTOS_ABREV_FICHA = { Vitalidade: 'VIT', 'Projeção': 'PRO', Conhecimento: 'CON', Encantamento: 'ENC', Influencia: 'INF', Espiritualidade: 'ESP' };
 
-// DEBUG: Mostra tudo
+function renderAmeacaCard(a) {
+    const nome = a.nome || 'Ameaça sem nome';
+    const nd = a.nd || '—';
+    const classe = a.classificacao || '';
+    const foto = a.fotoURL || '';
+    const posX = a.fotoPosX ?? 50;
+    const posY = a.fotoPosY ?? 25;
+    const atributos = { Vitalidade: 0, Projeção: 0, Conhecimento: 0, Encantamento: 0, Influencia: 0, Espiritualidade: 0, ...(a.atributos || {}) };
+    const traco = a.tracoSinatura || {};
+    const descPublica = a.descricaoPublica || '';
+    const temTraco = traco.nome && (traco.dt || traco.dano);
+
+    return `
+    <div class="ameaca-card-ficha">
+        <div class="ameaca-banner" style="${foto ? `background-image: url('${foto}'); background-position: ${posX}% ${posY}%;` : ''}">
+            <div class="ameaca-banner-overlay"></div>
+            <div class="ameaca-banner-content">
+                <div class="ameaca-nome">${nome}</div>
+                <div class="ameaca-meta">
+                    <span>ND ${nd}</span>
+                    ${classe ? `<span>·</span><span>${classe}</span>` : ''}
+                </div>
+            </div>
+        </div>
+        <div class="ameaca-body">
+            ${descPublica ? `<div class="ameaca-descricao">${descPublica}</div>` : ''}
+
+            <div>
+                <div class="ameaca-secao-label">Atributos</div>
+                <div class="ameaca-attrs-grid">
+                    ${Object.entries(ATRIBUTOS_ABREV_FICHA).map(([nomeAttr, abrev]) => `
+                        <div class="ameaca-attr-box">
+                            <div class="ameaca-attr-box-label">${abrev}</div>
+                            <div class="ameaca-attr-box-val">${atributos[nomeAttr] ?? 0}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+
+            ${temTraco ? `
+            <div>
+                <div class="ameaca-secao-label">Traço de Assinatura</div>
+                <div class="ameaca-traco-box">
+                    <div class="ameaca-traco-nome">${traco.nome}</div>
+                    <div class="ameaca-traco-meta">
+                        ${traco.dt ? `DT ${traco.dt}` : ''}${traco.dt && traco.dano ? ' · ' : ''}${traco.dano ? `Dano ${traco.dano}` : ''}
+                    </div>
+                </div>
+            </div>` : ''}
+        </div>
+    </div>`;
+}
+
+function renderNpcCard(n) {
+    const nome = n.nome || 'NPC sem nome';
+    const foto = n.fotoURL || '';
+    const posX = n.fotoPosX ?? 50;
+    const posY = n.fotoPosY ?? 25;
+    const ocupacao = n.ocupacao || '';
+    const personalidade = n.personalidade || '';
+    const atitude = n.atitude || 'neutro';
+    const atitudeInfo = {
+        aliado: { label: 'Aliado', cor: '#8ab8a0' },
+        neutro: { label: 'Neutro', cor: '#c4a56a' },
+        hostil: { label: 'Hostil', cor: '#e08076' },
+        desconhecido: { label: 'Desconhecido', cor: '#a89ac4' }
+    }[atitude] || { label: 'Neutro', cor: '#c4a56a' };
+
+    const combateAtivo = !!n.combateAtivo;
+    const vida = n.status?.Vida;
+
+    return `
+    <div class="npc-card-ficha" style="--npc-cor: ${atitudeInfo.cor};">
+        <div class="npc-banner" style="${foto ? `background-image: url('${foto}'); background-position: ${posX}% ${posY}%;` : ''}">
+            <div class="npc-banner-overlay"></div>
+            <span class="npc-atitude-badge" style="background: ${atitudeInfo.cor}; color: #06040c;">${atitudeInfo.label}</span>
+            <div class="npc-banner-content">
+                <div class="npc-nome">${nome}</div>
+                ${ocupacao ? `<div class="npc-ocupacao">${ocupacao}</div>` : ''}
+            </div>
+        </div>
+        <div class="npc-body">
+            ${personalidade ? `<div class="npc-personalidade">"${personalidade}"</div>` : ''}
+
+            ${combateAtivo && vida ? `
+            <div>
+                <div class="npc-secao-label">Vitalidade</div>
+                <div class="npc-vida-info">
+                    <span class="npc-vida-atual" style="color: ${atitudeInfo.cor};">${vida.a ?? 0}</span>
+                    <span class="npc-vida-sep">/</span>
+                    <span class="npc-vida-max">${vida.m ?? 0}</span>
+                </div>
+            </div>` : ''}
+        </div>
+    </div>`;
+}
+
+function renderEncontros(ameacas, npcs) {
+    const containerA = document.getElementById('ameacas-reveladas-list');
+    const containerN = document.getElementById('npcs-revelados-list');
+    if (!containerA || !containerN) return;
+
+    containerA.innerHTML = ameacas.length
+        ? ameacas.map(renderAmeacaCard).join('')
+        : `<div class="col-span-full text-center py-8"><p class="text-[11px] text-white/20 uppercase tracking-[0.2em]">Nenhuma ameaça revelada ainda</p></div>`;
+
+    containerN.innerHTML = npcs.length
+        ? npcs.map(renderNpcCard).join('')
+        : `<div class="col-span-full text-center py-8"><p class="text-[11px] text-white/20 uppercase tracking-[0.2em]">Nenhum conhecido revelado ainda</p></div>`;
+}
+
+let _ameacasCacheFicha = [];
+let _npcsCacheFicha = [];
+
+onSnapshot(collection(db, "ameacas"), (snap) => {
+    _ameacasCacheFicha = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(a => a.revelado === true);
+    renderEncontros(_ameacasCacheFicha, _npcsCacheFicha);
+}, (error) => {
+    console.error("Erro ao buscar ameaças reveladas:", error);
+});
+
+onSnapshot(collection(db, "npcs"), (snap) => {
+    _npcsCacheFicha = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(n => n.revelado === true);
+    renderEncontros(_ameacasCacheFicha, _npcsCacheFicha);
+}, (error) => {
+    console.error("Erro ao buscar NPCs revelados:", error);
+});
+
 console.log("=== DEBUG FICHA ===");
 console.log("URL completa:", window.location.href);
 console.log("Parâmetro 'char' da URL:", urlCharID);
 console.log("localStorage atual:", localStorage.getItem('ciclo_char_id'));
 console.log("charID final usado:", charID);
 console.log("=== FIM DEBUG ===");
-
 
 </script>
 </body>
