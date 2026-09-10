@@ -24,11 +24,11 @@
             --skip-bg: rgba(255, 254, 249, 0.65);
             --skip-bg-hover: rgba(255, 254, 249, 0.95);
             --btn-text: #fffdf6;
-            --rays-color: rgba(255, 250, 235, 0.55);
+            --rays-color: rgba(255, 250, 235, 0.5);
             --sun-core: rgba(255, 253, 245, 0.85);
-            --sun-mid: rgba(255, 250, 235, 0.35);
-            --sun-edge: rgba(250, 240, 215, 0.1);
-            --vignette: rgba(120, 95, 55, 0.05);
+            --sun-mid: rgba(255, 250, 235, 0.4);
+            --sun-edge: rgba(250, 240, 215, 0.12);
+            --vignette: rgba(120, 95, 55, 0.06);
             --curtain-core: rgba(255, 254, 248, 1);
             --curtain-mid: rgba(252, 246, 230, 0.98);
             --curtain-edge: rgba(244, 232, 205, 0.7);
@@ -52,10 +52,10 @@
             --skip-bg: rgba(20, 16, 30, 0.7);
             --skip-bg-hover: rgba(30, 24, 42, 0.95);
             --btn-text: #1a1524;
-            --rays-color: rgba(150, 130, 210, 0.14);
-            --sun-core: rgba(170, 155, 215, 0.35);
-            --sun-mid: rgba(140, 120, 195, 0.15);
-            --sun-edge: rgba(120, 100, 175, 0.04);
+            --rays-color: rgba(150, 130, 210, 0.12);
+            --sun-core: rgba(170, 155, 215, 0.4);
+            --sun-mid: rgba(140, 120, 195, 0.18);
+            --sun-edge: rgba(120, 100, 175, 0.05);
             --vignette: rgba(0, 0, 0, 0.35);
             --curtain-core: rgba(24, 20, 36, 1);
             --curtain-mid: rgba(16, 12, 26, 0.98);
@@ -64,9 +64,7 @@
 
         * { box-sizing: border-box; }
 
-        html {
-            height: 100%;
-        }
+        html { height: 100%; }
 
         body {
             margin: 0;
@@ -75,83 +73,92 @@
             font-family: 'Inter', sans-serif;
             color: var(--text-main);
             display: flex;
-            align-items: safe center;
-            justify-content: safe center;
+            align-items: center;
+            justify-content: center;
             padding: 40px 20px;
             overflow-x: hidden;
             overflow-y: auto;
-            background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-mid) 50%, var(--sky-bot) 100%);
-            background-attachment: fixed;
+            background-color: var(--sky-mid);
             position: relative;
-            transition: background 0.6s ease, color 0.4s ease;
+            transition: background-color 0.6s ease, color 0.4s ease;
         }
 
-        /* ======================== */
-        /* CÉU: SOL + RAIOS         */
-        /* ======================== */
-        .god-rays {
+        /* =============================== */
+        /* CÉU: gradiente + sol + raios    */
+        /* Tudo em uma única camada fixa   */
+        /* =============================== */
+        .sky-bg {
             position: fixed;
-            top: -20vh;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 160vw;
-            height: 130vh;
-            background:
-                conic-gradient(from 175deg at 50% 0%,
-                    transparent 0deg,
-                    var(--rays-color) 7deg,
-                    transparent 14deg,
-                    transparent 24deg,
-                    var(--rays-color) 31deg,
-                    transparent 38deg,
-                    transparent 50deg,
-                    var(--rays-color) 57deg,
-                    transparent 64deg,
-                    transparent 75deg,
-                    var(--rays-color) 82deg,
-                    transparent 89deg
-                );
-            filter: blur(28px);
+            inset: 0;
             z-index: 0;
             pointer-events: none;
-            animation: raysBreathe 14s ease-in-out infinite alternate;
-            transition: opacity 0.8s ease, background 0.6s ease;
+            overflow: hidden;
+            transition: opacity 0.8s ease;
         }
-        @keyframes raysBreathe {
-            from { opacity: 0.75; }
+
+        /* Gradiente vertical do céu */
+        .sky-gradient {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg,
+                var(--sky-top) 0%,
+                var(--sky-mid) 45%,
+                var(--sky-mid) 55%,
+                var(--sky-bot) 100%);
+            transition: background 0.6s ease;
+        }
+
+        /* Sol: radial gradiente que cobre TODA a tela, sem fim abrupto */
+        .sun-glow {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse 80% 70% at 50% 0%,
+                var(--sun-core) 0%,
+                var(--sun-mid) 30%,
+                var(--sun-edge) 60%,
+                transparent 90%);
+            animation: sunPulse 10s ease-in-out infinite alternate;
+            transition: background 0.6s ease;
+        }
+        @keyframes sunPulse {
+            from { opacity: 0.85; }
             to   { opacity: 1; }
         }
 
-        .sun-glow {
-            position: fixed;
-            top: -40vh;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 110vw;
-            height: 100vh;
-            background: radial-gradient(ellipse at center,
-                var(--sun-core) 0%,
-                var(--sun-mid) 35%,
-                var(--sun-edge) 60%,
-                transparent 85%);
-            z-index: 0;
-            pointer-events: none;
-            animation: sunPulse 10s ease-in-out infinite alternate;
-            transition: opacity 0.8s ease, background 0.6s ease;
+        /* Raios: leque largo e suave, sem linhas finas */
+        .god-rays {
+            position: absolute;
+            top: -50vh;
+            left: -30vw;
+            width: 160vw;
+            height: 200vh;
+            background:
+                conic-gradient(from 165deg at 50% 25%,
+                    transparent 0deg,
+                    var(--rays-color) 12deg,
+                    transparent 24deg,
+                    transparent 40deg,
+                    var(--rays-color) 52deg,
+                    transparent 64deg,
+                    transparent 82deg,
+                    var(--rays-color) 94deg,
+                    transparent 106deg
+                );
+            filter: blur(40px);
+            animation: raysBreathe 14s ease-in-out infinite alternate;
+            transition: background 0.6s ease;
         }
-        @keyframes sunPulse {
-            from { opacity: 0.85; transform: translateX(-50%) scale(1); }
-            to   { opacity: 1;    transform: translateX(-50%) scale(1.04); }
+        @keyframes raysBreathe {
+            from { opacity: 0.7; }
+            to   { opacity: 1; }
         }
 
-        /* Vinheta sutil nos cantos pra fundo não parecer "cortado" */
+        /* Vinheta suave nos cantos */
         .vignette {
-            position: fixed;
+            position: absolute;
             inset: 0;
-            z-index: 1;
-            pointer-events: none;
-            background: radial-gradient(ellipse at center,
-                transparent 40%,
+            background: radial-gradient(ellipse 90% 85% at center,
+                transparent 50%,
                 var(--vignette) 100%);
             transition: background 0.6s ease;
         }
@@ -221,7 +228,6 @@
             animation: cardEnter 1.2s cubic-bezier(0.16, 1, 0.3, 1);
             transition: background 0.6s ease, border-color 0.6s ease, box-shadow 0.6s ease;
         }
-        /* Cantos ornamentados dourados, no estilo de moldura antiga */
         .glass-card::before,
         .glass-card::after {
             content: '';
@@ -428,7 +434,6 @@
             pointer-events: auto;
         }
 
-        /* Cortina de luz que expande do centro */
         .light-curtain {
             position: absolute;
             top: 50%;
@@ -453,7 +458,6 @@
             100% { transform: translate(-50%, -50%) scale(3); opacity: 1; }
         }
 
-        /* Segundo círculo de luz, mais quente, pra dar "brilho" atrás da logo */
         .light-halo {
             position: absolute;
             top: 50%;
@@ -483,7 +487,6 @@
             100% { transform: translate(-50%, -50%) scale(2.2); opacity: 0; }
         }
 
-        /* Logo central */
         .logo-container {
             position: relative;
             z-index: 3;
@@ -589,9 +592,12 @@
 </head>
 <body>
 
-    <div class="god-rays"></div>
-    <div class="sun-glow"></div>
-    <div class="vignette"></div>
+    <div class="sky-bg" id="sky-bg">
+        <div class="sky-gradient"></div>
+        <div class="god-rays"></div>
+        <div class="sun-glow"></div>
+        <div class="vignette"></div>
+    </div>
 
     <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="Alternar tema">
         <span id="theme-icon">🌙</span>
@@ -776,8 +782,7 @@
         overlay.classList.add('ativo');
 
         document.getElementById('login-wrapper').classList.add('fading');
-        document.querySelector('.sun-glow').style.opacity = '0.3';
-        document.querySelector('.god-rays').style.opacity = '0.3';
+        document.querySelector('.sky-bg').style.opacity = '0.3';
         document.getElementById('theme-toggle').style.opacity = '0';
         document.getElementById('theme-toggle').style.pointerEvents = 'none';
 
@@ -794,8 +799,7 @@
         document.getElementById('login-wrapper').classList.remove('fading');
         document.getElementById('logo-container').classList.remove('visivel');
         document.getElementById('skip-btn').classList.remove('visivel');
-        document.querySelector('.sun-glow').style.opacity = '';
-        document.querySelector('.god-rays').style.opacity = '';
+        document.querySelector('.sky-bg').style.opacity = '';
         const tg = document.getElementById('theme-toggle');
         tg.style.opacity = '';
         tg.style.pointerEvents = '';
