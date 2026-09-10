@@ -3,151 +3,644 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ciclo Vitae - Despertar</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@700;900&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <title>Ciclo Vittae - Despertar</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;700&family=Cormorant+Garamond:ital,wght@1,300;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --accent: #8b5cf6;
-            --bg-deep: #030305;
+            --sky-top: #fcfaf5;
+            --sky-mid: #f7f1e4;
+            --sky-bot: #eee3ca;
+            --gold: #c2a163;
+            --gold-light: #dcc189;
+            --gold-dark: #8a6f3c;
+            --text-main: #3d3425;
+            --text-mid: #7a6b52;
+            --text-soft: #b3a48c;
+            --card-bg: rgba(255, 254, 249, 0.72);
+            --card-border: rgba(184, 148, 90, 0.22);
+            --input-bg: rgba(255, 255, 255, 0.75);
+            --input-bg-focus: rgba(255, 255, 255, 0.95);
+            --divider-bg: rgba(255, 254, 249, 0.9);
+            --skip-bg: rgba(255, 254, 249, 0.65);
+            --skip-bg-hover: rgba(255, 254, 249, 0.95);
+            --btn-text: #fffdf6;
+            --rays-color: rgba(255, 250, 235, 0.55);
+            --sun-core: rgba(255, 253, 245, 0.85);
+            --sun-mid: rgba(255, 250, 235, 0.35);
+            --sun-edge: rgba(250, 240, 215, 0.1);
+            --vignette: rgba(120, 95, 55, 0.05);
+            --curtain-core: rgba(255, 254, 248, 1);
+            --curtain-mid: rgba(252, 246, 230, 0.98);
+            --curtain-edge: rgba(244, 232, 205, 0.7);
         }
 
-        body { 
-            background-color: var(--bg-deep); 
-            background: radial-gradient(circle at center, #0a0a15 0%, #030305 100%);
-            color: #a1a1aa; 
-            font-family: 'Inter', sans-serif; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            min-height: 100vh; 
-            margin: 0; 
-            padding: 20px; /* Evita que o card toque as bordas no mobile */
+        body.dark {
+            --sky-top: #16121f;
+            --sky-mid: #0c0914;
+            --sky-bot: #040308;
+            --gold: #c4a56a;
+            --gold-light: #e0c88a;
+            --gold-dark: #d9b979;
+            --text-main: #e8e2d5;
+            --text-mid: #b0a893;
+            --text-soft: #6a6255;
+            --card-bg: rgba(20, 16, 30, 0.7);
+            --card-border: rgba(196, 165, 106, 0.28);
+            --input-bg: rgba(10, 8, 16, 0.7);
+            --input-bg-focus: rgba(10, 8, 16, 0.92);
+            --divider-bg: rgba(20, 16, 30, 0.9);
+            --skip-bg: rgba(20, 16, 30, 0.7);
+            --skip-bg-hover: rgba(30, 24, 42, 0.95);
+            --btn-text: #1a1524;
+            --rays-color: rgba(150, 130, 210, 0.14);
+            --sun-core: rgba(170, 155, 215, 0.35);
+            --sun-mid: rgba(140, 120, 195, 0.15);
+            --sun-edge: rgba(120, 100, 175, 0.04);
+            --vignette: rgba(0, 0, 0, 0.35);
+            --curtain-core: rgba(24, 20, 36, 1);
+            --curtain-mid: rgba(16, 12, 26, 0.98);
+            --curtain-edge: rgba(8, 6, 14, 0.7);
         }
 
-        .font-title { font-family: 'Outfit', sans-serif; }
+        * { box-sizing: border-box; }
 
-        .glass-card { 
-            background: rgba(255, 255, 255, 0.02); 
-            border: 1px solid rgba(255, 255, 255, 0.05); 
-            border-radius: 32px; 
-            padding: 40px 30px; 
-            width: 100%; 
-            max-width: 400px; 
-            text-align: center; 
-            backdrop-filter: blur(20px);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            animation: fadeIn 0.8s ease-out;
+        html {
+            height: 100%;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            min-height: 100dvh;
+            font-family: 'Inter', sans-serif;
+            color: var(--text-main);
+            display: flex;
+            align-items: safe center;
+            justify-content: safe center;
+            padding: 40px 20px;
+            overflow-x: hidden;
+            overflow-y: auto;
+            background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-mid) 50%, var(--sky-bot) 100%);
+            background-attachment: fixed;
+            position: relative;
+            transition: background 0.6s ease, color 0.4s ease;
+        }
+
+        /* ======================== */
+        /* CÉU: SOL + RAIOS         */
+        /* ======================== */
+        .god-rays {
+            position: fixed;
+            top: -20vh;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 160vw;
+            height: 130vh;
+            background:
+                conic-gradient(from 175deg at 50% 0%,
+                    transparent 0deg,
+                    var(--rays-color) 7deg,
+                    transparent 14deg,
+                    transparent 24deg,
+                    var(--rays-color) 31deg,
+                    transparent 38deg,
+                    transparent 50deg,
+                    var(--rays-color) 57deg,
+                    transparent 64deg,
+                    transparent 75deg,
+                    var(--rays-color) 82deg,
+                    transparent 89deg
+                );
+            filter: blur(28px);
+            z-index: 0;
+            pointer-events: none;
+            animation: raysBreathe 14s ease-in-out infinite alternate;
+            transition: opacity 0.8s ease, background 0.6s ease;
+        }
+        @keyframes raysBreathe {
+            from { opacity: 0.75; }
+            to   { opacity: 1; }
+        }
+
+        .sun-glow {
+            position: fixed;
+            top: -40vh;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 110vw;
+            height: 100vh;
+            background: radial-gradient(ellipse at center,
+                var(--sun-core) 0%,
+                var(--sun-mid) 35%,
+                var(--sun-edge) 60%,
+                transparent 85%);
+            z-index: 0;
+            pointer-events: none;
+            animation: sunPulse 10s ease-in-out infinite alternate;
+            transition: opacity 0.8s ease, background 0.6s ease;
+        }
+        @keyframes sunPulse {
+            from { opacity: 0.85; transform: translateX(-50%) scale(1); }
+            to   { opacity: 1;    transform: translateX(-50%) scale(1.04); }
+        }
+
+        /* Vinheta sutil nos cantos pra fundo não parecer "cortado" */
+        .vignette {
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none;
+            background: radial-gradient(ellipse at center,
+                transparent 40%,
+                var(--vignette) 100%);
+            transition: background 0.6s ease;
+        }
+
+        /* ======================== */
+        /* TOGGLE DARK MODE         */
+        /* ======================== */
+        .theme-toggle {
+            position: fixed;
+            top: 22px;
+            right: 22px;
+            z-index: 10001;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            color: var(--gold-dark);
+            font-size: 17px;
+            cursor: pointer;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+        }
+        .theme-toggle:hover {
+            transform: scale(1.08);
+            border-color: var(--gold);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+        }
+        .theme-toggle:active { transform: scale(0.96); }
+
+        /* ======================== */
+        /* CARD DE LOGIN            */
+        /* ======================== */
+        .login-wrapper {
+            position: relative;
+            z-index: 5;
+            width: 100%;
+            max-width: 400px;
+            transition: opacity 0.9s ease, filter 0.9s ease, transform 0.9s ease;
+        }
+        .login-wrapper.fading {
+            opacity: 0;
+            filter: blur(20px);
+            transform: scale(0.9);
+            pointer-events: none;
+        }
+
+        .glass-card {
+            position: relative;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 28px;
+            padding: 44px 32px 36px;
+            width: 100%;
+            text-align: center;
+            backdrop-filter: blur(24px) saturate(1.2);
+            -webkit-backdrop-filter: blur(24px) saturate(1.2);
+            box-shadow:
+                0 30px 60px -20px rgba(138, 111, 60, 0.18),
+                0 0 0 1px rgba(255, 255, 255, 0.15) inset,
+                0 1px 0 rgba(255, 255, 255, 0.2) inset;
+            animation: cardEnter 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: background 0.6s ease, border-color 0.6s ease, box-shadow 0.6s ease;
+        }
+        /* Cantos ornamentados dourados, no estilo de moldura antiga */
+        .glass-card::before,
+        .glass-card::after {
+            content: '';
+            position: absolute;
+            width: 26px;
+            height: 26px;
+            border: 1px solid var(--gold);
+            opacity: 0.65;
+            pointer-events: none;
+            transition: border-color 0.6s ease, opacity 0.6s ease;
+        }
+        .glass-card::before {
+            top: 12px;
+            left: 12px;
+            border-right: none;
+            border-bottom: none;
+            border-top-left-radius: 8px;
+        }
+        .glass-card::after {
+            bottom: 12px;
+            right: 12px;
+            border-left: none;
+            border-top: none;
+            border-bottom-right-radius: 8px;
+        }
+        @keyframes cardEnter {
+            from { opacity: 0; transform: translateY(24px) scale(0.98); filter: blur(8px); }
+            to   { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+        }
+
+        .card-title {
+            font-family: 'Cinzel', serif;
+            font-weight: 500;
+            font-size: 26px;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--gold-dark);
+            margin: 0 0 4px 0;
+            text-indent: 0.3em;
+            transition: color 0.6s ease;
+        }
+        .card-subtitle {
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-weight: 400;
+            font-size: 17px;
+            color: var(--text-mid);
+            margin-bottom: 30px;
+            display: block;
+            transition: color 0.6s ease;
+        }
+
+        .halo-divider {
+            width: 80px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+            margin: 0 auto 30px;
+            opacity: 0.6;
+            position: relative;
+        }
+        .halo-divider::after {
+            content: '✦';
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--divider-bg);
+            padding: 0 6px;
+            color: var(--gold);
+            font-size: 10px;
+            transition: background 0.6s ease;
+        }
+
+        .input-group {
+            text-align: left;
+            margin-bottom: 18px;
         }
 
         .input-group label {
             display: block;
-            text-align: center;
-            font-size: 10px;
+            font-size: 9px;
             text-transform: uppercase;
-            font-weight: 800;
-            letter-spacing: 0.15em;
-            color: var(--accent);
+            font-weight: 700;
+            letter-spacing: 0.22em;
+            color: var(--gold-dark);
             margin-bottom: 8px;
-            opacity: 0.8;
+            opacity: 0.9;
+            transition: color 0.6s ease;
         }
 
-        input { 
-            background: rgba(0, 0, 0, 0.2); 
-            border: 1px solid rgba(255, 255, 255, 0.08); 
-            border-radius: 16px; 
-            padding: 16px; 
-            width: 100%; 
-            color: white; 
-            outline: none; 
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        input {
+            background: var(--input-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            padding: 15px 18px;
+            width: 100%;
+            color: var(--text-main);
+            outline: none;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
             font-size: 15px;
-            text-align: center;
+            font-family: 'Inter', sans-serif;
+        }
+        input::placeholder {
+            color: var(--text-soft);
+            font-style: italic;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 16px;
+        }
+        input:focus {
+            border-color: var(--gold);
+            background: var(--input-bg-focus);
+            box-shadow:
+                0 0 0 4px rgba(201, 169, 97, 0.12),
+                0 4px 14px rgba(184, 148, 90, 0.08);
+        }
+        input.erro {
+            border-color: #c9756a !important;
+            animation: shake 0.4s ease;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-6px); }
+            40% { transform: translateX(6px); }
+            60% { transform: translateX(-4px); }
+            80% { transform: translateX(4px); }
         }
 
-        input:focus { 
-            border-color: var(--accent); 
-            background: rgba(139, 92, 246, 0.05);
-            box-shadow: 0 0 15px rgba(139, 92, 246, 0.1);
-            transform: scale(1.02);
+        .char-id-preview {
+            font-family: 'Inter', sans-serif;
+            font-size: 10px;
+            color: var(--text-soft);
+            margin-top: 6px;
+            padding-left: 4px;
+            height: 14px;
+            transition: color 0.3s;
+            letter-spacing: 0.03em;
         }
+        .char-id-preview.ativo { color: var(--gold-dark); }
 
-        .btn-entrar { 
-            background: var(--accent); 
-            color: white; 
-            font-weight: 900; 
-            text-transform: uppercase; 
-            letter-spacing: 0.1em;
-            width: 100%; 
-            padding: 18px; 
-            border-radius: 16px; 
-            margin-top: 20px; 
-            cursor: pointer; 
-            transition: all 0.4s; 
-            border: none;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn-entrar:hover { 
-            box-shadow: 0 10px 25px rgba(139, 92, 246, 0.4); 
-            transform: translateY(-2px);
-            filter: brightness(1.1);
-        }
-
-        .btn-entrar:active { transform: translateY(0); }
-
-        .subtitle {
-            font-size: 11px;
+        .btn-entrar {
+            background: linear-gradient(180deg, var(--gold-light) 0%, var(--gold) 60%, var(--gold-dark) 100%);
+            color: var(--btn-text);
+            font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.25em;
-            color: #52525b;
-            margin-bottom: 8px;
-            display: block;
+            letter-spacing: 0.22em;
+            font-size: 12px;
+            width: 100%;
+            padding: 18px;
+            border-radius: 14px;
+            margin-top: 14px;
+            cursor: pointer;
+            border: none;
+            font-family: 'Cinzel', serif;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow:
+                0 8px 20px -8px rgba(138, 111, 60, 0.5),
+                0 1px 0 rgba(255, 255, 255, 0.3) inset;
+            text-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
+        }
+        .btn-entrar:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow:
+                0 12px 24px -8px rgba(138, 111, 60, 0.6),
+                0 1px 0 rgba(255, 255, 255, 0.4) inset;
+            filter: brightness(1.05);
+        }
+        .btn-entrar:active:not(:disabled) { transform: translateY(0); }
+        .btn-entrar:disabled { opacity: 0.6; cursor: wait; letter-spacing: 0.15em; }
+
+        .status-msg {
+            font-size: 11px;
+            text-align: center;
+            margin-top: 14px;
+            height: 16px;
+            color: var(--text-soft);
+            font-style: italic;
+            font-family: 'Cormorant Garamond', serif;
+            transition: color 0.3s;
+        }
+        .status-msg.aviso { color: #b8794a; }
+        .status-msg.sucesso { color: #7a8f5c; }
+        .status-msg.erro { color: #b85a4a; }
+        body.dark .status-msg.sucesso { color: #9bb87a; }
+        body.dark .status-msg.aviso { color: #d4a06a; }
+        body.dark .status-msg.erro { color: #e08076; }
+
+        /* ============================= */
+        /* CINEMATIC OVERLAY (transição) */
+        /* ============================= */
+        .cinematic-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 9998;
+            pointer-events: none;
+            overflow: hidden;
+            opacity: 0;
+            transition: opacity 0.6s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .cinematic-overlay.ativo {
+            opacity: 1;
+            pointer-events: auto;
         }
 
-        /* Ajustes para telas bem pequenas */
-        @media (max-width: 380px) {
-            .glass-card { padding: 30px 20px; }
-            h1 { font-size: 1.875rem !important; }
+        /* Cortina de luz que expande do centro */
+        .light-curtain {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100vmax;
+            height: 100vmax;
+            border-radius: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: radial-gradient(circle,
+                var(--curtain-core) 0%,
+                var(--curtain-mid) 55%,
+                var(--curtain-edge) 80%,
+                transparent 100%);
+            will-change: transform;
+        }
+        .cinematic-overlay.ativo .light-curtain {
+            animation: curtainExpand 2.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        @keyframes curtainExpand {
+            0%   { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+            15%  { opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(3); opacity: 1; }
+        }
+
+        /* Segundo círculo de luz, mais quente, pra dar "brilho" atrás da logo */
+        .light-halo {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 70vmin;
+            height: 70vmin;
+            border-radius: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: radial-gradient(circle,
+                rgba(255, 246, 218, 0.75) 0%,
+                rgba(255, 240, 200, 0.3) 45%,
+                transparent 80%);
+            pointer-events: none;
+        }
+        body.dark .light-halo {
+            background: radial-gradient(circle,
+                rgba(170, 150, 220, 0.5) 0%,
+                rgba(150, 130, 200, 0.2) 45%,
+                transparent 80%);
+        }
+        .cinematic-overlay.ativo .light-halo {
+            animation: haloPulse 2.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        @keyframes haloPulse {
+            0%   { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+            50%  { opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(2.2); opacity: 0; }
+        }
+
+        /* Logo central */
+        .logo-container {
+            position: relative;
+            z-index: 3;
+            text-align: center;
+            opacity: 0;
+            transform: scale(0.85);
+            filter: blur(20px);
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .logo-container.visivel {
+            animation: logoEnter 1.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes logoEnter {
+            0%   { opacity: 0; transform: scale(0.85); filter: blur(20px); }
+            60%  { opacity: 1; filter: blur(0); }
+            100% { opacity: 1; transform: scale(1); filter: blur(0); }
+        }
+
+        .logo-ciclo {
+            font-family: 'Cinzel', serif;
+            font-weight: 500;
+            font-size: clamp(64px, 13vw, 120px);
+            letter-spacing: 0.28em;
+            text-transform: uppercase;
+            color: var(--gold-dark);
+            text-indent: 0.28em;
+            text-shadow:
+                0 0 40px rgba(217, 185, 121, 0.6),
+                0 0 80px rgba(217, 185, 121, 0.3),
+                0 2px 6px rgba(138, 111, 60, 0.15);
+            line-height: 1;
+        }
+
+        .logo-vitae-svg {
+            width: clamp(240px, 40vw, 380px);
+            height: auto;
+            margin-top: -10px;
+            overflow: visible;
+        }
+        .logo-vitae-text {
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-weight: 400;
+            font-size: 62px;
+            fill: var(--gold);
+            letter-spacing: 0.02em;
+            filter: drop-shadow(0 0 16px rgba(217, 185, 121, 0.7))
+                    drop-shadow(0 0 40px rgba(217, 185, 121, 0.35));
+        }
+
+        .skip-btn {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 10000;
+            background: var(--skip-bg);
+            border: 1px solid var(--card-border);
+            color: var(--gold-dark);
+            padding: 10px 20px;
+            border-radius: 999px;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            cursor: pointer;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            transition: opacity 0.6s ease 1s, background 0.3s, color 0.3s, border-color 0.3s, transform 0.3s;
+            opacity: 0;
+            pointer-events: none;
+            font-family: 'Cinzel', serif;
+        }
+        .skip-btn.visivel {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .skip-btn:hover {
+            color: var(--gold-dark);
+            border-color: var(--gold);
+            background: var(--skip-bg-hover);
+            box-shadow: 0 4px 14px rgba(184, 148, 90, 0.2);
+        }
+
+        @media (max-width: 420px) {
+            .glass-card { padding: 34px 22px 28px; }
+            .card-title { font-size: 22px; }
+            .card-subtitle { font-size: 15px; margin-bottom: 24px; }
+            .halo-divider { margin-bottom: 24px; }
+            .theme-toggle { top: 14px; right: 14px; width: 40px; height: 40px; font-size: 15px; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .god-rays, .sun-glow { animation: none; }
+            .glass-card { animation-duration: 0.3s; }
+            .logo-container.visivel { animation-duration: 0.5s; }
+            .cinematic-overlay.ativo .light-curtain,
+            .cinematic-overlay.ativo .light-halo { animation-duration: 0.5s; }
         }
     </style>
 </head>
 <body>
 
-    <div class="glass-card">
-        <h1 class="text-4xl font-title text-white font-black italic uppercase mb-2 tracking-tighter">
-            Ciclo <span style="color: var(--accent);">Vitae</span>
-        </h1>
-        <span class="subtitle mb-10">o pós vida lhe aguarda</span>
-        
-        <div class="space-y-6">
+    <div class="god-rays"></div>
+    <div class="sun-glow"></div>
+    <div class="vignette"></div>
+
+    <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="Alternar tema">
+        <span id="theme-icon">🌙</span>
+    </button>
+
+    <div class="login-wrapper" id="login-wrapper">
+        <div class="glass-card">
+            <h1 class="card-title">Ciclo</h1>
+            <span class="card-subtitle">o pós vida lhe aguarda</span>
+            <div class="halo-divider"></div>
+
             <div class="input-group">
                 <label>Personagem</label>
-                <input type="text" id="charName" placeholder="Nome do Personagem" autocomplete="off">
+                <input type="text" id="charName" placeholder="Nome do personagem" autocomplete="off">
+                <div class="char-id-preview" id="char-id-preview"></div>
             </div>
-            
+
             <div class="input-group">
                 <label>Player</label>
                 <input type="text" id="playerName" placeholder="Seu nome" autocomplete="off">
             </div>
-        </div>
 
-        <button onclick="iniciar()" class="btn-entrar">
-            Entrar
-        </button>
+            <button onclick="iniciar()" id="btn-entrar" class="btn-entrar">Atravessar</button>
+            <div class="status-msg" id="status-msg"></div>
+        </div>
     </div>
 
-<!-- No final do script da index.html, substitua por: -->
+    <div class="cinematic-overlay" id="cinematic-overlay">
+        <div class="light-curtain"></div>
+        <div class="light-halo"></div>
+        <div class="logo-container" id="logo-container">
+            <div class="logo-ciclo">Ciclo</div>
+            <svg class="logo-vitae-svg" viewBox="0 0 400 120" preserveAspectRatio="xMidYMid meet">
+                <defs>
+                    <path id="vitae-arc" d="M 20,105 Q 200,10 380,105" fill="none"/>
+                </defs>
+                <text class="logo-vitae-text">
+                    <textPath href="#vitae-arc" startOffset="50%" text-anchor="middle">Vittae</textPath>
+                </text>
+            </svg>
+        </div>
+    </div>
+
+    <button class="skip-btn" id="skip-btn" onclick="skipTransition()">Atravessar ▸</button>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyAzDHaOYApynTHqdvhWy4FhUvwLXr5zfuc",
@@ -160,6 +653,45 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    (function aplicarTemaSalvo() {
+        const salvo = localStorage.getItem('ciclo_tema');
+        if (salvo === 'dark') document.body.classList.add('dark');
+        else if (salvo === 'light') document.body.classList.remove('dark');
+        else {
+            if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.body.classList.add('dark');
+            }
+        }
+        atualizarIconeTema();
+    })();
+
+    function atualizarIconeTema() {
+        const icon = document.getElementById('theme-icon');
+        if (!icon) return;
+        icon.textContent = document.body.classList.contains('dark') ? '☀️' : '🌙';
+    }
+
+    window.toggleTheme = () => {
+        document.body.classList.toggle('dark');
+        const modo = document.body.classList.contains('dark') ? 'dark' : 'light';
+        localStorage.setItem('ciclo_tema', modo);
+        atualizarIconeTema();
+    };
+
+    await new Promise((resolve) => {
+        const unsub = onAuthStateChanged(auth, async (user) => {
+            if (user) { unsub(); resolve(); }
+            else {
+                try { await signInAnonymously(auth); }
+                catch (e) {
+                    console.error('Falha no login anônimo:', e);
+                    setStatus('Falha na conexão. Recarregue.', 'erro');
+                }
+            }
+        });
+    });
 
     const skillsMap = {
         "Acrobacia": "Projeção", "Adestramento": "Encantamento", "Atletismo": "Influencia",
@@ -182,7 +714,7 @@
             Opacidade: {a: 100, m: 100}
         },
         atributos: {
-            Vitalidade: 1, Projeção: 1, Conhecimento: 1, 
+            Vitalidade: 1, Projeção: 1, Conhecimento: 1,
             Encantamento: 1, Influencia: 1, Espiritualidade: 0
         },
         pericias: Object.keys(skillsMap).reduce((acc, skill) => {
@@ -195,55 +727,137 @@
         anotacoes: ''
     });
 
-window.iniciar = async () => {
-    const charName = document.getElementById('charName').value.trim();
-    const playerName = document.getElementById('playerName').value.trim();
-
-    if (!charName || !playerName) {
-        alert("Preencha os campos para continuar.");
-        return;
+    function gerarSlug(nome) {
+        return nome.toLowerCase().replace(/\s+/g, '-');
     }
 
-    const charID = charName.toLowerCase().replace(/\s+/g, '-');
-    const docRef = doc(db, "personagens", charID);
-    
-    try {
-        const docSnap = await getDoc(docRef);
-        if (!docSnap.exists()) {
-            // Cria a ficha se não existir
-            const novosDados = getDefaultData(charName, playerName);
-            await setDoc(docRef, novosDados);
+    function setStatus(msg, tipo) {
+        const el = document.getElementById('status-msg');
+        if (!el) return;
+        el.innerText = msg || '';
+        el.className = 'status-msg' + (tipo ? ' ' + tipo : '');
+    }
+
+    function marcarErro(inputEl) {
+        inputEl.classList.add('erro');
+        setTimeout(() => inputEl.classList.remove('erro'), 500);
+    }
+
+    const charNameInput = document.getElementById('charName');
+    const charIdPreview = document.getElementById('char-id-preview');
+    charNameInput.addEventListener('input', () => {
+        const v = charNameInput.value.trim();
+        if (!v) {
+            charIdPreview.textContent = '';
+            charIdPreview.classList.remove('ativo');
+            return;
         }
-        
-        // Salva no localStorage E redireciona
+        charIdPreview.textContent = 'identificador: ' + gerarSlug(v);
+        charIdPreview.classList.add('ativo');
+    });
+
+    document.getElementById('playerName').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') iniciar();
+    });
+    charNameInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') document.getElementById('playerName').focus();
+    });
+
+    let transicaoAtiva = false;
+    let firebasePronto = false;
+    let skipRequested = false;
+
+    const MIN_TEMPO_MS = 3400;
+
+    window.skipTransition = () => { skipRequested = true; };
+
+    function startCinematic() {
+        const overlay = document.getElementById('cinematic-overlay');
+        overlay.classList.add('ativo');
+
+        document.getElementById('login-wrapper').classList.add('fading');
+        document.querySelector('.sun-glow').style.opacity = '0.3';
+        document.querySelector('.god-rays').style.opacity = '0.3';
+        document.getElementById('theme-toggle').style.opacity = '0';
+        document.getElementById('theme-toggle').style.pointerEvents = 'none';
+
+        setTimeout(() => {
+            document.getElementById('logo-container').classList.add('visivel');
+        }, 1400);
+
+        document.getElementById('skip-btn').classList.add('visivel');
+    }
+
+    function cancelCinematic() {
+        const overlay = document.getElementById('cinematic-overlay');
+        overlay.classList.remove('ativo');
+        document.getElementById('login-wrapper').classList.remove('fading');
+        document.getElementById('logo-container').classList.remove('visivel');
+        document.getElementById('skip-btn').classList.remove('visivel');
+        document.querySelector('.sun-glow').style.opacity = '';
+        document.querySelector('.god-rays').style.opacity = '';
+        const tg = document.getElementById('theme-toggle');
+        tg.style.opacity = '';
+        tg.style.pointerEvents = '';
+    }
+
+    window.iniciar = async () => {
+        if (transicaoAtiva) return;
+
+        const charName = charNameInput.value.trim();
+        const playerName = document.getElementById('playerName').value.trim();
+
+        if (!charName) {
+            marcarErro(charNameInput);
+            setStatus('Falta o nome do personagem.', 'erro');
+            return;
+        }
+        if (!playerName) {
+            const pEl = document.getElementById('playerName');
+            marcarErro(pEl);
+            setStatus('Falta o seu nome de player.', 'erro');
+            return;
+        }
+
+        const charID = gerarSlug(charName);
+
+        transicaoAtiva = true;
+
+        const btn = document.getElementById('btn-entrar');
+        btn.disabled = true;
+        btn.innerText = 'Tecendo o Véu...';
+
+        startCinematic();
+
+        const t0 = Date.now();
+        try {
+            const docRef = doc(db, "personagens", charID);
+            const docSnap = await getDoc(docRef);
+            if (!docSnap.exists()) {
+                await setDoc(docRef, getDefaultData(charName, playerName));
+            }
+            firebasePronto = true;
+            setStatus('Alma reconhecida.', 'sucesso');
+        } catch (e) {
+            console.error(e);
+            setStatus('Erro de conexão: ' + e.message, 'erro');
+            cancelCinematic();
+            btn.disabled = false;
+            btn.innerText = 'Atravessar';
+            transicaoAtiva = false;
+            return;
+        }
+
+        while (true) {
+            const elapsed = Date.now() - t0;
+            if (skipRequested && firebasePronto) break;
+            if (elapsed >= MIN_TEMPO_MS && firebasePronto) break;
+            await new Promise(r => setTimeout(r, 80));
+        }
+
         localStorage.setItem('ciclo_char_id', charID);
         window.location.href = `ficha.html?char=${charID}`;
-    } catch (e) {
-        alert("Erro de conexão: " + e.message);
-    }
-};
-
-    // Verifica se há um parâmetro na URL para login automático
-    window.addEventListener('load', () => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const charParam = urlParams.get('char');
-        
-        if (charParam) {
-            // Se tiver um parâmetro 'char' na URL, faz login automático
-            localStorage.setItem('ciclo_char_id', charParam);
-            window.location.href = 'ficha.html';
-        }
-        
-        // Também verifica se já tem um ID salvo no localStorage
-        // e redireciona automaticamente se o usuário já estiver logado
-        const savedCharId = localStorage.getItem('ciclo_char_id');
-        if (savedCharId && savedCharId !== 'amiga') {
-            // Pode redirecionar automaticamente ou preencher os campos
-            // Vou deixar como opcional para o usuário clicar
-        }
-    });
-</script>
-</script>
+    };
 </script>
 </body>
 </html>
