@@ -528,24 +528,27 @@
     }
 
 /* Container Principal */
+/* Container Principal */
 #inventory-list {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
     width: 100%;
 }
 
 .inventory-item {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 10px;
     background: rgba(13, 10, 24, 0.5);
-    padding: 10px;
+    padding: 10px 12px;
     border-radius: 12px;
-    align-items: center;
+    align-items: flex-end;
     border: 1px solid rgba(196, 165, 106, 0.1);
     backdrop-filter: blur(8px);
+    transition: border-color 0.2s;
 }
+.inventory-item:hover { border-color: rgba(196, 165, 106, 0.25); }
 
 .inventory-item input {
     background: rgba(0, 0, 0, 0.35) !important;
@@ -553,18 +556,69 @@
     border-radius: 8px !important;
     color: var(--text-main) !important;
     padding: 8px !important;
+    outline: none;
+    transition: border-color 0.2s;
+}
+.inventory-item input:focus { border-color: var(--accent) !important; }
+
+.inv-name {
+    flex: 2;
+    min-width: 150px;
+    align-self: flex-end;
 }
 
-.inv-name { flex: 2; min-width: 150px; }
-.inv-small { width: 70px; text-align: center; }
+/* Cada campo pequeno com rótulo em cima */
+.inv-field {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    flex-shrink: 0;
+}
+.inv-field-label {
+    font-size: 8px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgba(232, 226, 213, 0.35);
+    padding-left: 3px;
+}
+.inv-small {
+    width: 74px;
+    text-align: center;
+}
+
+/* Subtotal à direita, mostrando a conta viva */
+.inv-subtotal {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent);
+    text-align: right;
+    min-width: 62px;
+    padding-bottom: 8px;
+    flex-shrink: 0;
+    letter-spacing: 0.02em;
+}
+
+/* Botão da descrição */
 .inv-desc-toggle {
-    width: 32px; height: 32px; flex-shrink: 0;
-    background: rgba(196, 165, 106, 0.05); border: 1px solid rgba(196, 165, 106, 0.15);
-    border-radius: 8px; color: rgba(232, 226, 213, 0.4); font-size: 13px;
-    display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s;
+    width: 34px; height: 34px; flex-shrink: 0;
+    background: rgba(196, 165, 106, 0.05);
+    border: 1px solid rgba(196, 165, 106, 0.15);
+    border-radius: 8px;
+    color: rgba(232, 226, 213, 0.4);
+    font-size: 14px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: 0.2s;
 }
 .inv-desc-toggle:hover { border-color: var(--accent); color: var(--accent); }
-.inv-desc-toggle.tem-desc { color: var(--accent); border-color: var(--accent); background: rgba(var(--accent-rgb), 0.1); }
+.inv-desc-toggle.tem-desc {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: rgba(var(--accent-rgb), 0.1);
+}
+
+/* Descrição expansível */
 .inv-desc-wrap {
     flex: 1 1 100%;
     max-height: 0;
@@ -577,24 +631,30 @@
     resize: none;
     min-height: 60px;
     font-size: 12px;
-    line-height: 1.4;
-    font-family: 'Inter', sans-serif;
+    line-height: 1.5;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
 }
-.inv-del { 
-    width: 32px; 
-    height: 32px; 
-    color: #ef4444; 
-    font-size: 20px; 
-    display: flex; 
-    align-items: center; 
+
+/* Botão de deletar */
+.inv-del {
+    width: 34px;
+    height: 34px;
+    color: rgba(239, 68, 68, 0.5);
+    font-size: 20px;
+    display: flex;
+    align-items: center;
     justify-content: center;
     cursor: pointer;
     flex-shrink: 0;
+    border-radius: 8px;
+    transition: 0.2s;
 }
+.inv-del:hover { color: #ef4444; background: rgba(239, 68, 68, 0.1); }
 
 @media (max-width: 480px) {
     .inv-name { flex: 1 1 100%; }
-    .inv-small { flex: 1; }
+    .inv-small { flex: 1; width: auto; }
 }
 
 .crit-red { 
@@ -1059,6 +1119,438 @@
     color: rgba(232, 226, 213, 0.5);
     font-weight: 700;
 }
+/* ======================== */
+/* DIÁRIO DE BORDO          */
+/* ======================== */
+.diario-container { display: flex; flex-direction: column; gap: 14px; }
+
+.diario-toolbar {
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 12px; flex-wrap: wrap;
+    padding: 12px 16px;
+    background: rgba(13, 10, 24, 0.5);
+    border: 1px solid rgba(196, 165, 106, 0.1);
+    border-radius: 12px;
+    backdrop-filter: blur(8px);
+}
+.diario-save-status {
+    font-size: 10px; font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.05em;
+    display: inline-flex; align-items: center; gap: 7px;
+    color: rgba(232, 226, 213, 0.4);
+    transition: color 0.3s;
+}
+.diario-save-status .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: currentColor;
+    box-shadow: 0 0 8px currentColor;
+}
+.diario-save-status.salvando { color: var(--accent); }
+.diario-save-status.salvando .dot { animation: pulseDot 0.9s ease-in-out infinite; }
+@keyframes pulseDot { 0%,100% { opacity: 1; } 50% { opacity: 0.25; } }
+
+.diario-entry {
+    background: rgba(13, 10, 24, 0.55);
+    border: 1px solid rgba(196, 165, 106, 0.12);
+    border-radius: 12px;
+    overflow: hidden;
+    backdrop-filter: blur(8px);
+    transition: border-color 0.2s;
+    margin-bottom: 12px;
+}
+.diario-entry:hover { border-color: rgba(196, 165, 106, 0.28); }
+.diario-entry.aberto { border-color: rgba(196, 165, 106, 0.3); }
+
+.diario-entry-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 14px;
+    cursor: pointer;
+    user-select: none;
+}
+.diario-entry-caret {
+    color: rgba(232, 226, 213, 0.35);
+    font-size: 10px;
+    transition: transform 0.25s ease;
+    flex-shrink: 0; display: inline-block;
+}
+.diario-entry.aberto .diario-entry-caret { transform: rotate(90deg); color: var(--accent); }
+
+.diario-entry-titulo-input {
+    flex: 1; min-width: 0;
+    background: transparent; border: none; outline: none;
+    color: var(--text-main);
+    font-family: 'Cinzel', serif;
+    font-size: 14px; font-weight: 700;
+    letter-spacing: 0.02em;
+    padding: 2px 0;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s;
+}
+.diario-entry-titulo-input:focus { border-bottom-color: rgba(196, 165, 106, 0.45); }
+.diario-entry-titulo-input::placeholder { color: rgba(232, 226, 213, 0.25); font-style: italic; }
+
+.diario-entry-data {
+    font-size: 9px; font-family: 'JetBrains Mono', monospace;
+    color: rgba(232, 226, 213, 0.35);
+    letter-spacing: 0.05em;
+    flex-shrink: 0; white-space: nowrap;
+}
+
+.diario-entry-preview {
+    font-size: 11px;
+    color: rgba(232, 226, 213, 0.32);
+    font-style: italic;
+    padding: 0 14px 12px 34px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    font-family: 'Cormorant Garamond', serif;
+}
+.diario-entry.aberto .diario-entry-preview { display: none; }
+
+.diario-entry-body {
+    padding: 0 14px 14px 14px;
+    display: none;
+    flex-direction: column; gap: 10px;
+}
+.diario-entry.aberto .diario-entry-body { display: flex; }
+
+.diario-entry-textarea {
+    width: 100%; min-height: 200px;
+    background: rgba(0,0,0,0.28);
+    border: 1px solid rgba(196, 165, 106, 0.12);
+    border-radius: 10px;
+    color: var(--text-main);
+    padding: 16px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 15px;
+    line-height: 1.7;
+    font-style: italic;
+    outline: none; resize: vertical;
+    transition: border-color 0.2s;
+}
+.diario-entry-textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.08); }
+
+.diario-entry-footer {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 9px; font-family: 'JetBrains Mono', monospace;
+    color: rgba(232, 226, 213, 0.3);
+    letter-spacing: 0.05em;
+}
+
+.diario-entry-remove {
+    background: none; border: none; cursor: pointer;
+    color: rgba(239, 68, 68, 0.5);
+    font-size: 12px; font-weight: 800;
+    padding: 4px 8px; border-radius: 6px;
+    transition: all 0.2s; flex-shrink: 0;
+}
+.diario-entry-remove:hover { color: #ef4444; background: rgba(239, 68, 68, 0.1); }
+
+.diario-empty {
+    text-align: center; padding: 48px 20px;
+    color: rgba(232, 226, 213, 0.25);
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.2em;
+    border: 1px dashed rgba(196, 165, 106, 0.15);
+    border-radius: 12px;
+}
+/* ======================== */
+/* ARSENAL (armas)          */
+/* ======================== */
+.arma-card {
+    background: linear-gradient(135deg, rgba(13,10,24,0.65), rgba(19,15,32,0.55));
+    border: 1px solid rgba(196, 165, 106, 0.12);
+    border-radius: 14px;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: all 0.25s;
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(8px);
+}
+.arma-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--accent);
+    opacity: 0.55;
+    transition: opacity 0.25s;
+}
+.arma-card:hover { border-color: rgba(196, 165, 106, 0.3); }
+.arma-card:hover::before { opacity: 1; }
+.arma-card.tipo-corpo::before { background: #ef4444; }
+.arma-card.tipo-distancia::before { background: #10b981; }
+
+.arma-header { display: flex; align-items: center; gap: 10px; }
+
+.arma-icon {
+    font-size: 18px; line-height: 1;
+    flex-shrink: 0;
+    width: 34px; height: 34px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(196, 165, 106, 0.06);
+    border: 1px solid rgba(196, 165, 106, 0.12);
+    border-radius: 9px;
+}
+
+.arma-nome-input {
+    flex: 1; min-width: 0;
+    background: transparent; border: none; outline: none;
+    color: var(--text-main);
+    font-family: 'Outfit', sans-serif;
+    font-size: 15px; font-weight: 700;
+    letter-spacing: 0.02em;
+    padding: 2px 0;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s;
+}
+.arma-nome-input:focus { border-bottom-color: rgba(196, 165, 106, 0.45); }
+.arma-nome-input::placeholder { color: rgba(232,226,213,0.25); font-style: italic; }
+
+.arma-tipo-badge {
+    font-size: 8px; font-weight: 900;
+    text-transform: uppercase; letter-spacing: 0.1em;
+    padding: 3px 9px; border-radius: 999px;
+    flex-shrink: 0;
+}
+.arma-tipo-badge.corpo {
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+.arma-tipo-badge.distancia {
+    color: #10b981;
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.arma-remove {
+    background: none; border: none; cursor: pointer;
+    color: rgba(239, 68, 68, 0.4);
+    font-size: 15px; padding: 4px 6px;
+    border-radius: 6px; transition: all 0.2s;
+    flex-shrink: 0; line-height: 1;
+}
+.arma-remove:hover { color: #ef4444; background: rgba(239, 68, 68, 0.1); }
+
+.arma-fields {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 8px;
+}
+.arma-field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.arma-field-label {
+    font-size: 8px; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.12em;
+    color: rgba(232, 226, 213, 0.35);
+}
+.arma-field input,
+.arma-field select {
+    background: rgba(0, 0, 0, 0.28);
+    border: 1px solid rgba(196, 165, 106, 0.12);
+    border-radius: 8px;
+    color: var(--text-main);
+    padding: 7px 10px;
+    font-size: 11px;
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
+}
+.arma-field input:focus,
+.arma-field select:focus { border-color: var(--accent); }
+.arma-field input.dano-input {
+    color: #10b981;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+.arma-actions { display: flex; gap: 8px; }
+.arma-btn {
+    flex: 1;
+    padding: 9px 12px;
+    border-radius: 9px;
+    font-size: 10px; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    cursor: pointer; transition: all 0.2s;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 2px; line-height: 1.1;
+    border: 1px solid transparent;
+    font-family: 'Inter', sans-serif;
+}
+.arma-btn small {
+    font-size: 8px; opacity: 0.7;
+    font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0; text-transform: none;
+}
+.arma-btn-ataque {
+    background: var(--accent);
+    color: #0a0812;
+}
+.arma-btn-ataque:hover {
+    filter: brightness(1.15);
+    box-shadow: 0 0 14px rgba(var(--accent-rgb), 0.4);
+}
+.arma-btn-dano {
+    background: rgba(var(--accent-rgb), 0.06);
+    color: var(--accent);
+    border-color: rgba(var(--accent-rgb), 0.3);
+}
+.arma-btn-dano:hover {
+    background: var(--accent);
+    color: #0a0812;
+    box-shadow: 0 0 14px rgba(var(--accent-rgb), 0.4);
+}
+
+/* ======================== */
+/* INVENTÁRIO               */
+/* ======================== */
+#inventory-list { display: flex; flex-direction: column; gap: 10px; }
+
+.inventory-item {
+    background: linear-gradient(135deg, rgba(13,10,24,0.55), rgba(19,15,32,0.5));
+    border: 1px solid rgba(196, 165, 106, 0.1);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.25s;
+    backdrop-filter: blur(8px);
+}
+.inventory-item:hover { border-color: rgba(196, 165, 106, 0.28); }
+.inventory-item.tem-descricao { border-color: rgba(196, 165, 106, 0.18); }
+
+.inv-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    flex-wrap: wrap;
+}
+
+.inv-icon {
+    width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(196, 165, 106, 0.06);
+    border: 1px solid rgba(196, 165, 106, 0.12);
+    border-radius: 9px;
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+.inv-info { flex: 1; min-width: 140px; display: flex; flex-direction: column; gap: 2px; }
+.inv-nome-input {
+    background: transparent; border: none; outline: none;
+    color: var(--text-main);
+    font-size: 13px; font-weight: 700;
+    padding: 0;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s;
+    width: 100%;
+}
+.inv-nome-input:focus { border-bottom-color: rgba(196, 165, 106, 0.45); }
+.inv-nome-input::placeholder { color: rgba(232,226,213,0.25); font-style: italic; }
+
+.inv-meta {
+    font-size: 9px;
+    font-family: 'JetBrains Mono', monospace;
+    color: rgba(232, 226, 213, 0.35);
+    letter-spacing: 0.05em;
+}
+
+.inv-num {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    background: rgba(0, 0, 0, 0.28);
+    border: 1px solid rgba(196, 165, 106, 0.1);
+    border-radius: 8px;
+    padding: 5px 10px;
+    flex-shrink: 0;
+    min-width: 56px;
+}
+.inv-num-label {
+    font-size: 7px; font-weight: 900;
+    text-transform: uppercase; letter-spacing: 0.12em;
+    color: rgba(232, 226, 213, 0.35);
+    margin-bottom: 1px;
+}
+.inv-num input {
+    background: transparent; border: none; outline: none;
+    color: var(--text-main);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; font-weight: 700;
+    text-align: center;
+    width: 100%;
+    padding: 0;
+}
+
+.inv-desc-toggle {
+    width: 34px; height: 34px; flex-shrink: 0;
+    background: rgba(196, 165, 106, 0.04);
+    border: 1px solid rgba(196, 165, 106, 0.12);
+    border-radius: 8px;
+    color: rgba(232, 226, 213, 0.4);
+    font-size: 14px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: 0.2s;
+}
+.inv-desc-toggle:hover { border-color: var(--accent); color: var(--accent); }
+.inv-desc-toggle.tem-desc {
+    color: var(--accent);
+    border-color: rgba(196, 165, 106, 0.4);
+    background: rgba(var(--accent-rgb), 0.1);
+}
+
+.inv-del {
+    width: 34px; height: 34px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(239, 68, 68, 0.04);
+    border: 1px solid rgba(239, 68, 68, 0.12);
+    border-radius: 8px;
+    color: rgba(239, 68, 68, 0.5);
+    cursor: pointer; flex-shrink: 0;
+    transition: all 0.2s;
+    font-size: 15px; line-height: 1;
+}
+.inv-del:hover {
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.12);
+    border-color: rgba(239, 68, 68, 0.4);
+}
+
+.inv-desc-wrap {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+    border-top: 1px solid transparent;
+}
+.inv-desc-wrap.aberto {
+    max-height: 200px;
+    border-top-color: rgba(196, 165, 106, 0.1);
+}
+.inv-desc {
+    width: 100%;
+    resize: vertical;
+    min-height: 70px;
+    font-size: 16px;
+    line-height: 1.5;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    background: rgba(0,0,0,0.28);
+    border: none;
+    border-radius: 0;
+    color: var(--text-main);
+    padding: 12px 14px;
+    outline: none;
+}
+.inv-desc:focus { background: rgba(0,0,0,0.4); }
+
+@media (max-width: 600px) {
+    .arma-fields { grid-template-columns: 1fr; }
+    .inv-info { min-width: 100%; order: 2; }
+    .inv-row { justify-content: space-between; }
+}
 </style>
 </head>
 <body class="tema-vivo" id="body-tag">
@@ -1218,12 +1710,7 @@
         </div>
         <div id="emocoes-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"></div>
     </section>
-
-    <section id="view-anotacoes" class="hidden">
-        <textarea id="txt-notes" onchange="saveNotes(this.value)" 
-            class="w-full h-[75vh] bg-black/20 border border-white/10 rounded-xl p-8 text-gray-300 outline-none resize-none leading-relaxed font-mono text-sm focus:border-[var(--accent)] transition"
-            placeholder="Registro de missão..."></textarea>
-    </section>
+<section id="view-anotacoes" class="hidden"></section>
 </div>
 </main>
 
@@ -1316,6 +1803,7 @@ const getDefaultData = (nomeInformado = "Novo Jogador") => ({
     inventario: [],
     poderes: [],
     anotacoes: '',
+    diario: [],
     emocaoVida: '',
     emocaoSanidade: 'Medo',
     emocoes: {
@@ -1777,56 +2265,124 @@ function renderSkills() {
 
 function renderCombat() {
     const list = document.getElementById('combat-list');
+    if (!list) return;
     list.innerHTML = '';
     const pb = getPassiveBonuses();
-    
+
+    if (!(charData.combate || []).length) {
+        list.innerHTML = `<div class="text-[11px] text-white/20 uppercase tracking-[0.2em] italic text-center py-10">Nenhuma arma vinculada — clique em "+ Vincular Nova Arma"</div>`;
+        return;
+    }
+
+    const ATTRS = ["Vitalidade","Projeção","Conhecimento","Encantamento","Influencia","Espiritualidade"];
+
     (charData.combate || []).forEach((item, idx) => {
         const el = document.createElement('div');
-        el.className = 'bg-white/5 border border-white/10 p-4 rounded-xl flex flex-col md:flex-row gap-4 items-center group';
-        
-        const influ = (charData.atributos.Influencia || 0) + (pb.atributos.Influencia || 0);
-        const danoPassivo = item.tipo === 'corpo' ? (pb.danoCorpo || 0) : (pb.danoDistancia || 0);
-        const infoDano = item.tipo === 'corpo'
-            ? `${item.dano} + ${influ} (Influ)${danoPassivo ? ` + ${danoPassivo} (Passiva)` : ''}`
-            : `${item.dano}${danoPassivo ? ` + ${danoPassivo} (Passiva)` : ''}`;
-        
+        const tipo = item.tipo === 'distancia' ? 'distancia' : 'corpo';
+        el.className = `arma-card tipo-${tipo}`;
+
+        // Ataque
         const periciaNome = item.pericia || 'Luta';
-        const skillData = charData.pericias?.[periciaNome] || { b: 0, t: false };
-        
+        const skillDataAtk = charData.pericias?.[periciaNome] || { b: 0, t: false };
         const attrDaPericia = skillsMap[periciaNome] || "Influencia";
         const valorAtrib = (charData.atributos[attrDaPericia] || 0) + (pb.atributos[attrDaPericia] || 0);
-        
-        const treinoBonus = (skillData.t || pb.treinoSet.has(periciaNome)) ? 2 : 0;
-        const bonusExtra = (parseFloat(skillData.b) || 0) + (pb.pericias[periciaNome] || 0);
-        const bonusPericia = treinoBonus + bonusExtra;
-        
+        const treinoAtk = (skillDataAtk.t || pb.treinoSet.has(periciaNome)) ? 2 : 0;
+        const bonusExtraAtk = (parseFloat(skillDataAtk.b) || 0) + (pb.pericias[periciaNome] || 0);
+        const bonusPericia = treinoAtk + bonusExtraAtk;
         const somaAtaque = valorAtrib + bonusPericia;
 
-        el.innerHTML = `
-            <div class="flex-grow grid grid-cols-1 md:grid-cols-3 gap-3 w-full">
-                <input value="${item.nome}" onchange="updateCombat(${idx}, 'nome', this.value)" class="bg-transparent font-bold text-sm outline-none text-white" placeholder="Nome">
-                
-                <select onchange="updateCombat(${idx}, 'pericia', this.value)" class="bg-black/20 text-[10px] uppercase font-bold p-2 rounded outline-none text-white/60">
-                    ${Object.keys(skillsMap).map(s => `<option value="${s}" ${item.pericia === s ? 'selected' : ''}>${s}</option>`).join('')}
-                </select>
+        // Dano — atributo escolhido (fallback: Influencia em corpo)
+        const atributoDano = item.atributoDano !== undefined
+            ? item.atributoDano
+            : (tipo === 'corpo' ? 'Influencia' : '');
+        const attrDanoValor = atributoDano
+            ? ((parseFloat(charData.atributos?.[atributoDano]) || 0) + (pb.atributos[atributoDano] || 0))
+            : 0;
 
-                <div class="flex gap-2">
-                    <select onchange="updateCombat(${idx}, 'tipo', this.value)" class="bg-black/20 text-[10px] uppercase font-bold p-2 rounded outline-none text-white/40">
-                        <option value="corpo" ${item.tipo === 'corpo' ? 'selected' : ''}> Corpo</option>
-                        <option value="distancia" ${item.tipo === 'distancia' ? 'selected' : ''}> Distância</option>
+        // Dano — perícia escolhida
+        const periciaDano = item.periciaDano || '';
+        let periciaDanoBonus = 0;
+        if (periciaDano) {
+            const sd = charData.pericias?.[periciaDano] || { b: 0, t: false };
+            const tr = (sd.t || pb.treinoSet.has(periciaDano)) ? 2 : 0;
+            periciaDanoBonus = tr + (parseFloat(sd.b) || 0) + (pb.pericias[periciaDano] || 0);
+        }
+
+        // Passivas
+        const danoPassivo = tipo === 'corpo' ? (pb.danoCorpo || 0) : (pb.danoDistancia || 0);
+
+        // Breakdown do dano
+        const partes = [item.dano || '?'];
+        if (attrDanoValor) partes.push(`+${attrDanoValor} ${atributoDano.slice(0,3).toUpperCase()}`);
+        if (periciaDanoBonus) partes.push(`+${periciaDanoBonus} ${periciaDano}`);
+        if (danoPassivo) partes.push(`+${danoPassivo} pass`);
+        const infoDano = partes.join(' ');
+
+        const nomeEsc = jsEsc(item.nome || 'Arma');
+        const danoEsc = jsEsc(item.dano || '');
+        const atribDanoEsc = jsEsc(atributoDano);
+        const pericDanoEsc = jsEsc(periciaDano);
+
+        el.innerHTML = `
+            <div class="arma-header">
+                <span class="arma-icon">${tipo === 'corpo' ? '⚔' : '🏹'}</span>
+                <input class="arma-nome-input" value="${escAttrFicha(item.nome || '')}"
+                    placeholder="Nome da arma..."
+                    onchange="updateCombat(${idx}, 'nome', this.value)">
+                <span class="arma-tipo-badge ${tipo}">${tipo === 'corpo' ? 'Corpo' : 'Distância'}</span>
+                <button class="arma-remove" onclick="removeCombat(${idx})" title="Remover">✕</button>
+            </div>
+
+            <div class="arma-fields" style="grid-template-columns: 1fr 1fr;">
+                <div class="arma-field">
+                    <label class="arma-field-label">Perícia (Ataque)</label>
+                    <select onchange="updateCombat(${idx}, 'pericia', this.value)">
+                        ${Object.keys(skillsMap).map(s => `<option value="${s}" ${item.pericia === s ? 'selected' : ''}>${s}</option>`).join('')}
                     </select>
-                    <input value="${item.dano}" onchange="updateCombat(${idx}, 'dano', this.value)" class="bg-black/20 text-center font-mono text-xs p-2 rounded w-full outline-none text-emerald-400" placeholder="Ex: 1d8">
+                </div>
+                <div class="arma-field">
+                    <label class="arma-field-label">Dado de Dano</label>
+                    <input class="dano-input" value="${escAttrFicha(item.dano || '')}"
+                        placeholder="Ex: 1d8+2"
+                        onchange="updateCombat(${idx}, 'dano', this.value)">
                 </div>
             </div>
-            
-            <div class="flex gap-2 w-full md:w-auto">
-                <button onclick="rollCheck('Ataque: ${item.nome}', ${valorAtrib}, ${bonusPericia})" class="flex-1 md:flex-none bg-[var(--accent)] text-black font-black text-[10px] px-4 py-2 rounded uppercase">
-                    Ataque<br><span class="text-[8px] opacity-70">${valorAtrib}d20 + ${somaAtaque}</span>
+
+            <div class="arma-fields" style="grid-template-columns: 1fr 1fr 1fr;">
+                <div class="arma-field">
+                    <label class="arma-field-label">Tipo</label>
+                    <select onchange="updateCombat(${idx}, 'tipo', this.value)">
+                        <option value="corpo" ${item.tipo === 'corpo' ? 'selected' : ''}>Corpo</option>
+                        <option value="distancia" ${item.tipo === 'distancia' ? 'selected' : ''}>Distância</option>
+                    </select>
+                </div>
+                <div class="arma-field">
+                    <label class="arma-field-label">Atributo do Dano</label>
+                    <select onchange="updateCombat(${idx}, 'atributoDano', this.value)">
+                        <option value="" ${!atributoDano ? 'selected' : ''}>— Nenhum —</option>
+                        ${ATTRS.map(a => `<option value="${a}" ${atributoDano === a ? 'selected' : ''}>${a}</option>`).join('')}
+                    </select>
+                </div>
+                <div class="arma-field">
+                    <label class="arma-field-label">Perícia do Dano</label>
+                    <select onchange="updateCombat(${idx}, 'periciaDano', this.value)">
+                        <option value="" ${!periciaDano ? 'selected' : ''}>— Nenhuma —</option>
+                        ${Object.keys(skillsMap).map(s => `<option value="${s}" ${periciaDano === s ? 'selected' : ''}>${s}</option>`).join('')}
+                    </select>
+                </div>
+            </div>
+
+            <div class="arma-actions">
+                <button class="arma-btn arma-btn-ataque"
+                    onclick="rollCheck('Ataque: ${nomeEsc}', ${valorAtrib}, ${bonusPericia})">
+                    🎲 Ataque
+                    <small>${valorAtrib}d20 + ${somaAtaque}</small>
                 </button>
-                <button onclick="executarDano('${item.nome}', '${item.dano}', '${item.tipo}')" class="flex-1 md:flex-none border border-[var(--accent)] text-[var(--accent)] font-black text-[10px] px-4 py-2 rounded uppercase">
-                    Dano<br><span class="text-[8px] opacity-70">${infoDano}</span>
+                <button class="arma-btn arma-btn-dano"
+                    onclick="executarDano('${nomeEsc}', '${danoEsc}', '${tipo}', '${atribDanoEsc}', '${pericDanoEsc}')">
+                    💥 Dano
+                    <small>${infoDano}</small>
                 </button>
-                <button onclick="removeCombat(${idx})" class="text-red-500/30 hover:text-red-500 transition px-2">✕</button>
             </div>
         `;
         list.appendChild(el);
@@ -2050,7 +2606,8 @@ function renderInventory() {
     (charData.inventario || []).forEach((item, idx) => {
         const q = parseFloat(item.qtd) || 0;
         const p = parseFloat(item.peso) || 0;
-        totalWeight += (q * p);
+        const subtotal = q * p;
+        totalWeight += subtotal;
 
         const aberto = invDescExpandido.has(idx);
         const temDesc = !!(item.desc && item.desc.trim());
@@ -2058,24 +2615,35 @@ function renderInventory() {
         const div = document.createElement('div');
         div.className = 'inventory-item';
         div.innerHTML = `
-            <input type="text" value="${item.nome}" 
-                class="inv-name" placeholder="Item"
+            <input type="text" value="${item.nome || ''}" 
+                class="inv-name" placeholder="Nome do item"
                 onchange="updateInv(${idx}, 'nome', this.value)">
-            
-            <input type="number" value="${item.qtd}" 
-                class="inv-small" placeholder="Qtd" title="Quantidade"
-                onchange="updateInv(${idx}, 'qtd', parseFloat(this.value))">
-            
-            <input type="number" value="${item.peso}" 
-                class="inv-small" placeholder="Kg" title="Peso Unitário"
-                onchange="updateInv(${idx}, 'peso', parseFloat(this.value))">
 
-            <button type="button" class="inv-desc-toggle ${temDesc ? 'tem-desc' : ''}" onclick="toggleInvDesc(${idx})" title="Mostrar/ocultar descrição">📝</button>
+            <div class="inv-field">
+                <span class="inv-field-label">Qtd</span>
+                <input type="number" value="${item.qtd ?? 1}" 
+                    class="inv-small" placeholder="1" title="Quantidade"
+                    onchange="updateInv(${idx}, 'qtd', parseFloat(this.value) || 0)">
+            </div>
 
-            <div class="inv-del" onclick="removeInv(${idx})">×</div>
+            <div class="inv-field">
+                <span class="inv-field-label">Kg cada</span>
+                <input type="number" value="${item.peso ?? 0}" 
+                    class="inv-small" placeholder="0" title="Peso unitário em kg"
+                    onchange="updateInv(${idx}, 'peso', parseFloat(this.value) || 0)">
+            </div>
+
+            <span class="inv-subtotal" title="Peso total deste item (Qtd × Kg)">= ${subtotal.toFixed(2)}kg</span>
+
+            <button type="button" class="inv-desc-toggle ${temDesc ? 'tem-desc' : ''}" 
+                onclick="toggleInvDesc(${idx})" 
+                title="${temDesc ? 'Editar descrição' : 'Adicionar descrição'}">📝</button>
+
+            <div class="inv-del" onclick="removeInv(${idx})" title="Remover item">×</div>
 
             <div class="inv-desc-wrap ${aberto ? 'aberto' : ''}">
-                <textarea class="input-glass inv-desc" placeholder="Descrição do item (aparência, efeito, história...)"
+                <textarea class="input-glass inv-desc" 
+                    placeholder="Descrição do item (aparência, efeito, história...)"
                     onchange="updateInv(${idx}, 'desc', this.value)">${item.desc || ''}</textarea>
             </div>
         `;
@@ -2094,16 +2662,212 @@ function renderInventory() {
     }
 }
 
+// ========================
+// DIÁRIO DE BORDO
+// ========================
+let diarioAberto = new Set();
+let diarioSaveTimers = {};
+let diarioRenderPendente = false;
+
+function escAttrFicha(s) {
+    return String(s ?? '').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+}
+
+function formatarData(ts) {
+    if (!ts) return '—';
+    const d = new Date(ts);
+    const p = n => String(n).padStart(2, '0');
+    return `${p(d.getDate())}/${p(d.getMonth()+1)}/${String(d.getFullYear()).slice(-2)} ${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+
+function garantirDiario() {
+    if (Array.isArray(charData.diario)) return;
+    // Migração: se houver a anotação antiga em string, converte em uma entrada
+    const antigo = charData.anotacoes || '';
+    if (antigo.trim()) {
+        charData.diario = [{
+            id: 'legacy-' + Date.now(),
+            titulo: 'Anotações antigas',
+            conteudo: antigo,
+            criadoEm: Date.now(),
+            atualizadoEm: Date.now()
+        }];
+    } else {
+        charData.diario = [];
+    }
+}
+
+function setStatusSalvando(salvando) {
+    const el = document.getElementById('diario-save-status');
+    const txt = document.getElementById('diario-save-text');
+    if (!el || !txt) return;
+    if (salvando) {
+        el.classList.add('salvando');
+        txt.textContent = 'Salvando...';
+    } else {
+        el.classList.remove('salvando');
+        const d = new Date();
+        const p = n => String(n).padStart(2, '0');
+        txt.textContent = `Salvo às ${p(d.getHours())}:${p(d.getMinutes())}`;
+    }
+}
+
 function renderAnotacoes() {
+    garantirDiario();
     const area = document.getElementById('view-anotacoes');
+    if (!area) return;
+
+    // Só pula o render se o foco estiver REALMENTE num campo de digitação do diário.
+    // Botões e cliques não contam — senão "+ Nova Anotação" nunca renderiza.
+    const active = document.activeElement;
+    const editando = active && (
+        active.tagName === 'INPUT' ||
+        active.tagName === 'TEXTAREA' ||
+        active.isContentEditable
+    ) && active.closest && active.closest('.diario-container');
+
+    if (editando) {
+        diarioRenderPendente = true;
+        return;
+    }
+    diarioRenderPendente = false;
+
+    const entradas = charData.diario || [];
+
+    const listaHtml = entradas.length
+        ? entradas.map(ent => {
+            const aberto = diarioAberto.has(ent.id);
+            const preview = (ent.conteudo || '').replace(/\s+/g, ' ').trim();
+            const previewCurto = preview.length > 100 ? preview.slice(0, 100) + '…' : preview;
+            return `
+            <div class="diario-entry ${aberto ? 'aberto' : ''}" data-entry-id="${ent.id}">
+                <div class="diario-entry-header" onclick="toggleAnotacao('${ent.id}')">
+                    <span class="diario-entry-caret">▶</span>
+                    <input class="diario-entry-titulo-input"
+                           value="${escAttrFicha(ent.titulo || '')}"
+                           placeholder="Título da anotação..."
+                           onclick="event.stopPropagation()"
+                           oninput="agendarSalvarAnotacao('${ent.id}', 'titulo', this.value)">
+                    <span class="diario-entry-data">${formatarData(ent.atualizadoEm || ent.criadoEm)}</span>
+                    <button class="diario-entry-remove"
+                            onclick="event.stopPropagation(); removerAnotacao('${ent.id}')"
+                            title="Remover anotação">✕</button>
+                </div>
+                <div class="diario-entry-preview">${previewCurto || '<em style="opacity:0.5">Sem conteúdo</em>'}</div>
+                <div class="diario-entry-body">
+                    <textarea class="diario-entry-textarea"
+                              placeholder="Escreva aqui..."
+                              oninput="agendarSalvarAnotacao('${ent.id}', 'conteudo', this.value)">${ent.conteudo || ''}</textarea>
+                    <div class="diario-entry-footer">
+                        <span>Criado em ${formatarData(ent.criadoEm)}</span>
+                        <span>${(ent.conteudo || '').length} caracteres</span>
+                    </div>
+                </div>
+            </div>`;
+        }).join('')
+        : `<div class="diario-empty">Nenhuma anotação ainda — clique em "Nova Anotação" para começar</div>`;
+
     area.innerHTML = `
-        <h2 class="text-xl font-title text-white uppercase italic mb-4">Diário de Bordo</h2>
-        <textarea id="txt-notes" 
-            onchange="saveAnotacoes(this.value)"
-            class="w-full h-[60vh] bg-white/5 border border-white/10 rounded-2xl p-6 text-sm text-white/80 outline-none focus:border-[var(--accent)] transition resize-none"
-            placeholder="Escreva suas descobertas aqui...">${charData.anotacoes || ''}</textarea>
+        <div class="diario-container">
+            <div class="diario-toolbar">
+                <div>
+                    <h2 class="text-xl font-title text-white uppercase italic">Diário de Bordo</h2>
+                    <p class="text-[10px] text-white/30 uppercase tracking-widest mt-1">Suas memórias, pistas e descobertas</p>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="diario-save-status" id="diario-save-status">
+                        <span class="dot"></span>
+                        <span id="diario-save-text">Salvo</span>
+                    </div>
+                    <button onclick="adicionarAnotacao()" class="btn-add" style="margin:0; width:auto; padding:8px 16px;">+ Nova Anotação</button>
+                </div>
+            </div>
+            <div id="diario-lista">${listaHtml}</div>
+        </div>
     `;
 }
+
+window.toggleAnotacao = (id) => {
+    if (diarioAberto.has(id)) diarioAberto.delete(id);
+    else diarioAberto.add(id);
+    diarioRenderPendente = false;
+    renderAnotacoes();
+    if (diarioAberto.has(id)) {
+        setTimeout(() => {
+            const el = document.querySelector(`.diario-entry[data-entry-id="${id}"] .diario-entry-textarea`);
+            if (el) el.focus();
+        }, 30);
+    }
+};
+
+window.adicionarAnotacao = async () => {
+    garantirDiario();
+    const nova = {
+        id: 'n-' + Date.now() + '-' + Math.random().toString(16).slice(2, 6),
+        titulo: '',
+        conteudo: '',
+        criadoEm: Date.now(),
+        atualizadoEm: Date.now()
+    };
+    charData.diario = [...(charData.diario || []), nova];
+    diarioAberto.add(nova.id);
+    diarioRenderPendente = false;
+    renderAnotacoes();
+    await updateDoc(doc(db, "personagens", charID), { diario: charData.diario });
+    setTimeout(() => {
+        const el = document.querySelector(`.diario-entry[data-entry-id="${nova.id}"] .diario-entry-titulo-input`);
+        if (el) el.focus();
+    }, 60);
+};
+
+window.removerAnotacao = async (id) => {
+    const ent = (charData.diario || []).find(e => e.id === id);
+    if (!ent) return;
+    const temConteudo = (ent.titulo || '').trim() || (ent.conteudo || '').trim();
+    if (temConteudo && !confirm('Apagar esta anotação? Não tem como desfazer.')) return;
+    charData.diario = (charData.diario || []).filter(e => e.id !== id);
+    diarioAberto.delete(id);
+    diarioRenderPendente = false;
+    renderAnotacoes();
+    await updateDoc(doc(db, "personagens", charID), { diario: charData.diario });
+};
+
+window.agendarSalvarAnotacao = (id, campo, valor) => {
+    const ent = (charData.diario || []).find(e => e.id === id);
+    if (!ent) return;
+    ent[campo] = valor;
+    ent.atualizadoEm = Date.now();
+
+    // Atualiza preview / data / contador ao vivo (sem re-render)
+    const wrap = document.querySelector(`.diario-entry[data-entry-id="${id}"]`);
+    if (wrap) {
+        const prev = wrap.querySelector('.diario-entry-preview');
+        if (prev) {
+            const pv = (ent.conteudo || '').replace(/\s+/g, ' ').trim();
+            prev.innerHTML = pv.length > 100 ? pv.slice(0, 100) + '…' : (pv || '<em style="opacity:0.5">Sem conteúdo</em>');
+        }
+        const dataEl = wrap.querySelector('.diario-entry-data');
+        if (dataEl) dataEl.textContent = formatarData(ent.atualizadoEm);
+        const contador = wrap.querySelector('.diario-entry-footer span:last-child');
+        if (contador) contador.textContent = `${(ent.conteudo || '').length} caracteres`;
+    }
+
+    setStatusSalvando(true);
+    clearTimeout(diarioSaveTimers[id]);
+    diarioSaveTimers[id] = setTimeout(async () => {
+        await updateDoc(doc(db, "personagens", charID), { diario: charData.diario });
+        setStatusSalvando(false);
+    }, 700);
+};
+
+// Se o usuário sair de um campo do diário e houver render pendente, renderiza
+document.addEventListener('focusout', (e) => {
+    if (e.target && e.target.closest && e.target.closest('.diario-container')) {
+        setTimeout(() => {
+            if (diarioRenderPendente) renderAnotacoes();
+        }, 120);
+    }
+});
 
 function calcularNivelPorPercentual(atual, maximo) {
     if (!maximo || maximo <= 0) return 0;
@@ -2246,27 +3010,38 @@ window.resetarEmocoes = () => {
     updateDoc(doc(db, "personagens", charID), { emocoes });
 };
 
-window.executarDano = async (nome, formula, tipo) => {
+window.executarDano = async (nome, formula, tipo, atributoDano = '', periciaDano = '') => {
     const pb = getPassiveBonuses();
-    const influ = (charData.atributos.Influencia || 0) + (pb.atributos.Influencia || 0);
+
+    const attrValue = atributoDano
+        ? ((parseFloat(charData.atributos?.[atributoDano]) || 0) + (pb.atributos[atributoDano] || 0))
+        : 0;
+
+    let skillBonus = 0;
+    if (periciaDano) {
+        const sd = charData.pericias?.[periciaDano] || { b: 0, t: false };
+        const tr = (sd.t || pb.treinoSet.has(periciaDano)) ? 2 : 0;
+        skillBonus = tr + (parseFloat(sd.b) || 0) + (pb.pericias[periciaDano] || 0);
+    }
+
     const danoPassivo = tipo === 'corpo' ? (pb.danoCorpo || 0) : (pb.danoDistancia || 0);
-    const somaExtra = (tipo === 'corpo' ? influ : 0) + danoPassivo;
-    
+    const somaExtra = attrValue + skillBonus + danoPassivo;
+
     const regex = /(\d+)d(\d+)([\+\-]\d+)?/i;
     const match = formula.match(regex);
-    
+
     let totalDados = 0, resultados = [];
-    
+
     if (match) {
         const qtd = parseInt(match[1]), faces = parseInt(match[2]);
         const modFormula = match[3] ? parseInt(match[3]) : 0;
-        
-        for(let i=0; i<qtd; i++) {
+
+        for (let i = 0; i < qtd; i++) {
             let r = Math.floor(Math.random() * faces) + 1;
             resultados.push(r);
             totalDados += r;
         }
-        
+
         const totalFinal = totalDados + modFormula + somaExtra;
         await logRoll(`Dano: ${nome}`, resultados, totalFinal);
         showPopup(`Dano: ${nome}`, totalFinal, resultados, null);
@@ -2274,7 +3049,14 @@ window.executarDano = async (nome, formula, tipo) => {
 };
 
 window.addCombatItem = () => {
-    const novo = { nome: 'Nova Arma', pericia: 'Luta', dano: '1d6', tipo: 'corpo' };
+    const novo = { 
+        nome: 'Nova Arma', 
+        pericia: 'Luta', 
+        dano: '1d6', 
+        tipo: 'corpo',
+        atributoDano: 'Influencia',
+        periciaDano: ''
+    };
     updateDoc(doc(db, "personagens", charID), { 
         combate: [...(charData.combate || []), novo] 
     });
@@ -2488,11 +3270,6 @@ window.saveSkill = (s, f, v) => updateDoc(doc(db, "personagens", charID), { [`pe
 window.saveDefesaBonus = (v) => updateDoc(doc(db, "personagens", charID), { defesaBonus: parseFloat(v) || 0 });
 window.saveDeslocamentoBase = (v) => updateDoc(doc(db, "personagens", charID), { deslocamentoBase: parseFloat(v) || 0 });
 window.saveDeslocamentoBonus = (v) => updateDoc(doc(db, "personagens", charID), { deslocamentoBonus: parseFloat(v) || 0 });
-
-window.addCombatItem = () => {
-    const novo = { nome: 'Nova Arma', pericia: 'Luta', dano: '1d6', tipo: 'corpo' };
-    updateDoc(doc(db, "personagens", charID), { combate: [...(charData.combate || []), novo] });
-};
 
 window.updateCombat = (i, f, v) => { let l=[...charData.combate]; l[i][f]=v; updateDoc(doc(db,"personagens",charID), {combate:l}); };
 window.removeCombat = (i) => { let l=[...charData.combate]; l.splice(i,1); updateDoc(doc(db,"personagens",charID), {combate:l}); };
