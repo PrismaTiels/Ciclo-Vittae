@@ -201,7 +201,159 @@ select option { background: #100c1c; color: var(--text-main); padding: 10px; }
     border-radius: 16px;
     padding: 20px;
     backdrop-filter: blur(8px);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    height: 450px;
+    overflow: hidden;
+    transition: border-color .25s, box-shadow .25s;
 }
+.player-card:hover {
+    border-color: rgba(196, 165, 106, 0.28);
+    box-shadow: 0 12px 30px -18px rgba(196, 165, 106, 0.55);
+}
+
+.player-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    min-height: 56px;
+    flex-shrink: 0;
+}
+.player-card-id { min-width: 0; flex: 1; }
+.player-card-nome {
+    font-family: 'Outfit', sans-serif;
+    font-size: 19px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.2;
+    margin: 0 0 6px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+.player-card-estado {
+    display: inline-block;
+    font-size: 9px;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.1em;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 999px;
+    border: 1px solid currentColor;
+    background: rgba(255, 255, 255, 0.02);
+}
+.player-card-actions {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    align-items: center;
+    flex-shrink: 0;
+    max-width: 62%;
+}
+
+.pc-btn-ghost {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: rgba(232, 226, 213, 0.55);
+    font-size: 9px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 5px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all .2s;
+    font-family: 'Cinzel', serif;
+}
+.pc-btn-ghost:hover { color: #fff; border-color: rgba(255, 255, 255, 0.2); }
+
+.player-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding-right: 6px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(196, 165, 106, 0.35) transparent;
+}
+.player-card-stats { display: flex; flex-direction: column; gap: 14px; }
+
+.stat-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 5px;
+    letter-spacing: 0.04em;
+}
+.stat-label { font-weight: 700; }
+.stat-values { display: flex; align-items: center; gap: 4px; }
+.stat-sep { opacity: 0.3; }
+
+.player-card-footer {
+    padding-top: 14px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+.pc-carga { display: flex; flex-direction: column; gap: 3px; min-width: 0; flex: 1; }
+.pc-carga-label {
+    font-size: 8px; letter-spacing: 0.18em; font-weight: 800;
+    color: rgba(232, 226, 213, 0.3);
+}
+.pc-carga-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: rgba(232, 226, 213, 0.6);
+}
+.pc-carga-bar {
+    display: block; height: 3px; border-radius: 3px;
+    background: rgba(255, 255, 255, 0.06);
+    overflow: hidden; margin-top: 2px;
+}
+.pc-carga-bar > span {
+    display: block; height: 100%; width: 0;
+    background: var(--accent);
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.pc-carga.sobrecarregado .pc-carga-val { color: #ef4444; }
+.pc-carga.sobrecarregado .pc-carga-bar > span {
+    background: #ef4444;
+    animation: pulse-red 2s infinite;
+}
+
+.pc-delete {
+    background: none; border: none; cursor: pointer;
+    color: rgba(255, 255, 255, 0.12);
+    padding: 6px; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all .2s; flex-shrink: 0;
+}
+.pc-delete:hover { color: #ef4444; background: rgba(239, 68, 68, 0.08); }
+
+/* deixa o grid com altura uniforme */
+#grid-players { align-items: stretch; }
+
+/* scrollbar temática do miolo dos cards de PJ */
+.player-card-body::-webkit-scrollbar { width: 6px; }
+.player-card-body::-webkit-scrollbar-track { background: transparent; }
+.player-card-body::-webkit-scrollbar-thumb {
+    background: rgba(196, 165, 106, 0.35);
+    border-radius: 10px;
+}
+.player-card-body::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
 .status-input {
     background: rgba(196, 165, 106, 0.06);
     border: 1px solid rgba(196, 165, 106, 0.15);
@@ -543,9 +695,16 @@ select option { background: #100c1c; color: var(--text-main); padding: 10px; }
     background: rgba(13, 10, 24, 0.65);
     border: 1px solid rgba(224, 128, 118, 0.22);
     backdrop-filter: blur(8px);
+    display: flex; flex-direction: column;
+    height: 600px;
+    transition: border-color .25s, box-shadow .25s;
+}
+.ac-card:hover {
+    border-color: rgba(224, 128, 118, 0.4);
+    box-shadow: 0 12px 30px -18px rgba(224, 128, 118, 0.5);
 }
 .ac-banner {
-    position: relative; min-height: 130px;
+    position: relative; height: 150px; flex-shrink: 0;
     background-size: cover; background-position: center 25%;
     background-color: rgba(224, 128, 118, 0.06);
     display: flex; align-items: flex-end; padding: 16px;
@@ -598,6 +757,7 @@ select option { background: #100c1c; color: var(--text-main); padding: 10px; }
     display: flex; align-items: center; justify-content: center; gap: 4px;
     background: linear-gradient(180deg, #7f1d1d, #450a0a);
     padding: 10px 8px; border-bottom: 1px solid rgba(0,0,0,0.4);
+    flex-shrink: 0;
 }
 .ac-vida-btn {
     background: rgba(0,0,0,0.2); border: none; color: rgba(255,255,255,0.75);
@@ -617,7 +777,7 @@ select option { background: #100c1c; color: var(--text-main); padding: 10px; }
 }
 .ac-vida-display input.ac-vida-max { color: rgba(255,255,255,0.5); width: 40px; }
 
-.ac-tabs { display: flex; gap: 18px; padding: 0 14px; border-bottom: 1px solid rgba(196, 165, 106, 0.12); }
+.ac-tabs { display: flex; gap: 18px; padding: 0 14px; border-bottom: 1px solid rgba(196, 165, 106, 0.12); flex-shrink: 0; }
 .ac-tab-btn {
     background: none; border: none; color: rgba(232, 226, 213, 0.4); cursor: pointer;
     font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 11px;
@@ -627,8 +787,25 @@ select option { background: #100c1c; color: var(--text-main); padding: 10px; }
 .ac-tab-btn:hover { color: rgba(232, 226, 213, 0.8); }
 .ac-tab-btn.active { color: #e08076; border-bottom-color: #e08076; }
 
-.ac-tab-content { padding: 16px; }
+.ac-tab-content {
+    padding: 16px;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding-right: 20px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(224, 128, 118, 0.35) transparent;
+}
 .ac-tab-content.hidden { display: none; }
+
+/* scrollbar temática da ameaça */
+.ac-tab-content::-webkit-scrollbar { width: 6px; }
+.ac-tab-content::-webkit-scrollbar-track { background: transparent; }
+.ac-tab-content::-webkit-scrollbar-thumb {
+    background: rgba(224, 128, 118, 0.35);
+    border-radius: 10px;
+}
+.ac-tab-content::-webkit-scrollbar-thumb:hover { background: #e08076; }
 
 .ac-attrs-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin-bottom: 14px; }
 .ac-attr-box { text-align: center; }
@@ -775,7 +952,7 @@ select option { background: #100c1c; color: var(--text-main); padding: 10px; }
 .ac-desc-crop-btn { position: absolute; top: 8px; right: 8px; z-index: 2; }
 .ac-descricao-img-wrap .ac-crop-panel { bottom: 8px; left: 8px; right: 8px; }
 
-.ac-notas-footer { border-top: 1px solid rgba(196, 165, 106, 0.1); }
+.ac-notas-footer { border-top: 1px solid rgba(196, 165, 106, 0.1); flex-shrink: 0; background: rgba(13, 10, 24, 0.6); }
 .ac-notas-toggle {
     width: 100%; text-align: left; background: none; border: none; cursor: pointer;
     padding: 10px 14px; font-size: 9px; font-weight: 800;
@@ -795,12 +972,20 @@ select option { background: #100c1c; color: var(--text-main); padding: 10px; }
     background: rgba(13, 10, 24, 0.65);
     border: 1px solid rgba(138, 184, 160, 0.22);
     backdrop-filter: blur(8px);
+    display: flex; flex-direction: column;
+    height: 550px;
+    transition: border-color .25s, box-shadow .25s;
+}
+.npc-card:hover {
+    border-color: rgba(138, 184, 160, 0.4);
+    box-shadow: 0 12px 30px -18px rgba(138, 184, 160, 0.5);
 }
 .npc-atitude-row {
     display: flex; justify-content: space-between; align-items: center; gap: 10px;
     padding: 10px 16px;
     background: rgba(196, 165, 106, 0.03);
     border-bottom: 1px solid rgba(196, 165, 106, 0.1);
+    flex-shrink: 0;
 }
 .npc-atitude-select {
     background: rgba(0,0,0,0.2);
@@ -815,7 +1000,30 @@ select option { background: #100c1c; color: var(--text-main); padding: 10px; }
     color: rgba(232, 226, 213, 0.45); cursor: pointer;
 }
 .npc-fields-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 16px 16px 0 16px; }
-.npc-body-pad { padding: 0 16px 16px 16px; }
+.npc-body-pad {
+    padding: 0 16px 16px 16px;
+    display: flex; flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding-right: 20px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(138, 184, 160, 0.35) transparent;
+}
+
+/* scrollbar temática do NPC */
+.npc-body-pad::-webkit-scrollbar { width: 6px; }
+.npc-body-pad::-webkit-scrollbar-track { background: transparent; }
+.npc-body-pad::-webkit-scrollbar-thumb {
+    background: rgba(138, 184, 160, 0.35);
+    border-radius: 10px;
+}
+.npc-body-pad::-webkit-scrollbar-thumb:hover { background: #8ab8a0; }
+
+#grid-ameacas,
+#grid-npcs {
+    align-items: stretch;
+}
 .npc-vida-nav {
     display: flex; align-items: center; justify-content: center; gap: 4px;
     background: linear-gradient(180deg, #115e59, #042f2e);
@@ -2287,13 +2495,13 @@ select option { background: #100c1c; color: var(--text-main); padding: 10px; }
         }).join('') : '<div class="text-[10px] text-white/20 italic mb-2">Nenhuma ação cadastrada.</div>';
 
         return `
-        <div class="ac-tabs" style="padding:0; margin-top:16px;">
+        <div class="ac-tabs" style="padding:0; margin-top:16px; flex-shrink:0;">
             <button class="ac-tab-btn ${ui.tab === 'status' ? 'active' : ''}" style="${ui.tab === 'status' ? 'color:#8ab8a0;border-bottom-color:#8ab8a0;' : ''}" onclick="setNpcTab('${id}','status')">Status</button>
             <button class="ac-tab-btn ${ui.tab === 'pericias' ? 'active' : ''}" style="${ui.tab === 'pericias' ? 'color:#8ab8a0;border-bottom-color:#8ab8a0;' : ''}" onclick="setNpcTab('${id}','pericias')">Perícias</button>
             <button class="ac-tab-btn ${ui.tab === 'combate' ? 'active' : ''}" style="${ui.tab === 'combate' ? 'color:#8ab8a0;border-bottom-color:#8ab8a0;' : ''}" onclick="setNpcTab('${id}','combate')">Combate</button>
         </div>
 
-        <div class="ac-tab-content ${ui.tab === 'status' ? '' : 'hidden'}" style="padding: 14px 0 0 0;">
+        <div class="${ui.tab === 'status' ? '' : 'hidden'}" style="padding: 14px 0 0 0;">
             <div class="npc-vida-nav">
                 <button class="ac-vida-btn" onclick="ajustarVidaNpc('${id}', -10)" title="-10">«</button>
                 <button class="ac-vida-btn" onclick="ajustarVidaNpc('${id}', -1)" title="-1">‹</button>
@@ -2319,7 +2527,7 @@ select option { background: #100c1c; color: var(--text-main); padding: 10px; }
             </div>
         </div>
 
-        <div class="ac-tab-content ${ui.tab === 'pericias' ? '' : 'hidden'}" style="padding: 14px 0 0 0;">
+        <div class="${ui.tab === 'pericias' ? '' : 'hidden'}" style="padding: 14px 0 0 0;">
             ${periciasHtml}
             <div class="ameaca-add-row">
                 <select id="npc-pericia-select-${id}" class="poder-input">
@@ -2329,7 +2537,7 @@ select option { background: #100c1c; color: var(--text-main); padding: 10px; }
             </div>
         </div>
 
-        <div class="ac-tab-content ${ui.tab === 'combate' ? '' : 'hidden'}" style="padding: 14px 0 0 0;">
+        <div class="${ui.tab === 'combate' ? '' : 'hidden'}" style="padding: 14px 0 0 0;">
             <div class="ameaca-section-label" style="margin-top:0;">💥 Traço de Assinatura</div>
             <div class="npc-traco-box">
                 <input class="ac-traco-nome" value="${escAttr(traco.nome || '')}" placeholder="Ex: Golpe Certeiro" onchange="setNpcTraco('${id}','nome', this.value)">
@@ -3158,98 +3366,108 @@ select option { background: #100c1c; color: var(--text-main); padding: 10px; }
             if (viewIni && !viewIni.classList.contains('hidden')) popularSelectsIniciativa();
             const grid = document.getElementById('grid-players');
             if (!grid) return;
-            grid.innerHTML = snap.docs.map(docSnap => {
-                const p = docSnap.data();
-                const id = docSnap.id;
-                const est = p.estado || 'vivo';
+grid.innerHTML = snap.docs.map(docSnap => {
+    const p = docSnap.data();
+    const id = docSnap.id;
+    const est = p.estado || 'vivo';
 
-                const accentColor = est === 'vivo' ? '#c4a56a' : '#8ab8a0';
-                const stateBg = est === 'vivo' ? 'rgba(196, 165, 106, 0.04)' : 'rgba(138, 184, 160, 0.04)';
+    const accentColor = est === 'vivo' ? '#c4a56a' : '#8ab8a0';
+    const stateBg = est === 'vivo' ? 'rgba(196, 165, 106, 0.04)' : 'rgba(138, 184, 160, 0.04)';
 
-                const v = p.status?.['Vida'] || {a:0, m:10};
-                const s_n = est === 'vivo' ? 'Sanidade' : 'Metafísica';
-                const s = p.status?.[s_n] || {a:0, m:10};
-                const o = p.status?.['Opacidade'] || {a:0, m:100};
+    const v = p.status?.['Vida'] || { a: 0, m: 10 };
+    const s_n = est === 'vivo' ? 'Sanidade' : 'Metafísica';
+    const s = p.status?.[s_n] || { a: 0, m: 10 };
+    const o = p.status?.['Opacidade'] || { a: 0, m: 100 };
 
-                const pesoTotal = (p.inventario || []).reduce((acc, item) => acc + (parseFloat(item.peso||0) * parseFloat(item.qtd||1)), 0);
-                const pesoMax = (parseFloat(p.atributos?.Influencia) || 0) * 3;
-                const sobrecarregado = pesoTotal > pesoMax;
+    const pesoTotal = (p.inventario || []).reduce((acc, item) =>
+        acc + (parseFloat(item.peso || 0) * parseFloat(item.qtd || 1)), 0);
+    const pesoMax = (parseFloat(p.atributos?.Influencia) || 0) * 3;
+    const sobrecarregado = pesoMax > 0 && pesoTotal > pesoMax;
 
-                return `
-                    <div class="player-card transition-all duration-500 ${sobrecarregado ? 'overload-warning' : ''}"
-                         style="border-top: 4px solid ${accentColor}; background: ${stateBg}">
+    const vPct = v.m > 0 ? Math.max(0, Math.min(100, (v.a / v.m) * 100)) : 0;
+    const sPct = s.m > 0 ? Math.max(0, Math.min(100, (s.a / s.m) * 100)) : 0;
+    const oPct = Math.max(0, Math.min(100, parseFloat(o.a) || 0));
+    const cargaPct = pesoMax > 0 ? Math.max(0, Math.min(100, (pesoTotal / pesoMax) * 100)) : 0;
+    const nome = p.info?.nome || 'Sem Nome';
+    const nomeEsc = escAttr(nome);
 
-                        <div class="flex justify-between items-start mb-4">
-                            <div>
-                                <h3 class="font-title text-xl text-white mb-1">${p.info?.nome || 'Sem Nome'}</h3>
-                                <span class="text-[9px] font-mono px-2 py-0.5 rounded-full border border-white/10" style="color: ${accentColor}">
-                                    ${est.toUpperCase()}
-                                </span>
-                            </div>
-                            <div class="flex gap-2 flex-wrap">
-                                <button onclick="toggleEstado('${id}', '${est}')" class="text-[10px] opacity-30 hover:opacity-100 transition-opacity uppercase font-bold text-white">
-                                    Alternar
-                                </button>
-                                <button onclick="abrirPoderModal('${id}')" class="btn-poder-edit">
-                                    ⚡ Poderes
-                                </button>
-                                <button onclick="accessFicha('${id}')" class="btn-access">
-                                    Acessar
-                                </button>
-                            </div>
+    return `
+        <div class="player-card ${sobrecarregado ? 'overload-warning' : ''}"
+             style="border-top: 4px solid ${accentColor}; background: ${stateBg};">
+
+            <div class="player-card-header">
+                <div class="player-card-id">
+                    <h3 class="player-card-nome" title="${nomeEsc}">${nomeEsc}</h3>
+                    <span class="player-card-estado" style="color:${accentColor};">${est.toUpperCase()}</span>
+                </div>
+                <div class="player-card-actions">
+                    <button onclick="toggleEstado('${id}', '${est}')" class="pc-btn-ghost">Alternar</button>
+                    <button onclick="abrirPoderModal('${id}')" class="btn-poder-edit">⚡ Poderes</button>
+                    <button onclick="accessFicha('${id}')" class="btn-access">Acessar</button>
+                </div>
+            </div>
+
+            <div class="player-card-body">
+                <div class="player-card-stats">
+                    <div class="stat-row">
+                        <div class="stat-head" style="color:#f87171;">
+                            <span class="stat-label">VITALIDADE</span>
+                            <span class="stat-values">
+                                <input class="status-input" value="${v.a}" onchange="quickUpdate('${id}', 'Vida', this.value)">
+                                <span class="stat-sep">/</span>
+                                <input class="status-input opacity-40" value="${v.m}" onchange="updateMax('${id}', 'Vida', this.value)">
+                            </span>
                         </div>
-
-                        <div class="space-y-4">
-                            <div>
-                                <div class="flex justify-between text-[10px] font-mono mb-1 text-red-400">
-                                    <span>VITALIDADE</span>
-                                    <span>
-                                        <input class="status-input" value="${v.a}" onchange="quickUpdate('${id}', 'Vida', this.value)"> /
-                                        <input class="status-input opacity-40" value="${v.m}" onchange="updateMax('${id}', 'Vida', this.value)">
-                                    </span>
-                                </div>
-                                <div class="bar-bg"><div class="bar-fill bg-red-600" style="width: ${(v.a/v.m)*100}%"></div></div>
-                            </div>
-
-                            <div>
-                                <div class="flex justify-between text-[10px] font-mono mb-1" style="color: ${accentColor}">
-                                    <span>${s_n.toUpperCase()}</span>
-                                    <span>
-                                        <input class="status-input" value="${s.a}" onchange="quickUpdate('${id}', '${s_n}', this.value)"> /
-                                        <input class="status-input opacity-40" value="${s.m}" onchange="updateMax('${id}', '${s_n}', this.value)">
-                                    </span>
-                                </div>
-                                <div class="bar-bg"><div class="bar-fill" style="width: ${(s.a/s.m)*100}%; background-color: ${accentColor}"></div></div>
-                            </div>
-
-                            ${est === 'morto' ? `
-                            <div>
-                                <div class="flex justify-between text-[10px] font-mono mb-1 text-white/40">
-                                    <span>OPACIDADE</span>
-                                    <span><input class="status-input" value="${o.a}" onchange="quickUpdate('${id}', 'Opacidade', this.value)">%</span>
-                                </div>
-                                <div class="bar-bg" style="height: 2px;"><div class="bar-fill bg-white/40" style="width: ${o.a}%"></div></div>
-                            </div>
-                            ` : ''}
-                        </div>
-
-                        <div class="mt-4 pt-4 border-t border-white/5 flex justify-between items-center">
-                            <div class="text-[9px] font-mono ${sobrecarregado ? 'text-red-500 animate-pulse' : 'text-white/20'}">
-                                CARGA: ${pesoTotal.toFixed(1)}/${pesoMax}KG
-                            </div>
-                            <div class="flex gap-2">
-                                <button onclick="deletarFicha('${id}', '${p.info?.nome}')" class="text-white/10 hover:text-red-500 transition-colors" title="Deletar Ficha">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-
-                        ${renderEmocoesMestre(p.emocoes, id)}
+                        <div class="bar-bg"><div class="bar-fill bg-red-600" style="width:${vPct}%"></div></div>
                     </div>
-                `;
-            }).join('');
+
+                    <div class="stat-row">
+                        <div class="stat-head" style="color:${accentColor};">
+                            <span class="stat-label">${s_n.toUpperCase()}</span>
+                            <span class="stat-values">
+                                <input class="status-input" value="${s.a}" onchange="quickUpdate('${id}', '${s_n}', this.value)">
+                                <span class="stat-sep">/</span>
+                                <input class="status-input opacity-40" value="${s.m}" onchange="updateMax('${id}', '${s_n}', this.value)">
+                            </span>
+                        </div>
+                        <div class="bar-bg"><div class="bar-fill" style="width:${sPct}%; background-color:${accentColor}"></div></div>
+                    </div>
+
+                    ${est === 'morto' ? `
+                    <div class="stat-row">
+                        <div class="stat-head" style="color:rgba(255,255,255,0.4);">
+                            <span class="stat-label">OPACIDADE</span>
+                            <span class="stat-values">
+                                <input class="status-input" value="${o.a}" onchange="quickUpdate('${id}', 'Opacidade', this.value)">
+                                <span class="stat-sep">%</span>
+                            </span>
+                        </div>
+                        <div class="bar-bg" style="height:3px;">
+                            <div class="bar-fill bg-white/40" style="width:${oPct}%"></div>
+                        </div>
+                    </div>` : ''}
+                </div>
+
+                ${renderEmocoesMestre(p.emocoes, id)}
+            </div>
+
+            <div class="player-card-footer">
+                <div class="pc-carga ${sobrecarregado ? 'sobrecarregado' : ''}" title="Carga total / capacidade">
+                    <span class="pc-carga-label">CARGA</span>
+                    <span class="pc-carga-val">
+                        ${pesoTotal.toFixed(1)}<span class="opacity-40">/${pesoMax.toFixed(1)}kg</span>
+                    </span>
+                    <span class="pc-carga-bar"><span style="width:${cargaPct}%"></span></span>
+                </div>
+                <button onclick="deletarFicha('${id}', '${nomeEsc}')" class="pc-delete" title="Deletar Ficha">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    `;
+}).join('');
         });
 
         onSnapshot(collection(db, "ameacas"), (snap) => {
