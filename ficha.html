@@ -1716,9 +1716,9 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, onSnapshot, doc, updateDoc, addDoc, setDoc, query, orderBy, getDocs, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, collection, onSnapshot, doc, updateDoc, addDoc, setDoc, query, orderBy, where, getDocs, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
     import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
-    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyAzDHaOYApynTHqdvhWy4FhUvwLXr5zfuc",
@@ -1734,33 +1734,48 @@
     const storage = getStorage(app);
     const auth = getAuth(app);
 
-    // Login anônimo automático — sem isso, o Firestore bloqueia toda leitura/escrita
-    await new Promise((resolve) => {
-        const unsub = onAuthStateChanged(auth, async (user) => {
-            if (user) { unsub(); resolve(); }
-            else {
-                try { await signInAnonymously(auth); }
-                catch (e) {
-                    console.error('Falha no login anônimo:', e);
-                    alert('Não foi possível conectar. Recarregue a página.');
-                }
-            }
+    // Exige usuário autenticado (email/senha). Sem isso, volta pro index.
+    const usuarioLogado = await new Promise((resolve) => {
+        const unsub = onAuthStateChanged(auth, (user) => {
+            unsub();
+            resolve(user);
         });
     });
-    
-    // PRIMEIRO: Pega da URL (sempre prioridade)
-const urlParams = new URLSearchParams(window.location.search);
-const urlCharID = urlParams.get('char');
 
-// SEGUNDO: Só se não tiver na URL, usa localStorage
-let charID = urlCharID || localStorage.getItem('ciclo_char_id') || 'amiga';
+    if (!usuarioLogado) {
+        window.location.href = 'index.html';
+        throw new Error('Não autenticado');
+    }
 
-// ATUALIZA: localStorage com o da URL (se tiver)
-if (urlCharID) {
-    localStorage.setItem('ciclo_char_id', urlCharID);
-}
+    // Pega charID da URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlCharID = urlParams.get('char');
+    let charID = urlCharID || localStorage.getItem('ciclo_char_id');
 
-console.log("FICHA: ID final =", charID, "| Da URL?", !!urlCharID);
+    if (!charID || !charID.includes('__')) {
+        // Sem char válido — volta pro index para o jogador logar de novo
+        localStorage.removeItem('ciclo_char_id');
+        window.location.href = 'index.html';
+        throw new Error('ID de personagem inválido');
+    }
+
+    // Extrai a campanha do ID: "SANTAFE__uid" → "SANTAFE"
+    const campanhaId = charID.split('__')[0];
+
+    // Verifica se o UID logado bate com o UID dentro do charID
+    // Formato esperado: {campanha}__{uid}
+    const uidNoCharId = charID.split('__').slice(1).join('__');
+    if (uidNoCharId !== usuarioLogado.uid) {
+        console.warn('UID do char não bate com o logado. Bloqueando.');
+        await signOut(auth);
+        localStorage.removeItem('ciclo_char_id');
+        window.location.href = 'index.html';
+        throw new Error('Personagem não pertence a essa conta');
+    }
+
+    localStorage.setItem('ciclo_char_id', charID);
+    localStorage.setItem('ciclo_campanha', campanhaId);
+    console.log("FICHA: charID =", charID, "| campanha =", campanhaId);
 
     let charData = { estado: 'vivo', info: {}, status: {}, atributos: {}, pericias: {}, combate: [], inventario: [], anotacoes: '' };
 
@@ -1776,6 +1791,8 @@ console.log("FICHA: ID final =", charID, "| Da URL?", !!urlCharID);
     };
 
 const getDefaultData = (nomeInformado = "Novo Jogador") => ({
+    campanhaId: campanhaId,
+    donoUid: auth.currentUser?.uid || '',
     estado: 'vivo',
     info: { 
         nome: nomeInformado, 
@@ -1819,7 +1836,7 @@ const getDefaultData = (nomeInformado = "Novo Jogador") => ({
 async function limparLogsAntigos() {
     try {
         const logsRef = collection(db, "logs_rolagens");
-        const q = query(logsRef, orderBy("timestamp", "desc"));
+        const q = query(logsRef, where("campanhaId", "==", campanhaId), orderBy("timestamp", "desc"));
         const snap = await getDocs(q);
 
         if (snap.size > 15) {
@@ -1835,6 +1852,7 @@ async function limparLogsAntigos() {
 
 async function logRoll(acao, dados, total, tipoRolagem = 'normal', dadoRelevante = null) {
     await addDoc(collection(db, "logs_rolagens"), {
+        campanhaId: campanhaId,
         charNome: charData.info.nome || "Desconhecido",
         pericia: acao,
         dados,
@@ -3401,19 +3419,17 @@ onSnapshot(doc(db, "personagens", charID), async (snap) => {
         
         renderAll();
     } else {
-        console.log("Ficha não encontrada. Criando dados iniciais...");
-        const nomeDaURL = charID.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-        const dataNova = getDefaultData(nomeDaURL);
-        
-        await setDoc(doc(db, "personagens", charID), dataNova);
-        charData = dataNova;
-        renderAll();
+        // Ficha não existe — só o index.html cria fichas agora.
+        console.warn("Ficha não encontrada. Redirecionando para o login...");
+        localStorage.removeItem('ciclo_char_id');
+        window.location.href = 'index.html';
+        return;
     }
 }, (error) => {
     console.error("Erro no Firebase Snapshot:", error);
 });
 
-onSnapshot(doc(db, "mesa", "iniciativa"), (snap) => {
+onSnapshot(doc(db, "mesa", campanhaId + "__iniciativa"), (snap) => {
     const box = document.getElementById('combate-widget');
     const lista = document.getElementById('cw-lista');
     if (!box || !lista) return;
@@ -3578,14 +3594,18 @@ let _ameacasCacheFicha = [];
 let _npcsCacheFicha = [];
 
 onSnapshot(collection(db, "ameacas"), (snap) => {
-    _ameacasCacheFicha = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(a => a.revelado === true);
+    _ameacasCacheFicha = snap.docs
+        .map(d => ({ id: d.id, ...d.data() }))
+        .filter(a => a.revelado === true && a.campanhaId === campanhaId);
     renderEncontros(_ameacasCacheFicha, _npcsCacheFicha);
 }, (error) => {
     console.error("Erro ao buscar ameaças reveladas:", error);
 });
 
 onSnapshot(collection(db, "npcs"), (snap) => {
-    _npcsCacheFicha = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(n => n.revelado === true);
+    _npcsCacheFicha = snap.docs
+        .map(d => ({ id: d.id, ...d.data() }))
+        .filter(n => n.revelado === true && n.campanhaId === campanhaId);
     renderEncontros(_ameacasCacheFicha, _npcsCacheFicha);
 }, (error) => {
     console.error("Erro ao buscar NPCs revelados:", error);
