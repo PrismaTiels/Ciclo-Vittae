@@ -342,10 +342,8 @@ select option { background: #100c1c; color: var(--text-main); padding: 10px; }
 }
 .pc-delete:hover { color: #ef4444; background: rgba(239, 68, 68, 0.08); }
 
-/* deixa o grid com altura uniforme */
 #grid-players { align-items: stretch; }
 
-/* scrollbar temática do miolo dos cards de PJ */
 .player-card-body::-webkit-scrollbar { width: 6px; }
 .player-card-body::-webkit-scrollbar-track { background: transparent; }
 .player-card-body::-webkit-scrollbar-thumb {
@@ -798,7 +796,6 @@ select option { background: #100c1c; color: var(--text-main); padding: 10px; }
 }
 .ac-tab-content.hidden { display: none; }
 
-/* scrollbar temática da ameaça */
 .ac-tab-content::-webkit-scrollbar { width: 6px; }
 .ac-tab-content::-webkit-scrollbar-track { background: transparent; }
 .ac-tab-content::-webkit-scrollbar-thumb {
@@ -1011,7 +1008,6 @@ select option { background: #100c1c; color: var(--text-main); padding: 10px; }
     scrollbar-color: rgba(138, 184, 160, 0.35) transparent;
 }
 
-/* scrollbar temática do NPC */
 .npc-body-pad::-webkit-scrollbar { width: 6px; }
 .npc-body-pad::-webkit-scrollbar-track { background: transparent; }
 .npc-body-pad::-webkit-scrollbar-thumb {
@@ -1160,7 +1156,6 @@ select option { background: #100c1c; color: var(--text-main); padding: 10px; }
     color: #f0a090;
 }
 
-/* Ícone do logo lock: substitui roxo */
 .lock-icon { color: var(--accent) !important; }
 .master-title-accent { color: var(--accent) !important; }
 .status-online-badge {
@@ -1316,6 +1311,523 @@ select option { background: #100c1c; color: var(--text-main); padding: 10px; }
     cursor: pointer; font-size: 10px;
     margin-left: 6px; text-decoration: underline;
 }
+/* ======================== */
+/* INVESTIGAÇÃO — BASE      */
+/* ======================== */
+.invest-subtabs {
+    display: flex; gap: 6px; margin-bottom: 20px; padding: 4px;
+    background: rgba(13, 10, 24, 0.6);
+    border: 1px solid rgba(196, 165, 106, 0.15);
+    border-radius: 12px; width: fit-content;
+}
+.invest-subtab {
+    padding: 8px 18px; border-radius: 8px; background: transparent; border: none;
+    cursor: pointer; font-family: 'Cinzel', serif; font-weight: 700; font-size: 11px;
+    letter-spacing: 0.15em; text-transform: uppercase;
+    color: rgba(232, 226, 213, 0.45); transition: all 0.2s;
+}
+.invest-subtab:hover { color: var(--accent-light); }
+.invest-subtab.active {
+    background: linear-gradient(180deg, var(--accent-light), var(--accent));
+    color: #0a0812; box-shadow: 0 4px 12px -4px rgba(138, 111, 60, 0.5);
+}
+
+/* ======================== */
+/* BIBLIOTECA DE CARDS      */
+/* ======================== */
+.cards-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px;
+}
+.card-bib {
+    background: rgba(13, 10, 24, 0.6);
+    border: 1px solid rgba(196, 165, 106, 0.15);
+    border-radius: 14px; overflow: hidden;
+    display: flex; flex-direction: column;
+    transition: border-color 0.25s, box-shadow 0.25s;
+}
+.card-bib:hover {
+    border-color: rgba(196, 165, 106, 0.4);
+    box-shadow: 0 12px 30px -18px rgba(196, 165, 106, 0.5);
+}
+.card-bib-foto-visual {
+    position: relative; width: 100%; height: 180px;
+    background: rgba(6, 4, 12, 0.7);
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden; flex-shrink: 0;
+}
+.card-bib-foto-visual img { max-width: 100%; max-height: 100%; object-fit: contain; display: block; }
+.card-bib-foto-visual.vazia {
+    color: rgba(232, 226, 213, 0.15); font-size: 36px;
+    border-bottom: 1px dashed rgba(196, 165, 106, 0.15);
+}
+.card-bib-fala-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 14px 8px 14px;
+    border-bottom: 1px solid rgba(196, 165, 106, 0.1);
+    position: relative;
+}
+.card-foto-mini {
+    width: 44px; height: 44px; border-radius: 50%;
+    background-color: rgba(0,0,0,0.4);
+    background-size: cover; background-position: center;
+    flex-shrink: 0; border: 2px solid rgba(196, 165, 106, 0.35);
+    display: flex; align-items: center; justify-content: center;
+    color: rgba(232,226,213,0.3); font-size: 18px;
+}
+.card-bib-npc-nome {
+    font-family: 'Cinzel', serif; font-size: 12px; font-weight: 700;
+    color: var(--accent-light); line-height: 1.1; flex: 1; min-width: 0;
+    overflow: hidden; text-overflow: ellipsis;
+}
+.card-bib-tipo {
+    position: absolute; top: 8px; right: 8px;
+    font-size: 8px; font-weight: 900; text-transform: uppercase;
+    letter-spacing: 0.12em; padding: 3px 8px; border-radius: 999px;
+    background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(4px); z-index: 2;
+}
+.card-bib-tipo.fala { color: #a89ac4; border: 1px solid rgba(168, 154, 196, 0.4); }
+.card-bib-tipo.visual { color: var(--accent-light); border: 1px solid rgba(196, 165, 106, 0.4); }
+.card-bib-body { padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+.card-bib-titulo {
+    font-family: 'Cinzel', serif; font-size: 14px; font-weight: 700;
+    color: var(--text-main); line-height: 1.2; word-break: break-word;
+}
+.card-bib-desc {
+    font-family: 'Cormorant Garamond', serif; font-style: italic;
+    font-size: 12px; color: rgba(232, 226, 213, 0.55);
+    line-height: 1.4; max-height: 60px; overflow: hidden;
+}
+.card-bib-fala {
+    font-family: 'Cormorant Garamond', serif; font-style: italic;
+    font-size: 14px; color: rgba(232, 226, 213, 0.85); line-height: 1.55;
+    max-height: 140px; overflow: hidden;
+    border-left: 3px solid rgba(196, 165, 106, 0.35); padding-left: 10px;
+}
+.card-bib-fala::before { content: '“'; }
+.card-bib-fala::after { content: '”'; }
+.card-bib-tags { display: flex; gap: 4px; flex-wrap: wrap; margin-top: auto; }
+.card-bib-tag {
+    font-size: 8px; font-weight: 800; text-transform: uppercase;
+    letter-spacing: 0.08em; padding: 3px 8px; border-radius: 999px;
+    background: rgba(196, 165, 106, 0.08);
+    border: 1px solid rgba(196, 165, 106, 0.25);
+    color: var(--accent-light);
+}
+.card-bib-tag.slot-vazio {
+    background: transparent; border-style: dashed;
+    border-color: rgba(232, 226, 213, 0.15);
+    color: rgba(232, 226, 213, 0.2);
+}
+.card-bib-actions {
+    display: flex; gap: 6px; padding: 10px 14px;
+    border-top: 1px solid rgba(196, 165, 106, 0.1); flex-shrink: 0;
+}
+.card-bib-btn {
+    flex: 1; background: rgba(196, 165, 106, 0.06);
+    border: 1px solid rgba(196, 165, 106, 0.2);
+    color: rgba(232, 226, 213, 0.7); padding: 7px 10px;
+    border-radius: 6px; font-size: 9px; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    cursor: pointer; transition: all 0.2s; font-family: 'Cinzel', serif;
+}
+.card-bib-btn:hover { border-color: var(--accent); color: var(--accent-light); }
+.card-bib-btn.del:hover { border-color: #ef4444; color: #ef4444; background: rgba(239, 68, 68, 0.08); }
+.cards-vazio {
+    padding: 60px 20px; text-align: center;
+    color: rgba(232, 226, 213, 0.25);
+    font-size: 12px; text-transform: uppercase;
+    letter-spacing: 0.2em; font-style: italic;
+    border: 1px dashed rgba(196, 165, 106, 0.15);
+    border-radius: 14px;
+}
+
+/* ======================== */
+/* MAPA                     */
+/* ======================== */
+.mapa-toolbar {
+    display: flex; gap: 8px; align-items: center;
+    padding: 10px 14px; margin-bottom: 12px;
+    background: rgba(13, 10, 24, 0.6);
+    border: 1px solid rgba(196, 165, 106, 0.15);
+    border-radius: 12px; backdrop-filter: blur(8px);
+    flex-wrap: wrap;
+}
+.mapa-toolbar-btn {
+    background: rgba(196, 165, 106, 0.06);
+    border: 1px solid rgba(196, 165, 106, 0.2);
+    color: var(--text-main); padding: 7px 12px; border-radius: 8px;
+    font-size: 10px; font-weight: 800; text-transform: uppercase;
+    letter-spacing: 0.1em; cursor: pointer; transition: 0.2s;
+    font-family: 'Cinzel', serif;
+}
+.mapa-toolbar-btn:hover { border-color: var(--accent); color: var(--accent-light); }
+.mapa-toolbar-btn.ativo {
+    background: var(--accent); color: #0a0812; border-color: transparent;
+    box-shadow: 0 0 12px rgba(196, 165, 106, 0.4);
+}
+.mapa-zoom-indicator {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--accent-light);
+    padding: 4px 10px;
+    background: rgba(196, 165, 106, 0.08);
+    border: 1px solid rgba(196, 165, 106, 0.25);
+    border-radius: 6px;
+    min-width: 52px;
+    text-align: center;
+    letter-spacing: 0.05em;
+    font-weight: 700;
+    user-select: none;
+    cursor: pointer;
+}
+.mapa-zoom-indicator:hover {
+    background: rgba(196, 165, 106, 0.15);
+    border-color: var(--accent);
+}
+.mapa-toolbar-info {
+    font-size: 10px; color: rgba(232, 226, 213, 0.4);
+    font-style: italic; margin-left: auto;
+}
+.mapa-layout {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 12px;
+    height: calc(100vh - 220px);
+    min-height: 500px;
+}
+.mapa-biblioteca {
+    background: rgba(13, 10, 24, 0.6);
+    border: 1px solid rgba(196, 165, 106, 0.15);
+    border-radius: 12px; padding: 10px;
+    overflow-y: auto; display: flex; flex-direction: column; gap: 8px;
+    backdrop-filter: blur(8px);
+}
+.mapa-biblioteca-titulo {
+    font-size: 9px; font-weight: 900; text-transform: uppercase;
+    letter-spacing: 0.15em; color: var(--accent-light);
+    padding-bottom: 6px; border-bottom: 1px solid rgba(196, 165, 106, 0.12);
+    margin-bottom: 4px;
+}
+.mapa-bib-item {
+    background: rgba(0,0,0,0.25);
+    border: 1px solid rgba(196, 165, 106, 0.15);
+    border-radius: 8px; padding: 8px 10px;
+    cursor: grab; user-select: none;
+    display: flex; align-items: center; gap: 8px;
+    transition: border-color 0.2s;
+    font-size: 11px; color: var(--text-main); font-weight: 600;
+}
+.mapa-bib-item:hover { border-color: var(--accent); }
+.mapa-bib-item.arrastando { cursor: grabbing; opacity: 0.5; }
+.mapa-bib-item-vazio {
+    font-size: 10px; color: rgba(232, 226, 213, 0.25);
+    font-style: italic; text-align: center; padding: 20px 8px;
+}
+.mapa-canvas-wrap {
+    position: relative;
+    background:
+        linear-gradient(rgba(196, 165, 106, 0.04) 1px, transparent 1px) 0 0 / 40px 40px,
+        linear-gradient(90deg, rgba(196, 165, 106, 0.04) 1px, transparent 1px) 0 0 / 40px 40px,
+        rgba(6, 4, 12, 0.55);
+    border: 1px solid rgba(196, 165, 106, 0.12);
+    border-radius: 14px;
+    overflow: hidden;
+    cursor: grab;
+}
+.mapa-canvas-wrap.panning { cursor: grabbing; }
+.mapa-canvas-wrap.modo-conectar { cursor: crosshair; }
+.mapa-canvas-wrap.modo-colocar-nota { cursor: crosshair !important; }
+.mapa-canvas-wrap.modo-colocar-nota .mapa-item,
+.mapa-canvas-wrap.modo-colocar-nota .mapa-nota { pointer-events: none; }
+
+.mapa-canvas {
+    position: absolute; top: 0; left: 0;
+    transform-origin: 0 0; will-change: transform;
+    width: 12000px; height: 8000px;
+}
+.mapa-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+.mapa-svg line.conexao {
+    stroke: rgba(196, 165, 106, 0.65);
+    stroke-width: 2.5;
+    stroke-dasharray: none;
+    pointer-events: stroke;
+    cursor: pointer;
+    transition: stroke 0.15s, stroke-width 0.15s;
+}
+.mapa-svg line.conexao:hover { stroke: #ef4444; stroke-width: 5; }
+.mapa-svg line.conexao-temp {
+    stroke: rgba(245, 158, 11, 0.7);
+    stroke-width: 2;
+    stroke-dasharray: 6 4;
+    pointer-events: none;
+}
+.mapa-toolbar-btn.ativo {
+    background: var(--accent); color: #0a0812; border-color: transparent;
+    box-shadow: 0 0 12px rgba(196, 165, 106, 0.4);
+}
+.mapa-canvas-wrap.modo-conectar { cursor: crosshair; }
+.mapa-item.pendente {
+    border-color: #f59e0b !important;
+    box-shadow: 0 0 24px rgba(245, 158, 11, 0.65) !important;
+}
+
+.mapa-item {
+    position: absolute;
+    background: rgba(13, 10, 24, 0.94);
+    border: 2px solid var(--accent);
+    border-radius: 12px;
+    box-shadow: 0 6px 20px -8px rgba(0,0,0,0.6);
+    cursor: grab; user-select: none;
+    transition: box-shadow 0.2s;
+    min-width: 200px; max-width: 240px;
+}
+.mapa-item:hover { box-shadow: 0 10px 26px -8px rgba(196, 165, 106, 0.5); }
+.mapa-item.arrastando { cursor: grabbing; box-shadow: 0 14px 32px -8px rgba(196, 165, 106, 0.75); z-index: 10; }
+.mapa-item.pendente-conexao { border-color: #e08076 !important; box-shadow: 0 0 20px rgba(224, 128, 118, 0.6); }
+.mapa-item-inner { padding: 10px 12px; }
+.mapa-item-foto {
+    width: 100%; height: 120px; border-radius: 8px;
+    background-color: rgba(0,0,0,0.4);
+    background-size: cover; background-position: center;
+    margin-bottom: 8px; overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+}
+.mapa-item-foto img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.mapa-item-foto.mini {
+    width: 40px; height: 40px; border-radius: 50%;
+    border: 2px solid rgba(196, 165, 106, 0.35);
+    margin: 0 8px 0 0; flex-shrink: 0; display: inline-flex;
+}
+.mapa-item-fala-header { display: flex; align-items: center; margin-bottom: 6px; }
+.mapa-item-npc-nome { font-family: 'Cinzel', serif; font-size: 11px; color: var(--accent-light); font-weight: 700; }
+.mapa-item-titulo {
+    font-family: 'Cinzel', serif; font-size: 12px;
+    color: var(--text-main); font-weight: 700;
+    line-height: 1.2; margin-bottom: 4px; word-break: break-word;
+}
+.mapa-item-texto {
+    font-family: 'Cormorant Garamond', serif; font-style: italic;
+    font-size: 11px; color: rgba(232, 226, 213, 0.65);
+    line-height: 1.4; max-height: 80px; overflow: hidden;
+}
+.mapa-item-actions {
+    position: absolute; top: -10px; right: -10px;
+    display: flex; gap: 4px; opacity: 0; transition: opacity 0.2s;
+}
+.mapa-item:hover .mapa-item-actions { opacity: 1; }
+.mapa-item-btn {
+    background: rgba(0,0,0,0.85);
+    border: 1px solid rgba(196, 165, 106, 0.4);
+    color: rgba(232, 226, 213, 0.75);
+    width: 22px; height: 22px; border-radius: 6px;
+    cursor: pointer; font-size: 11px;
+    display: flex; align-items: center; justify-content: center; padding: 0;
+}
+.mapa-item-btn:hover { color: var(--accent); border-color: var(--accent); }
+.mapa-item-btn.del:hover { color: #ef4444; border-color: #ef4444; }
+
+.mapa-nota {
+    position: absolute;
+    width: 220px;
+    min-height: 100px;
+    border-radius: 6px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.45);
+    user-select: none;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+.mapa-nota.arrastando { z-index: 10; box-shadow: 0 12px 28px rgba(0,0,0,0.6); }
+.mapa-nota-header { display: flex; align-items: center; gap: 3px; padding: 6px; background: rgba(0,0,0,0.08); cursor: grab; flex-shrink: 0; border-bottom: 1px solid rgba(0,0,0,0.08); }
+.mapa-nota-header:active { cursor: grabbing; }
+.mapa-nota-handle { font-size: 12px; opacity: 0.35; flex-shrink: 0; padding: 0 2px; }
+.mapa-nota-titulo-input { flex: 1; min-width: 0; background: transparent; border: none; outline: none; font-family: 'Outfit', sans-serif; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; color: inherit; padding: 2px 4px; cursor: text; }
+.mapa-nota-titulo-input::placeholder { opacity: 0.35; font-weight: 600; text-transform: none; letter-spacing: 0; }
+.mapa-nota-btn { background: transparent; border: none; width: 20px; height: 20px; border-radius: 4px; cursor: pointer; font-size: 11px; padding: 0; display: flex; align-items: center; justify-content: center; opacity: 0.5; transition: 0.15s; color: inherit; flex-shrink: 0; }
+.mapa-nota-btn:hover { opacity: 1; background: rgba(0,0,0,0.12); }
+.mapa-nota-btn.del:hover { background: rgba(239,68,68,0.25); color: #b91c1c; }
+.mapa-nota-textarea { flex: 1; width: 100%; min-height: 62px; max-height: 280px; background: transparent; border: none; outline: none; font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 13px; line-height: 1.4; color: inherit; padding: 8px 10px 10px 10px; resize: none; overflow-y: auto; cursor: text; user-select: text; }
+.mapa-nota-textarea::placeholder { opacity: 0.35; }
+.mapa-nota-paleta { display: flex; gap: 6px; padding: 8px 10px; background: rgba(0,0,0,0.14); border-top: 1px solid rgba(0,0,0,0.08); flex-shrink: 0; }
+.mapa-nota-paleta.hidden { display: none; }
+.mapa-nota-paleta-swatch { width: 22px; height: 22px; border-radius: 5px; cursor: pointer; border: 2px solid transparent; transition: 0.15s; }
+.mapa-nota-paleta-swatch:hover { transform: scale(1.15); }
+.mapa-nota-paleta-swatch.ativa { border-color: rgba(0,0,0,0.5); }
+
+/* ======================== */
+/* MODAL CARD (fala/visual) */
+/* ======================== */
+.card-tipo-switch { display: flex; gap: 6px; margin-bottom: 16px; }
+.card-tipo-btn {
+    flex: 1; padding: 10px; border-radius: 10px;
+    border: 1px solid rgba(196, 165, 106, 0.2);
+    background: rgba(0, 0, 0, 0.25);
+    color: rgba(232, 226, 213, 0.5); cursor: pointer;
+    font-family: 'Cinzel', serif; font-weight: 700; font-size: 10px;
+    letter-spacing: 0.15em; text-transform: uppercase; transition: 0.2s;
+}
+.card-tipo-btn.ativo {
+    background: linear-gradient(180deg, var(--accent-light), var(--accent));
+    color: #0a0812; border-color: transparent;
+}
+.card-foto-preview {
+    width: 100%; height: 180px; border-radius: 10px;
+    background-size: contain; background-repeat: no-repeat;
+    background-position: center; background-color: rgba(0, 0, 0, 0.3);
+    border: 1px dashed rgba(196, 165, 106, 0.3);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    color: rgba(232, 226, 213, 0.3); font-size: 11px; font-style: italic;
+    transition: border-color 0.2s; margin-bottom: 8px;
+}
+.card-foto-preview:hover { border-color: var(--accent); }
+.card-tags-inputs { display: flex; flex-direction: column; gap: 8px; }
+.card-tag-input-row { display: flex; align-items: center; gap: 8px; }
+.card-tag-num {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    font-weight: 800; color: rgba(232, 226, 213, 0.4);
+    width: 20px; flex-shrink: 0; text-align: center;
+}
+.card-tag-input-row input { flex: 1; }
+
+/* ======================== */
+/* COMENTÁRIOS              */
+/* ======================== */
+.comentario-drawer {
+    position: fixed; top: 0; right: -420px;
+    width: 400px; height: 100vh;
+    background: rgba(13, 10, 24, 0.98);
+    border-left: 1px solid rgba(196, 165, 106, 0.2);
+    z-index: 999;
+    transition: right 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex; flex-direction: column;
+    box-shadow: -20px 0 60px rgba(0,0,0,0.5);
+}
+.comentario-drawer.aberto { right: 0; }
+.comentario-drawer-header {
+    padding: 20px; border-bottom: 1px solid rgba(196, 165, 106, 0.15);
+    display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;
+}
+.comentario-drawer-titulo {
+    font-family: 'Cinzel', serif; font-size: 14px; font-weight: 700;
+    color: var(--accent-light); line-height: 1.3;
+}
+.comentario-drawer-sub {
+    font-size: 10px; text-transform: uppercase; letter-spacing: 0.15em;
+    color: rgba(232, 226, 213, 0.4); margin-top: 4px;
+}
+.comentario-drawer-body {
+    flex: 1; padding: 20px; display: flex; flex-direction: column; gap: 12px;
+}
+.comentario-drawer-body textarea {
+    flex: 1; min-height: 200px;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(196, 165, 106, 0.15);
+    border-radius: 10px;
+    color: var(--text-main);
+    padding: 14px; font-family: 'Cormorant Garamond', serif;
+    font-size: 15px; font-style: italic; line-height: 1.6;
+    outline: none; resize: none;
+}
+.comentario-drawer-body textarea:focus { border-color: var(--accent); }
+.comentario-status {
+    font-size: 10px; color: rgba(232, 226, 213, 0.4);
+    font-family: 'JetBrains Mono', monospace;
+    text-align: right; min-height: 14px;
+}
+.progresso-jogador-card {
+    background: rgba(13, 10, 24, 0.6);
+    border: 1px solid rgba(196, 165, 106, 0.15);
+    border-radius: 14px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.progresso-jogador-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 10px;
+}
+.progresso-jogador-nome {
+    font-family: 'Cinzel', serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--accent-light);
+}
+.progresso-jogador-meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: rgba(232, 226, 213, 0.5);
+}
+.progresso-jogador-barra {
+    height: 6px;
+    background: rgba(0,0,0,0.4);
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid rgba(196, 165, 106, 0.1);
+}
+.progresso-jogador-barra-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #10b981, #c4a56a);
+    transition: width 0.4s;
+}
+.progresso-jogador-contagem {
+    font-size: 10px;
+    color: rgba(232, 226, 213, 0.4);
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.05em;
+}
+.progresso-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 4px;
+}
+.progresso-card-row {
+    padding: 8px 10px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 8px;
+    border: 1px solid rgba(196, 165, 106, 0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.progresso-card-titulo {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-main);
+}
+.progresso-card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+.mapa-item-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 8px;
+    padding-top: 6px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+.mapa-item-tag {
+    font-size: 9px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    color: rgba(255, 255, 255, 0.78);
+}
+.mapa-item-tag.confirmada {
+    background: rgba(16, 185, 129, 0.15);
+    border-color: rgba(16, 185, 129, 0.55);
+    color: #34d399;
+    box-shadow: 0 0 6px rgba(16, 185, 129, 0.25);
+}
     </style>
 </head>
 <body class="text-white">
@@ -1401,6 +1913,7 @@ select option { background: #100c1c; color: var(--text-main); padding: 10px; }
                     <button onclick="setMainTab('ameacas')" id="tab-btn-ameacas" class="main-tab-btn">Ameaças</button>
                     <button onclick="setMainTab('npcs')" id="tab-btn-npcs" class="main-tab-btn">NPCs</button>
                     <button onclick="setMainTab('iniciativa')" id="tab-btn-iniciativa" class="main-tab-btn">Combate</button>
+                    <button onclick="setMainTab('investigacao')" id="tab-btn-investigacao" class="main-tab-btn">Investigação</button>
                 </div>
                 <div id="status-online" class="status-online-badge text-[10px] font-bold border px-5 py-2 rounded-full uppercase font-mono italic tracking-widest" style="border-color: rgba(196, 165, 106, 0.3); color: var(--accent-light);">Sincronizado</div>
             </div>
@@ -1459,7 +1972,50 @@ select option { background: #100c1c; color: var(--text-main); padding: 10px; }
                     </div>
                 </div>
 
-                <div id="iniciativa-lista"></div>
+            <div id="iniciativa-lista"></div>
+            </div>
+
+            <div id="view-investigacao" class="hidden">
+                <div class="invest-subtabs">
+                    <button id="subtab-criacao" class="invest-subtab active" onclick="setInvestSubTab('criacao')">Criação</button>
+                    <button id="subtab-mapa" class="invest-subtab" onclick="setInvestSubTab('mapa')">Mapa</button>
+                    <button id="subtab-progresso" class="invest-subtab" onclick="setInvestSubTab('progresso')">Progresso</button>
+                </div>
+
+                <div id="invest-view-criacao">
+                    <div class="flex justify-end mb-6">
+                        <button onclick="abrirCardModal()" class="btn-access" style="padding:8px 16px; font-size:10px;">+ Novo Card</button>
+                    </div>
+                    <div id="cards-grid" class="cards-grid"></div>
+                </div>
+
+                    <div id="invest-view-mapa" class="hidden">
+                    <div class="mapa-toolbar">
+                        <button class="mapa-toolbar-btn" onclick="mapaZoom(1)" title="Aumentar zoom">+ Zoom</button>
+                        <button class="mapa-toolbar-btn" onclick="mapaZoom(-1)" title="Diminuir zoom">− Zoom</button>
+                        <button class="mapa-toolbar-btn" onclick="mapaResetViewport()" title="Resetar zoom e posição">⌖ Recentrar</button>
+                        <button class="mapa-toolbar-btn" onclick="mapaAjustarATela()" title="Encaixar todos os itens na tela">⛶ Ajustar</button>
+                        <span class="mapa-zoom-indicator" id="mapa-zoom-indicator" onclick="mapaResetViewport()" title="Clique para resetar o zoom">100%</span>
+                        <button class="mapa-toolbar-btn" id="btn-modo-conectar" onclick="toggleModoConectar()">🔗 Conectar</button>
+                        <button class="mapa-toolbar-btn" id="btn-nova-nota" onclick="criarNotaNoMapa()">📝 Nova Nota</button>
+                        <span class="mapa-toolbar-info" id="mapa-hint">Arraste da biblioteca pro canvas · Scroll = zoom · Arrastar o fundo = mover</span>
+                    </div>
+                    <div class="mapa-layout">
+                        <div class="mapa-biblioteca" id="mapa-biblioteca">
+                            <div class="mapa-biblioteca-titulo">📚 Biblioteca</div>
+                            <div id="mapa-bib-lista"></div>
+                        </div>
+                        <div class="mapa-canvas-wrap" id="mapa-canvas-wrap">
+                            <div class="mapa-canvas" id="mapa-canvas">
+                                <svg class="mapa-svg" id="mapa-svg"></svg>
+                                <div id="mapa-layer-itens"></div>
+                            </div>
+                        </div>
+                    </div>                    
+                </div>
+                <div id="invest-view-progresso" class="hidden">
+                        <div id="progresso-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"></div>
+                    </div>
             </div>
         </main>
 
@@ -1468,6 +2024,78 @@ select option { background: #100c1c; color: var(--text-main); padding: 10px; }
             <div id="bandeja-dados" class="overflow-y-auto flex-grow"></div>
         </aside>
     </div>
+
+<!-- MODAL: Criar / Editar Card de Investigação -->
+<div id="card-modal-overlay" class="poder-modal-overlay" style="display:none;" onclick="fecharCardModal(event)">
+    <div class="poder-modal" style="max-width:560px;" onclick="event.stopPropagation()">
+        <div class="poder-modal-header">
+            <div>
+                <div style="font-size:10px; text-transform:uppercase; letter-spacing:0.2em; color:rgba(232,226,213,0.35); margin-bottom:6px;" id="card-modal-sub"></div>
+                <div class="poder-modal-title" id="card-modal-title">📜 Novo Card</div>
+            </div>
+            <button onclick="fecharCardModal(null)" style="color:rgba(232,226,213,0.35); font-size:20px; background:none; border:none; cursor:pointer; padding:4px;">✕</button>
+        </div>
+
+        <div class="card-tipo-switch">
+            <button id="tipo-fala" class="card-tipo-btn" onclick="setCardTipo('fala')">🎭 Fala de NPC</button>
+            <button id="tipo-visual" class="card-tipo-btn ativo" onclick="setCardTipo('visual')">📜 Pista Visual</button>
+        </div>
+
+        <!-- ============ TIPO: FALA ============ -->
+        <div id="campos-fala" class="hidden">
+            <label style="font-size:9px; text-transform:uppercase; letter-spacing:0.15em; font-weight:800; color:rgba(232,226,213,0.5); display:block; margin-bottom:6px;">Quem falou?</label>
+            <select class="poder-input" id="card-form-npc">
+                <option value="">— Escolha um NPC —</option>
+            </select>
+            <div style="font-size:10px; color:rgba(232,226,213,0.35); font-style:italic; margin-top:6px;">
+                A foto e o nome do NPC entram automaticamente no card.
+            </div>
+
+            <label style="font-size:9px; text-transform:uppercase; letter-spacing:0.15em; font-weight:800; color:rgba(232,226,213,0.5); display:block; margin:14px 0 6px;">Contexto / Título</label>
+            <input class="poder-input" id="card-form-titulo-fala" placeholder="Ex: Confissão na igreja" autocomplete="off">
+
+            <label style="font-size:9px; text-transform:uppercase; letter-spacing:0.15em; font-weight:800; color:rgba(232,226,213,0.5); display:block; margin:14px 0 6px;">O que ele disse</label>
+            <textarea class="poder-textarea" id="card-form-fala" rows="6" placeholder="A fala literal do NPC..."></textarea>
+        </div>
+
+        <!-- ============ TIPO: VISUAL ============ -->
+        <div id="campos-visual">
+            <label style="font-size:9px; text-transform:uppercase; letter-spacing:0.15em; font-weight:800; color:rgba(232,226,213,0.5); display:block; margin-bottom:6px;">Título</label>
+            <input class="poder-input" id="card-form-titulo" placeholder="Ex: Carta rasgada, Foto do ritual..." autocomplete="off">
+
+            <label style="font-size:9px; text-transform:uppercase; letter-spacing:0.15em; font-weight:800; color:rgba(232,226,213,0.5); display:block; margin:12px 0 6px;">Foto</label>
+            <div class="card-foto-preview" id="card-foto-preview" onclick="document.getElementById('card-foto-input').click()">
+                Clique para escolher uma imagem
+            </div>
+            <input type="file" id="card-foto-input" accept="image/*" style="display:none">
+
+            <label style="font-size:9px; text-transform:uppercase; letter-spacing:0.15em; font-weight:800; color:rgba(232,226,213,0.5); display:block; margin:12px 0 6px;">Descrição</label>
+            <textarea class="poder-textarea" id="card-form-desc" rows="3" placeholder="O que a imagem mostra..."></textarea>
+        </div>
+
+        <!-- ============ TAGS (COMUM) ============ -->
+        <label style="font-size:9px; text-transform:uppercase; letter-spacing:0.15em; font-weight:800; color:rgba(232,226,213,0.5); display:block; margin:16px 0 6px;">Tags (até 3, em ordem)</label>
+        <div class="card-tags-inputs">
+            <div class="card-tag-input-row">
+                <span class="card-tag-num">1ª</span>
+                <input class="poder-input" id="card-tag-1" placeholder="ex: colar" autocomplete="off">
+            </div>
+            <div class="card-tag-input-row">
+                <span class="card-tag-num">2ª</span>
+                <input class="poder-input" id="card-tag-2" placeholder="(opcional)" autocomplete="off">
+            </div>
+            <div class="card-tag-input-row">
+                <span class="card-tag-num">3ª</span>
+                <input class="poder-input" id="card-tag-3" placeholder="(opcional)" autocomplete="off">
+            </div>
+        </div>
+
+        <div style="display:flex; gap:8px; margin-top:22px;">
+            <button class="btn-add-poder" onclick="fecharCardModal(null)">Cancelar</button>
+            <button class="btn-access" style="flex:1; padding:12px; font-size:11px;" onclick="salvarCard()">Salvar Card</button>
+        </div>
+    </div>
+</div>
 
 <!-- MODAL DE PODERES -->
 <div id="poder-modal-overlay" class="poder-modal-overlay" style="display:none;" onclick="fecharPoderModal(event)">
@@ -1567,18 +2195,6 @@ select option { background: #100c1c; color: var(--text-main); padding: 10px; }
     }
 });
 
-    window.setMainTab = (tab) => {
-        document.getElementById('view-entidades').classList.toggle('hidden', tab !== 'entidades');
-        document.getElementById('view-ameacas').classList.toggle('hidden', tab !== 'ameacas');
-        document.getElementById('view-npcs').classList.toggle('hidden', tab !== 'npcs');
-        document.getElementById('view-iniciativa').classList.toggle('hidden', tab !== 'iniciativa');
-        document.getElementById('tab-btn-entidades').classList.toggle('active', tab === 'entidades');
-        document.getElementById('tab-btn-ameacas').classList.toggle('active', tab === 'ameacas');
-        document.getElementById('tab-btn-npcs').classList.toggle('active', tab === 'npcs');
-        document.getElementById('tab-btn-iniciativa').classList.toggle('active', tab === 'iniciativa');
-        if (tab === 'iniciativa') { popularSelectsIniciativa(); }
-    };
-
     const IMGBB_API_KEY = '27f5e02f2aefe0e203049fd80b7f628b';
 
 async function comprimirImagem(file, maxLado = 1600, qualidade = 0.82) {
@@ -1589,7 +2205,6 @@ async function comprimirImagem(file, maxLado = 1600, qualidade = 0.82) {
             img.onload = () => {
                 let { width, height } = img;
 
-                // Redimensiona mantendo proporção
                 if (width > maxLado || height > maxLado) {
                     if (width >= height) {
                         height = Math.round((height * maxLado) / width);
@@ -1606,7 +2221,6 @@ async function comprimirImagem(file, maxLado = 1600, qualidade = 0.82) {
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, width, height);
 
-                // Converte pra JPEG comprimido
                 const dataUrl = canvas.toDataURL('image/jpeg', qualidade);
                 const base64 = dataUrl.split(',')[1];
                 resolve(base64);
@@ -1623,7 +2237,6 @@ async function uploadImagemImgBB(file) {
     if (!file.type.startsWith('image/')) { alert('Selecione apenas arquivos de imagem.'); return null; }
     if (file.size > 15 * 1024 * 1024) { alert('A imagem deve ter no máximo 15MB.'); return null; }
 
-    // Comprime antes de subir
     const base64Comprimido = await comprimirImagem(file);
 
     const formData = new FormData();
@@ -1731,6 +2344,25 @@ async function uploadImagemImgBB(file) {
         document.getElementById('roll-detail').innerText = `${tipo} ${soma !== 0 ? (soma > 0 ? '+'+soma : soma) : ''}`;
         document.getElementById('roll-list').innerText = `Dados: [${rolls.join(', ')}]`;
         document.getElementById('dice-command').value = '';
+
+        if (campanhaAtiva) {
+            let dadoRelevante = null;
+            if (faces === 20) {
+                if (tipoRolagem === 'vantagem') dadoRelevante = Math.max(...rolls);
+                else if (tipoRolagem === 'desvantagem') dadoRelevante = Math.min(...rolls);
+                else if (rolls.length === 1) dadoRelevante = rolls[0];
+            }
+            addDoc(collection(db, "logs_rolagens"), {
+                campanhaId: campanhaAtiva,
+                charNome: '🎲 Mestre',
+                pericia: `Comando: ${cmd}`,
+                dados: rolls,
+                total,
+                tipoRolagem,
+                dadoRelevante,
+                timestamp: serverTimestamp()
+            }).catch(e => console.error('Erro ao salvar log do mestre:', e));
+        }
     };
 
     window.deletarFicha = async (id, nome) => {
@@ -2123,6 +2755,7 @@ async function uploadImagemImgBB(file) {
         if (detailEl) detailEl.innerText = nomeExibicao;
         if (listEl) listEl.innerText = `Dados: [${results.join(', ')}]`;
         await addDoc(collection(db, "logs_rolagens"), {
+            campanhaId: campanhaAtiva,
             charNome: `${prefixo} ${nomeExibicao}`,
             pericia: nomeExibicao,
             dados: results,
@@ -2159,6 +2792,7 @@ async function uploadImagemImgBB(file) {
         if (detailEl) detailEl.innerText = `${nomeAmeaca} — ${nomeItem}`;
         if (listEl) listEl.innerText = `Dados: [${rolls.join(', ')}]`;
         await addDoc(collection(db, "logs_rolagens"), {
+            campanhaId: campanhaAtiva,
             charNome: `${prefixo} ${nomeAmeaca}`,
             pericia: nomeItem,
             dados: rolls,
@@ -3583,7 +4217,6 @@ async function carregarCampanhas(user) {
             </div>
         `).join('');
 
-        // Se tem campanha salva e ela existe, entra direto
         if (campSalva && camps.some(c => c.id === campSalva)) {
             const c = camps.find(x => x.id === campSalva);
             entrarNaCampanha(c.id, c.nome || c.id);
@@ -3595,7 +4228,6 @@ async function carregarCampanhas(user) {
 }
 
 window.selecionarCampanha = (code) => {
-    // Pega o nome bonito do item selecionado
     const el = document.querySelector(`.campanha-item[data-code="${code}"] .campanha-item-nome`);
     const nome = el ? el.innerText : code;
     entrarNaCampanha(code, nome);
@@ -3610,7 +4242,6 @@ function entrarNaCampanha(code, nome) {
     const panel = document.getElementById('main-panel');
     panel.style.opacity = '1';
 
-    // Badge de campanha ativa
     let badge = document.getElementById('camp-nome-ativa');
     if (!badge) {
         badge = document.createElement('div');
@@ -3688,18 +4319,1107 @@ window.criarCampanha = async () => {
     }
 };
 
+    // ========================
+    // INVESTIGAÇÃO — BIBLIOTECA DE CARDS
+    // ========================
+    let cardsCache = [];
+    let cardsUnsub = null;
+    let cardEditandoId = null;
+    let cardTipoAtual = 'visual';
+    let cardFotoURLAtual = '';
+
+    function cardsColRef() {
+        return collection(db, 'campanhas', campanhaAtiva, 'cards');
+    }
+
+    function iniciarCardsListener() {
+        if (cardsUnsub) cardsUnsub();
+        cardsUnsub = onSnapshot(cardsColRef(), (snap) => {
+            cardsCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            renderCardsGrid();
+            renderBibliotecaMapa();
+            renderMapaItens();
+        }, (error) => {
+            console.error('Erro ao ouvir cards:', error);
+        });
+    }
+
+    function renderCardsGrid() {
+        const grid = document.getElementById('cards-grid');
+        if (!grid) return;
+
+        if (!cardsCache.length) {
+            grid.innerHTML = `<div class="cards-vazio">Nenhum card ainda — clique em "+ Novo Card" para começar</div>`;
+            return;
+        }
+
+        grid.innerHTML = cardsCache.map(c => {
+            const tipo = c.tipo || 'visual';
+            const tags = (c.tags || []).filter(t => t && t.trim());
+            const tagsHtml = [0,1,2].map(i => {
+                const t = tags[i];
+                return t
+                    ? `<span class="card-bib-tag">${escAttr(t)}</span>`
+                    : `<span class="card-bib-tag slot-vazio">—</span>`;
+            }).join('');
+
+            if (tipo === 'fala') {
+                const npc = (npcsCache || []).find(n => n.id === c.npcId);
+                const nomeNpc = npc ? (npc.nome || 'NPC sem nome') : (c.npcNomeSalvo || 'NPC desconhecido');
+                const fotoNpc = npc ? (npc.fotoURL || '') : (c.npcFotoSalva || '');
+                const posX = npc ? (npc.fotoPosX ?? 50) : 50;
+                const posY = npc ? (npc.fotoPosY ?? 25) : 25;
+
+                return `
+                <div class="card-bib">
+                    <div class="card-bib-fala-header">
+                        <div class="card-foto-mini"
+                             style="${fotoNpc ? `background-image:url('${fotoNpc}'); background-position:${posX}% ${posY}%;` : ''}">
+                            ${fotoNpc ? '' : '🎭'}
+                        </div>
+                        <div class="card-bib-npc-nome">${escAttr(nomeNpc)}</div>
+                        <span class="card-bib-tipo fala">Fala</span>
+                    </div>
+                    <div class="card-bib-body">
+                        <div class="card-bib-titulo">${escAttr(c.titulo || 'Sem título')}</div>
+                        ${c.descricao ? `<div class="card-bib-fala">${escAttr(c.descricao)}</div>` : ''}
+                        <div class="card-bib-tags">${tagsHtml}</div>
+                    </div>
+                    <div class="card-bib-actions">
+                        <button class="card-bib-btn" onclick="editarCardModal('${c.id}')">Editar</button>
+                        <button class="card-bib-btn del" onclick="deletarCard('${c.id}', '${escAttr(c.titulo || '')}')">Apagar</button>
+                    </div>
+                </div>`;
+            }
+
+            const foto = c.fotoURL || '';
+            return `
+            <div class="card-bib">
+                <div class="card-bib-foto-visual ${foto ? '' : 'vazia'}">
+                    ${foto ? `<img src="${foto}" alt="${escAttr(c.titulo || '')}">` : '📜'}
+                    <span class="card-bib-tipo visual">Visual</span>
+                </div>
+                <div class="card-bib-body">
+                    <div class="card-bib-titulo">${escAttr(c.titulo || 'Sem título')}</div>
+                    ${c.descricao ? `<div class="card-bib-desc">${escAttr(c.descricao)}</div>` : ''}
+                    <div class="card-bib-tags">${tagsHtml}</div>
+                </div>
+                <div class="card-bib-actions">
+                    <button class="card-bib-btn" onclick="editarCardModal('${c.id}')">Editar</button>
+                    <button class="card-bib-btn del" onclick="deletarCard('${c.id}', '${escAttr(c.titulo || '')}')">Apagar</button>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    function tagConfirmadaJogadorJogador(tagsReveladas, cardId, tag) {
+    const items = mapaItensCache.filter(it => it.tipo === 'card' && it.cardId === cardId);
+    for (const itemId of items.map(i => i.id)) {
+        for (const conn of mapaConexoesCache) {
+            let otherId;
+            if (conn.de === itemId) otherId = conn.para;
+            else if (conn.para === itemId) otherId = conn.de;
+            else continue;
+            const other = mapaItensCache.find(x => x.id === otherId);
+            if (!other || other.tipo !== 'card') continue;
+            const otherRev = tagsReveladas?.[other.cardId] || [];
+            if (otherRev.includes(tag)) return true;
+        }
+    }
+    return false;
+}
+
+function contarConexoesVerdesJogador(tagsReveladas) {
+    let count = 0;
+    for (const conn of mapaConexoesCache) {
+        const itA = mapaItensCache.find(x => x.id === conn.de);
+        const itB = mapaItensCache.find(x => x.id === conn.para);
+        if (!itA || !itB || itA.tipo !== 'card' || itB.tipo !== 'card') continue;
+        const revA = tagsReveladas?.[itA.cardId] || [];
+        const revB = tagsReveladas?.[itB.cardId] || [];
+        if (revA.some(t => revB.includes(t))) count++;
+    }
+    return count;
+}
+
+function renderProgresso() {
+    const grid = document.getElementById('progresso-grid');
+    if (!grid) return;
+
+    const jogadores = personagensCache.filter(p => p.campanhaId === campanhaAtiva);
+    const cardsNoMapa = mapaItensCache.filter(it => it.tipo === 'card');
+
+    if (!jogadores.length) {
+        grid.innerHTML = '<div class="cards-vazio">Nenhum jogador na campanha ainda.</div>';
+        return;
+    }
+    if (!cardsNoMapa.length) {
+        grid.innerHTML = '<div class="cards-vazio">Nenhuma pista no mapa ainda. Arraste cards pro mapa primeiro.</div>';
+        return;
+    }
+
+    grid.innerHTML = jogadores.map(p => {
+        const rev = p.tagsReveladas || {};
+        const nome = p.info?.nome || 'Sem nome';
+
+        let totalTags = 0;
+        let totalReveladas = 0;
+        cardsNoMapa.forEach(it => {
+            const c = cardsCache.find(x => x.id === it.cardId);
+            if (!c || !Array.isArray(c.tags)) return;
+            totalTags += c.tags.length;
+            totalReveladas += (rev[it.cardId] || []).length;
+        });
+
+        const conexoesVerdes = contarConexoesVerdesJogador(rev);
+        const pct = totalTags > 0 ? (totalReveladas / totalTags * 100) : 0;
+
+        const cardsHtml = cardsNoMapa.map(it => {
+            const c = cardsCache.find(x => x.id === it.cardId);
+            if (!c) return '';
+            const reveladas = rev[it.cardId] || [];
+            const tags = c.tags || [];
+
+            const pills = tags.length ? tags.map(tag => {
+                const isRevelada = reveladas.includes(tag);
+                const isConfirmada = isRevelada && tagConfirmadaJogadorJogador(rev, it.cardId, tag);
+                let cls = '';
+                let style = '';
+                if (!isRevelada) style = 'opacity:0.25;';
+                else if (isConfirmada) cls = 'confirmada';
+                return `<span class="mapa-item-tag ${cls}" style="${style}">${escAttr(tag)}</span>`;
+            }).join('') : '<span style="font-size:10px;opacity:0.3;">Sem tags</span>';
+
+            return `
+            <div class="progresso-card-row">
+                <div class="progresso-card-titulo">${escAttr(c.titulo || 'Sem título')}</div>
+                <div class="progresso-card-tags">${pills}</div>
+            </div>`;
+        }).join('');
+
+        return `
+        <div class="progresso-jogador-card">
+            <div class="progresso-jogador-header">
+                <div class="progresso-jogador-nome">${escAttr(nome)}</div>
+                <div class="progresso-jogador-meta">${conexoesVerdes} conex. verde${conexoesVerdes === 1 ? '' : 's'}</div>
+            </div>
+            <div class="progresso-jogador-barra">
+                <div class="progresso-jogador-barra-fill" style="width:${pct}%"></div>
+            </div>
+            <div class="progresso-jogador-contagem">${totalReveladas} / ${totalTags} tags reveladas</div>
+            <div class="progresso-cards">${cardsHtml}</div>
+        </div>`;
+    }).join('');
+}
+
+    window.setInvestSubTab = (t) => {
+        document.getElementById('subtab-criacao').classList.toggle('active', t === 'criacao');
+        document.getElementById('subtab-mapa').classList.toggle('active', t === 'mapa');
+        document.getElementById('subtab-progresso').classList.toggle('active', t === 'progresso');
+        document.getElementById('invest-view-criacao').classList.toggle('hidden', t !== 'criacao');
+        document.getElementById('invest-view-mapa').classList.toggle('hidden', t !== 'mapa');
+        document.getElementById('invest-view-progresso').classList.toggle('hidden', t !== 'progresso');
+
+        if (t === 'progresso') renderProgresso();
+        if (t === 'mapa') {
+            carregarViewportLocal();
+            aplicarViewport();
+            atualizarIndicadorZoom();
+            renderBibliotecaMapa();
+            renderMapaItens();
+            setTimeout(configurarInteracaoMapa, 20);
+        }
+    };
+
+    window.setCardTipo = (tipo) => {
+        cardTipoAtual = tipo;
+        document.getElementById('tipo-fala').classList.toggle('ativo', tipo === 'fala');
+        document.getElementById('tipo-visual').classList.toggle('ativo', tipo === 'visual');
+        document.getElementById('campos-fala').classList.toggle('hidden', tipo !== 'fala');
+        document.getElementById('campos-visual').classList.toggle('hidden', tipo !== 'visual');
+    };
+
+    function popularSelectNPCs() {
+        const sel = document.getElementById('card-form-npc');
+        if (!sel) return;
+        const npcs = (npcsCache || []).filter(n => n.campanhaId === campanhaAtiva);
+        sel.innerHTML = '<option value="">— Escolha um NPC —</option>' +
+            npcs.map(n => `<option value="${n.id}">${escAttr(n.nome || 'NPC sem nome')}</option>`).join('');
+    }
+
+    window.abrirCardModal = () => {
+        cardEditandoId = null;
+        cardTipoAtual = 'visual';
+        cardFotoURLAtual = '';
+        document.getElementById('card-modal-title').innerText = '📜 Novo Card';
+        document.getElementById('card-modal-sub').innerText = '';
+        document.getElementById('card-form-titulo').value = '';
+        document.getElementById('card-form-desc').value = '';
+        document.getElementById('card-form-titulo-fala').value = '';
+        document.getElementById('card-form-fala').value = '';
+        document.getElementById('card-form-npc').value = '';
+        document.getElementById('card-tag-1').value = '';
+        document.getElementById('card-tag-2').value = '';
+        document.getElementById('card-tag-3').value = '';
+        popularSelectNPCs();
+        setCardTipo('visual');
+        atualizarFotoPreview();
+        document.getElementById('card-modal-overlay').style.display = 'flex';
+        setTimeout(() => document.getElementById('card-form-titulo').focus(), 50);
+    };
+
+    window.editarCardModal = (id) => {
+        const c = cardsCache.find(x => x.id === id);
+        if (!c) return;
+        cardEditandoId = id;
+        cardTipoAtual = c.tipo || 'visual';
+        cardFotoURLAtual = c.fotoURL || '';
+        document.getElementById('card-modal-title').innerText = '📜 Editar Card';
+        document.getElementById('card-modal-sub').innerText = '';
+
+        popularSelectNPCs();
+        document.getElementById('card-form-npc').value = c.npcId || '';
+        document.getElementById('card-form-titulo-fala').value = c.tipo === 'fala' ? (c.titulo || '') : '';
+        document.getElementById('card-form-fala').value = c.tipo === 'fala' ? (c.descricao || '') : '';
+        document.getElementById('card-form-titulo').value = c.tipo === 'visual' ? (c.titulo || '') : '';
+        document.getElementById('card-form-desc').value = c.tipo === 'visual' ? (c.descricao || '') : '';
+
+        const tags = c.tags || [];
+        document.getElementById('card-tag-1').value = tags[0] || '';
+        document.getElementById('card-tag-2').value = tags[1] || '';
+        document.getElementById('card-tag-3').value = tags[2] || '';
+        setCardTipo(cardTipoAtual);
+        atualizarFotoPreview();
+        document.getElementById('card-modal-overlay').style.display = 'flex';
+    };
+
+    window.fecharCardModal = (ev) => {
+        if (ev && ev.target !== document.getElementById('card-modal-overlay')) return;
+        document.getElementById('card-modal-overlay').style.display = 'none';
+        cardEditandoId = null;
+    };
+
+    function atualizarFotoPreview() {
+        const prev = document.getElementById('card-foto-preview');
+        if (!prev) return;
+        if (cardFotoURLAtual) {
+            prev.style.backgroundImage = `url('${cardFotoURLAtual}')`;
+            prev.style.backgroundSize = 'contain';
+            prev.style.backgroundRepeat = 'no-repeat';
+            prev.style.backgroundPosition = 'center';
+            prev.innerText = '';
+        } else {
+            prev.style.backgroundImage = '';
+            prev.innerText = 'Clique para escolher uma imagem';
+        }
+    }
+
+    document.addEventListener('change', async (e) => {
+        if (e.target && e.target.id === 'card-foto-input') {
+            const file = e.target.files[0];
+            if (!file) return;
+            try {
+                const prev = document.getElementById('card-foto-preview');
+                prev.innerText = 'Enviando...';
+                const url = await uploadImagemImgBB(file);
+                if (url) {
+                    cardFotoURLAtual = url;
+                    atualizarFotoPreview();
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Erro ao subir a foto.');
+                atualizarFotoPreview();
+            }
+            e.target.value = '';
+        }
+    });
+
+    window.salvarCard = async () => {
+        const tags = [
+            document.getElementById('card-tag-1').value.trim().toLowerCase(),
+            document.getElementById('card-tag-2').value.trim().toLowerCase(),
+            document.getElementById('card-tag-3').value.trim().toLowerCase()
+        ].filter(t => t);
+
+        const dados = {
+            tipo: cardTipoAtual,
+            tags,
+            atualizadoEm: serverTimestamp()
+        };
+
+        if (cardTipoAtual === 'fala') {
+            const npcId = document.getElementById('card-form-npc').value;
+            const titulo = document.getElementById('card-form-titulo-fala').value.trim();
+            const descricao = document.getElementById('card-form-fala').value.trim();
+
+            if (!npcId) { alert('Escolha quem falou.'); return; }
+            if (!titulo) { alert('Dê um contexto ao card.'); return; }
+
+            const npc = (npcsCache || []).find(n => n.id === npcId);
+            dados.npcId = npcId;
+            dados.npcNomeSalvo = npc ? (npc.nome || 'NPC sem nome') : 'NPC';
+            dados.npcFotoSalva = npc ? (npc.fotoURL || '') : '';
+            dados.titulo = titulo;
+            dados.descricao = descricao;
+            dados.fotoURL = '';
+        } else {
+            const titulo = document.getElementById('card-form-titulo').value.trim();
+            const descricao = document.getElementById('card-form-desc').value.trim();
+            if (!titulo) { alert('Dê um título ao card.'); return; }
+            dados.titulo = titulo;
+            dados.descricao = descricao;
+            dados.fotoURL = cardFotoURLAtual || '';
+            dados.npcId = '';
+            dados.npcNomeSalvo = '';
+            dados.npcFotoSalva = '';
+        }
+
+        try {
+            if (cardEditandoId) {
+                await updateDoc(doc(db, 'campanhas', campanhaAtiva, 'cards', cardEditandoId), dados);
+            } else {
+                dados.criadoEm = serverTimestamp();
+                await addDoc(cardsColRef(), dados);
+            }
+            fecharCardModal(null);
+        } catch (e) {
+            console.error(e);
+            alert('Erro ao salvar card: ' + (e.message || 'desconhecido'));
+        }
+    };
+
+    window.deletarCard = async (id, titulo) => {
+        if (!confirm(`Apagar o card "${titulo || 'sem título'}"?`)) return;
+        try {
+            await deleteDoc(doc(db, 'campanhas', campanhaAtiva, 'cards', id));
+        } catch (e) {
+            console.error(e);
+            alert('Erro ao apagar.');
+        }
+    };
+
+    window.setMainTab = (tab) => {
+        document.getElementById('view-entidades').classList.toggle('hidden', tab !== 'entidades');
+        document.getElementById('view-ameacas').classList.toggle('hidden', tab !== 'ameacas');
+        document.getElementById('view-npcs').classList.toggle('hidden', tab !== 'npcs');
+        document.getElementById('view-iniciativa').classList.toggle('hidden', tab !== 'iniciativa');
+        document.getElementById('view-investigacao').classList.toggle('hidden', tab !== 'investigacao');
+        document.getElementById('tab-btn-entidades').classList.toggle('active', tab === 'entidades');
+        document.getElementById('tab-btn-ameacas').classList.toggle('active', tab === 'ameacas');
+        document.getElementById('tab-btn-npcs').classList.toggle('active', tab === 'npcs');
+        document.getElementById('tab-btn-iniciativa').classList.toggle('active', tab === 'iniciativa');
+        document.getElementById('tab-btn-investigacao').classList.toggle('active', tab === 'investigacao');
+        if (tab === 'iniciativa') popularSelectsIniciativa();
+    };
+
+    // ========================
+    // MAPA DE INVESTIGAÇÃO
+    // ========================
+    let mapaItensCache = [];
+    let mapaUnsub = null;
+    let mapaConexoesCache = [];
+    let conexoesUnsub = null;
+    let mapaViewport = { zoom: 1, panX: 0, panY: 0 };
+    let mapaArrastandoItem = null;
+    let mapaPanning = null;
+    let mapaDragBiblioteca = null;
+    let modoConexao = false;
+    let itemPendenteConexao = null;
+
+    const MAPA_VIEWPORT_KEY = 'ciclo_mapa_viewport_' + 'mestre';
+
+    function mapaColRef() {
+        return collection(db, 'campanhas', campanhaAtiva, 'mapa');
+    }
+    function conexoesColRef() {
+        return collection(db, 'campanhas', campanhaAtiva, 'conexoes');
+    }
+
+    function iniciarMapaListener() {
+        if (mapaUnsub) mapaUnsub();
+        mapaUnsub = onSnapshot(mapaColRef(), (snap) => {
+            mapaItensCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            renderMapaItens();
+        }, (error) => {
+            console.error('Erro ao ouvir mapa:', error);
+        });
+    }
+
+    function iniciarConexoesListener() {
+        if (conexoesUnsub) conexoesUnsub();
+        conexoesUnsub = onSnapshot(conexoesColRef(), (snap) => {
+            mapaConexoesCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            atualizarLinhasConexoes();
+        }, (error) => {
+            console.error('Erro ao ouvir conexões:', error);
+        });
+    }
+
+    // ---------- Viewport ----------
+    function aplicarViewport() {
+        const canvas = document.getElementById('mapa-canvas');
+        if (!canvas) return;
+        canvas.style.transform = `translate(${mapaViewport.panX}px, ${mapaViewport.panY}px) scale(${mapaViewport.zoom})`;
+    }
+
+    function atualizarIndicadorZoom() {
+        const el = document.getElementById('mapa-zoom-indicator');
+        if (el) el.textContent = Math.round(mapaViewport.zoom * 100) + '%';
+    }
+
+    window.mapaZoom = (direcao) => {
+        const wrap = document.getElementById('mapa-canvas-wrap');
+        if (!wrap) return;
+        const rect = wrap.getBoundingClientRect();
+        aplicarZoomEmPonto(direcao, rect.width / 2, rect.height / 2);
+    };
+
+    function aplicarZoomEmPonto(direcao, cx, cy) {
+        const passo = 1.15;
+        const fator = direcao > 0 ? passo : (1 / passo);
+        const novoZoom = Math.max(0.3, Math.min(3, mapaViewport.zoom * fator));
+        const escala = novoZoom / mapaViewport.zoom;
+        mapaViewport.panX = cx - (cx - mapaViewport.panX) * escala;
+        mapaViewport.panY = cy - (cy - mapaViewport.panY) * escala;
+        mapaViewport.zoom = novoZoom;
+        aplicarViewport();
+        atualizarIndicadorZoom();
+        salvarViewportLocal();
+    }
+
+    window.mapaResetViewport = () => {
+        mapaViewport = { zoom: 1, panX: 0, panY: 0 };
+        aplicarViewport();
+        atualizarIndicadorZoom();
+        salvarViewportLocal();
+    };
+
+    window.mapaAjustarATela = () => {
+        const wrap = document.getElementById('mapa-canvas-wrap');
+        if (!wrap) return;
+        const itens = mapaItensCache;
+        if (!itens.length) {
+            mapaResetViewport();
+            return;
+        }
+        const rect = wrap.getBoundingClientRect();
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        itens.forEach(it => {
+            const el = document.getElementById('mapa-item-' + it.id);
+            const w = el ? el.offsetWidth : 220;
+            const h = el ? el.offsetHeight : 120;
+            minX = Math.min(minX, it.x || 0);
+            minY = Math.min(minY, it.y || 0);
+            maxX = Math.max(maxX, (it.x || 0) + w);
+            maxY = Math.max(maxY, (it.y || 0) + h);
+        });
+        const padding = 80;
+        const contentW = (maxX - minX) + padding * 2;
+        const contentH = (maxY - minY) + padding * 2;
+        const zoom = Math.max(0.3, Math.min(1.5, Math.min(rect.width / contentW, rect.height / contentH)));
+        const cx = (minX + maxX) / 2;
+        const cy = (minY + maxY) / 2;
+        mapaViewport.zoom = zoom;
+        mapaViewport.panX = rect.width / 2 - cx * zoom;
+        mapaViewport.panY = rect.height / 2 - cy * zoom;
+        aplicarViewport();
+        atualizarIndicadorZoom();
+        salvarViewportLocal();
+    };
+
+    function salvarViewportLocal() {
+        try { localStorage.setItem(MAPA_VIEWPORT_KEY, JSON.stringify(mapaViewport)); } catch (e) {}
+    }
+    function carregarViewportLocal() {
+        try {
+            const raw = localStorage.getItem(MAPA_VIEWPORT_KEY);
+            if (raw) mapaViewport = JSON.parse(raw);
+        } catch (e) {}
+    }
+
+    // ---------- Biblioteca lateral ----------
+    function renderBibliotecaMapa() {
+        const lista = document.getElementById('mapa-bib-lista');
+        if (!lista) return;
+        if (!cardsCache.length) {
+            lista.innerHTML = `<div class="mapa-bib-item-vazio">Nenhum card criado ainda</div>`;
+            return;
+        }
+        lista.innerHTML = cardsCache.map(c => {
+            const jaNoMapa = mapaItensCache.some(it => it.tipo === 'card' && it.cardId === c.id);
+            const icone = c.tipo === 'fala' ? '🎭' : '📜';
+            return `
+            <div class="mapa-bib-item ${jaNoMapa ? 'ja-no-mapa' : ''}"
+                 onmousedown="iniciarDragBiblioteca(event, '${c.id}')"
+                 ontouchstart="iniciarDragBiblioteca(event, '${c.id}')"
+                 data-card-id="${c.id}">
+                <span>${icone}</span>
+                <span style="flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escAttr(c.titulo || 'Sem título')}</span>
+                ${jaNoMapa ? '<span style="font-size:9px; opacity:0.4;">✓</span>' : ''}
+            </div>`;
+        }).join('');
+    }
+
+    // ---------- Renderização dos itens no mapa ----------
+    function renderMapaItens() {
+        const layer = document.getElementById('mapa-layer-itens');
+        if (!layer) return;
+
+        layer.innerHTML = mapaItensCache.map(it => {
+            if (it.tipo === 'nota') {
+                const corCfg = NOTA_CORES[it.cor] || NOTA_CORES.amarelo;
+                const corAtual = it.cor && NOTA_CORES[it.cor] ? it.cor : 'amarelo';
+                const swatches = Object.entries(NOTA_CORES).map(([k, cfg]) => `
+                    <div class="mapa-nota-paleta-swatch ${corAtual === k ? 'ativa' : ''}"
+                         style="background:${cfg.bg};"
+                         title="${cfg.nome}"
+                         onmousedown="event.stopPropagation()"
+                         onclick="setNotaCor('${it.id}', '${k}')"></div>
+                `).join('');
+
+                return `
+                <div class="mapa-nota" id="mapa-item-${it.id}"
+                     style="left:${it.x}px; top:${it.y}px; background:${corCfg.bg}; color:${corCfg.fg};">
+                    <div class="mapa-nota-header"
+                         onmousedown="iniciarDragItemMapa(event, '${it.id}')"
+                         ontouchstart="iniciarDragItemMapa(event, '${it.id}')">
+                        <span class="mapa-nota-handle">⠿</span>
+                        <input class="mapa-nota-titulo-input"
+                               value="${escAttr(it.titulo || '')}"
+                               placeholder="Título..."
+                               onmousedown="event.stopPropagation()"
+                               ontouchstart="event.stopPropagation()"
+                               oninput="setNotaTitulo('${it.id}', this.value)">
+                        <button class="mapa-nota-btn"
+                                title="Cor"
+                                onmousedown="event.stopPropagation()"
+                                onclick="togglePaletaNota('${it.id}')">🎨</button>
+                        <button class="mapa-nota-btn del"
+                                title="Apagar"
+                                onmousedown="event.stopPropagation()"
+                                onclick="removerItemMapa('${it.id}')">✕</button>
+                    </div>
+                    <textarea class="mapa-nota-textarea"
+                              placeholder="Escreva aqui..."
+                              onmousedown="event.stopPropagation()"
+                              ontouchstart="event.stopPropagation()"
+                              oninput="setNotaTexto('${it.id}', this.value); autoExpandirNota(this)">${escAttr(it.texto || '')}</textarea>
+                    <div class="mapa-nota-paleta hidden" id="paleta-${it.id}">${swatches}</div>
+                </div>`;
+            }
+
+            const c = cardsCache.find(x => x.id === it.cardId);
+            if (!c) return '';
+
+            const tipo = c.tipo || 'visual';
+            const pendente = itemPendenteConexao === it.id ? 'pendente' : '';
+
+            if (tipo === 'fala') {
+                const npc = (npcsCache || []).find(n => n.id === c.npcId);
+                const nomeNpc = npc ? (npc.nome || 'NPC sem nome') : (c.npcNomeSalvo || 'NPC desconhecido');
+                const fotoNpc = npc ? (npc.fotoURL || '') : (c.npcFotoSalva || '');
+                const posX = npc ? (npc.fotoPosX ?? 50) : 50;
+                const posY = npc ? (npc.fotoPosY ?? 25) : 25;
+
+                return `
+                <div class="mapa-item ${pendente}" id="mapa-item-${it.id}"
+                     style="left:${it.x}px; top:${it.y}px; border-color:#a89ac4;"
+                     onmousedown="iniciarDragItemMapa(event, '${it.id}')"
+                     ontouchstart="iniciarDragItemMapa(event, '${it.id}')">
+                    <div class="mapa-item-actions">
+                        <button class="mapa-item-btn del" title="Tirar do mapa" onmousedown="event.stopPropagation()" onclick="removerItemMapa('${it.id}')">✕</button>
+                    </div>
+                    <div class="mapa-item-inner">
+                        <div class="mapa-item-fala-header">
+                            <div class="mapa-item-foto mini"
+                                 style="${fotoNpc ? `background-image:url('${fotoNpc}'); background-position:${posX}% ${posY}%;` : ''}">
+                                ${fotoNpc ? '' : '🎭'}
+                            </div>
+                            <span class="mapa-item-npc-nome">${escAttr(nomeNpc)}</span>
+                        </div>
+                        <div class="mapa-item-titulo">${escAttr(c.titulo || 'Sem título')}</div>
+                        ${c.descricao ? `<div class="mapa-item-texto">${escAttr(c.descricao)}</div>` : ''}
+                    </div>
+                </div>`;
+            }
+
+            const foto = c.fotoURL || '';
+            return `
+            <div class="mapa-item ${pendente}" id="mapa-item-${it.id}"
+                 style="left:${it.x}px; top:${it.y}px;"
+                 onmousedown="iniciarDragItemMapa(event, '${it.id}')"
+                 ontouchstart="iniciarDragItemMapa(event, '${it.id}')">
+                <div class="mapa-item-actions">
+                    <button class="mapa-item-btn del" title="Tirar do mapa" onmousedown="event.stopPropagation()" onclick="removerItemMapa('${it.id}')">✕</button>
+                </div>
+                <div class="mapa-item-inner">
+                    ${foto ? `<div class="mapa-item-foto"><img src="${foto}" alt=""></div>` : ''}
+                    <div class="mapa-item-titulo">${escAttr(c.titulo || 'Sem título')}</div>
+                    ${c.descricao ? `<div class="mapa-item-texto">${escAttr(c.descricao)}</div>` : ''}
+                </div>
+            </div>`;
+        }).join('');
+
+        renderBibliotecaMapa();
+        setTimeout(atualizarLinhasConexoes, 30);
+        setTimeout(() => {
+            document.querySelectorAll('.mapa-nota-textarea').forEach(autoExpandirNota);
+        }, 50);
+    }
+
+    // ---------- Conexões ----------
+    function getCentroItem(itemId) {
+        const el = document.getElementById('mapa-item-' + itemId);
+        const it = mapaItensCache.find(x => x.id === itemId);
+        if (!el || !it) return null;
+        const w = el.offsetWidth || 200;
+        const h = el.offsetHeight || 100;
+        return { x: (it.x || 0) + w / 2, y: (it.y || 0) + h / 2 };
+    }
+
+    function atualizarLinhasConexoes() {
+        const svg = document.getElementById('mapa-svg');
+        if (!svg) return;
+
+        const linhasTemp = svg.querySelector('.conexao-temp');
+        const tempHtml = linhasTemp ? linhasTemp.outerHTML : '';
+
+        const linhasHtml = mapaConexoesCache.map(cn => {
+            const a = getCentroItem(cn.de);
+            const b = getCentroItem(cn.para);
+            if (!a || !b) return '';
+            return `<line class="conexao" data-conexao-id="${cn.id}"
+                          x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}"
+                          onclick="removerConexao('${cn.id}')">
+                        <title>Clique para remover a conexão</title>
+                    </line>`;
+        }).join('');
+
+        svg.innerHTML = linhasHtml + tempHtml;
+    }
+
+    window.toggleModoConectar = () => {
+        if (typeof modoColocarNota !== 'undefined' && modoColocarNota) {
+            sairModoColocarNota();
+        }
+        modoConexao = !modoConexao;
+        itemPendenteConexao = null;
+        const btn = document.getElementById('btn-modo-conectar');
+        const wrap = document.getElementById('mapa-canvas-wrap');
+        const hint = document.getElementById('mapa-hint');
+        if (btn) btn.classList.toggle('ativo', modoConexao);
+        if (wrap) wrap.classList.toggle('modo-conectar', modoConexao);
+        if (hint) hint.textContent = modoConexao
+            ? 'Clique em dois cards para conectar · Clique na linha pra remover'
+            : 'Arraste da biblioteca pro canvas · Scroll = zoom · Arrastar o fundo = mover';
+        atualizarLinhasConexoes();
+        renderMapaItens();
+    };
+
+    function clicarItemParaConexao(itemId) {
+        if (!itemPendenteConexao) {
+            itemPendenteConexao = itemId;
+            renderMapaItens();
+            return;
+        }
+        if (itemPendenteConexao === itemId) {
+            itemPendenteConexao = null;
+            renderMapaItens();
+            return;
+        }
+        const jaExiste = mapaConexoesCache.some(c =>
+            (c.de === itemPendenteConexao && c.para === itemId) ||
+            (c.de === itemId && c.para === itemPendenteConexao)
+        );
+        if (jaExiste) {
+            alert('Esses dois já estão conectados.');
+            itemPendenteConexao = null;
+            renderMapaItens();
+            return;
+        }
+        const de = itemPendenteConexao;
+        itemPendenteConexao = null;
+        addDoc(conexoesColRef(), {
+            de: de,
+            para: itemId,
+            criadoEm: serverTimestamp()
+        }).catch(e => {
+            console.error(e);
+            alert('Erro ao conectar.');
+        });
+        renderMapaItens();
+    }
+
+    window.removerConexao = async (id) => {
+        if (!confirm('Remover essa conexão?')) return;
+        try {
+            await deleteDoc(doc(db, 'campanhas', campanhaAtiva, 'conexoes', id));
+        } catch (e) {
+            console.error(e);
+            alert('Erro ao remover conexão.');
+        }
+    };
+
+    // ---------- Drag da biblioteca pro mapa (aceita touch) ----------
+    window.iniciarDragBiblioteca = (ev, cardId) => {
+        if (ev.button !== undefined && ev.button !== 0) return;
+        ev.preventDefault();
+        const card = cardsCache.find(c => c.id === cardId);
+        if (!card) return;
+
+        const clientX = ev.touches ? ev.touches[0].clientX : ev.clientX;
+        const clientY = ev.touches ? ev.touches[0].clientY : ev.clientY;
+
+        const ghost = document.createElement('div');
+        ghost.className = 'mapa-bib-item';
+        ghost.style.cssText = 'position:fixed; pointer-events:none; z-index:9999; opacity:0.8; transform:translate(-50%,-50%);';
+        ghost.style.left = clientX + 'px';
+        ghost.style.top = clientY + 'px';
+        ghost.innerHTML = `<span>${card.tipo === 'fala' ? '🎭' : '📜'}</span><span>${escAttr(card.titulo || 'Sem título')}</span>`;
+        document.body.appendChild(ghost);
+
+        mapaDragBiblioteca = { cardId, ghostEl: ghost };
+        document.addEventListener('mousemove', moverDragBiblioteca);
+        document.addEventListener('mouseup', soltarDragBiblioteca);
+        document.addEventListener('touchmove', moverDragBibliotecaTouch, { passive: false });
+        document.addEventListener('touchend', soltarDragBibliotecaTouch);
+    };
+
+    function moverDragBiblioteca(ev) {
+        if (!mapaDragBiblioteca) return;
+        mapaDragBiblioteca.ghostEl.style.left = ev.clientX + 'px';
+        mapaDragBiblioteca.ghostEl.style.top = ev.clientY + 'px';
+    }
+    function moverDragBibliotecaTouch(ev) {
+        if (!mapaDragBiblioteca || !ev.touches[0]) return;
+        ev.preventDefault();
+        moverDragBiblioteca({ clientX: ev.touches[0].clientX, clientY: ev.touches[0].clientY });
+    }
+
+    function soltarDragBiblioteca(ev) {
+        if (!mapaDragBiblioteca) return;
+        const { cardId, ghostEl } = mapaDragBiblioteca;
+        document.removeEventListener('mousemove', moverDragBiblioteca);
+        document.removeEventListener('mouseup', soltarDragBiblioteca);
+        document.removeEventListener('touchmove', moverDragBibliotecaTouch);
+        document.removeEventListener('touchend', soltarDragBibliotecaTouch);
+        ghostEl.remove();
+        mapaDragBiblioteca = null;
+
+        const clientX = ev.changedTouches ? ev.changedTouches[0].clientX : ev.clientX;
+        const clientY = ev.changedTouches ? ev.changedTouches[0].clientY : ev.clientY;
+
+        const wrap = document.getElementById('mapa-canvas-wrap');
+        if (!wrap) return;
+        const rect = wrap.getBoundingClientRect();
+        if (clientX < rect.left || clientX > rect.right ||
+            clientY < rect.top  || clientY > rect.bottom) return;
+
+        const x = (clientX - rect.left - mapaViewport.panX) / mapaViewport.zoom - 100;
+        const y = (clientY - rect.top  - mapaViewport.panY) / mapaViewport.zoom - 50;
+
+        const jaExiste = mapaItensCache.some(it => it.tipo === 'card' && it.cardId === cardId);
+        if (jaExiste) {
+            alert('Esse card já está no mapa.');
+            return;
+        }
+
+        addDoc(mapaColRef(), {
+            tipo: 'card',
+            cardId: cardId,
+            x: Math.round(x),
+            y: Math.round(y),
+            criadoEm: serverTimestamp()
+        }).catch(e => {
+            console.error(e);
+            alert('Erro ao adicionar no mapa.');
+        });
+    }
+    function soltarDragBibliotecaTouch(ev) {
+        soltarDragBiblioteca(ev);
+    }
+
+    // ---------- Drag dos itens já no mapa (aceita touch) ----------
+    window.iniciarDragItemMapa = (ev, itemId) => {
+        if (ev.button !== undefined && ev.button !== 0) return;
+        ev.stopPropagation();
+        ev.preventDefault();
+
+        if (modoConexao) {
+            clicarItemParaConexao(itemId);
+            return;
+        }
+
+        const it = mapaItensCache.find(x => x.id === itemId);
+        if (!it) return;
+
+        const wrap = document.getElementById('mapa-canvas-wrap');
+        const rect = wrap.getBoundingClientRect();
+        const clientX = ev.touches ? ev.touches[0].clientX : ev.clientX;
+        const clientY = ev.touches ? ev.touches[0].clientY : ev.clientY;
+        const mouseXCanvas = (clientX - rect.left - mapaViewport.panX) / mapaViewport.zoom;
+        const mouseYCanvas = (clientY - rect.top  - mapaViewport.panY) / mapaViewport.zoom;
+
+        mapaArrastandoItem = {
+            id: itemId,
+            offsetX: mouseXCanvas - (it.x || 0),
+            offsetY: mouseYCanvas - (it.y || 0)
+        };
+
+        const el = document.getElementById('mapa-item-' + itemId);
+        if (el) el.classList.add('arrastando');
+
+        document.addEventListener('mousemove', moverDragItemMapa);
+        document.addEventListener('mouseup', soltarDragItemMapa);
+        document.addEventListener('touchmove', moverDragItemMapaTouch, { passive: false });
+        document.addEventListener('touchend', soltarDragItemMapaTouch);
+    };
+
+    function moverDragItemMapa(ev) {
+        if (!mapaArrastandoItem) return;
+        const wrap = document.getElementById('mapa-canvas-wrap');
+        if (!wrap) return;
+        const rect = wrap.getBoundingClientRect();
+        const clientX = ev.clientX !== undefined ? ev.clientX : (ev.touches && ev.touches[0] ? ev.touches[0].clientX : 0);
+        const clientY = ev.clientY !== undefined ? ev.clientY : (ev.touches && ev.touches[0] ? ev.touches[0].clientY : 0);
+        const mouseXCanvas = (clientX - rect.left - mapaViewport.panX) / mapaViewport.zoom;
+        const mouseYCanvas = (clientY - rect.top  - mapaViewport.panY) / mapaViewport.zoom;
+
+        const nx = Math.round(mouseXCanvas - mapaArrastandoItem.offsetX);
+        const ny = Math.round(mouseYCanvas - mapaArrastandoItem.offsetY);
+
+        const it = mapaItensCache.find(x => x.id === mapaArrastandoItem.id);
+        if (it) { it.x = nx; it.y = ny; }
+
+        const el = document.getElementById('mapa-item-' + mapaArrastandoItem.id);
+        if (el) { el.style.left = nx + 'px'; el.style.top = ny + 'px'; }
+
+        atualizarLinhasConexoes();
+    }
+
+    function moverDragItemMapaTouch(ev) {
+        if (!mapaArrastandoItem || !ev.touches[0]) return;
+        ev.preventDefault();
+        moverDragItemMapa({ clientX: ev.touches[0].clientX, clientY: ev.touches[0].clientY });
+    }
+
+    function soltarDragItemMapa() {
+        if (!mapaArrastandoItem) return;
+        const id = mapaArrastandoItem.id;
+        const it = mapaItensCache.find(x => x.id === id);
+        document.removeEventListener('mousemove', moverDragItemMapa);
+        document.removeEventListener('mouseup', soltarDragItemMapa);
+        document.removeEventListener('touchmove', moverDragItemMapaTouch);
+        document.removeEventListener('touchend', soltarDragItemMapaTouch);
+        mapaArrastandoItem = null;
+
+        const el = document.getElementById('mapa-item-' + id);
+        if (el) el.classList.remove('arrastando');
+
+        if (it) {
+            updateDoc(doc(db, 'campanhas', campanhaAtiva, 'mapa', id), {
+                x: it.x, y: it.y
+            }).catch(e => console.error('Erro ao salvar posição:', e));
+        }
+    }
+
+    function soltarDragItemMapaTouch() {
+        soltarDragItemMapa();
+    }
+
+    window.removerItemMapa = async (id) => {
+        if (!confirm('Tirar do mapa? O card continua na biblioteca.')) return;
+        try {
+            const conexoesPraRemover = mapaConexoesCache.filter(c => c.de === id || c.para === id);
+            for (const cn of conexoesPraRemover) {
+                await deleteDoc(doc(db, 'campanhas', campanhaAtiva, 'conexoes', cn.id));
+            }
+            await deleteDoc(doc(db, 'campanhas', campanhaAtiva, 'mapa', id));
+        } catch (e) {
+            console.error(e);
+            alert('Erro ao remover do mapa.');
+        }
+    };
+
+    const NOTA_CORES = {
+        amarelo: { bg: 'rgba(240,220,140,0.92)', fg: '#3a3020', nome: 'Amarelo' },
+        rosa:    { bg: 'rgba(240,180,200,0.92)', fg: '#4a2838', nome: 'Rosa' },
+        verde:   { bg: 'rgba(180,220,170,0.92)', fg: '#2a3a20', nome: 'Verde' },
+        azul:    { bg: 'rgba(170,200,240,0.92)', fg: '#223048', nome: 'Azul' },
+        lilas:   { bg: 'rgba(200,180,230,0.92)', fg: '#302040', nome: 'Lilás' }
+    };
+
+    let modoColocarNota = false;
+    const _notaSaveTimers = {};
+
+    window.criarNotaNoMapa = () => {
+        if (modoConexao) toggleModoConectar();
+        modoColocarNota = !modoColocarNota;
+        const wrap = document.getElementById('mapa-canvas-wrap');
+        const btn = document.getElementById('btn-nova-nota');
+        const hint = document.getElementById('mapa-hint');
+        if (wrap) wrap.classList.toggle('modo-colocar-nota', modoColocarNota);
+        if (btn) btn.classList.toggle('ativo', modoColocarNota);
+        if (hint) hint.textContent = modoColocarNota
+            ? 'Clique no mapa para posicionar a nova nota · ESC cancela'
+            : 'Arraste da biblioteca pro canvas · Scroll = zoom · Arrastar o fundo = mover';
+    };
+
+    function sairModoColocarNota() {
+        modoColocarNota = false;
+        const wrap = document.getElementById('mapa-canvas-wrap');
+        const btn = document.getElementById('btn-nova-nota');
+        const hint = document.getElementById('mapa-hint');
+        if (wrap) wrap.classList.remove('modo-colocar-nota');
+        if (btn) btn.classList.remove('ativo');
+        if (hint && !modoConexao) hint.textContent = 'Arraste da biblioteca pro canvas · Scroll = zoom · Arrastar o fundo = mover';
+    }
+
+    window.setNotaTitulo = (id, valor) => {
+        clearTimeout(_notaSaveTimers['t' + id]);
+        _notaSaveTimers['t' + id] = setTimeout(() => {
+            updateDoc(doc(db, 'campanhas', campanhaAtiva, 'mapa', id), { titulo: valor }).catch(e => console.error(e));
+        }, 400);
+    };
+
+    window.setNotaTexto = (id, valor) => {
+        clearTimeout(_notaSaveTimers['x' + id]);
+        _notaSaveTimers['x' + id] = setTimeout(() => {
+            updateDoc(doc(db, 'campanhas', campanhaAtiva, 'mapa', id), { texto: valor }).catch(e => console.error(e));
+        }, 400);
+    };
+
+    window.setNotaCor = (id, cor) => {
+        if (!NOTA_CORES[cor]) return;
+        updateDoc(doc(db, 'campanhas', campanhaAtiva, 'mapa', id), { cor }).catch(e => console.error(e));
+        const paleta = document.getElementById('paleta-' + id);
+        if (paleta) paleta.classList.add('hidden');
+    };
+
+    window.togglePaletaNota = (id) => {
+        document.querySelectorAll('.mapa-nota-paleta').forEach(p => {
+            if (p.id !== 'paleta-' + id) p.classList.add('hidden');
+        });
+        const paleta = document.getElementById('paleta-' + id);
+        if (paleta) paleta.classList.toggle('hidden');
+    };
+
+    function autoExpandirNota(el) {
+        if (!el) return;
+        el.style.height = 'auto';
+        el.style.height = Math.min(280, Math.max(62, el.scrollHeight)) + 'px';
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modoColocarNota) sairModoColocarNota();
+    });
+
+    document.addEventListener('mousedown', (e) => {
+        if (!e.target.closest || !e.target.closest('.mapa-nota')) {
+            document.querySelectorAll('.mapa-nota-paleta').forEach(p => p.classList.add('hidden'));
+        }
+    });
+
+    function criarNotaEm(clientX, clientY) {
+        const wrap = document.getElementById('mapa-canvas-wrap');
+        if (!wrap) return;
+        sairModoColocarNota();
+        const rect = wrap.getBoundingClientRect();
+        const cx = (clientX - rect.left - mapaViewport.panX) / mapaViewport.zoom - 110;
+        const cy = (clientY - rect.top  - mapaViewport.panY) / mapaViewport.zoom - 22;
+        addDoc(collection(db, 'campanhas', campanhaAtiva, 'mapa'), {
+            tipo: 'nota', titulo: '', texto: '', cor: 'amarelo',
+            x: Math.round(cx), y: Math.round(cy), criadoEm: serverTimestamp()
+        }).then((ref) => {
+            setTimeout(() => {
+                const input = document.querySelector(`#mapa-item-${ref.id} .mapa-nota-titulo-input`);
+                if (input) input.focus();
+            }, 220);
+        }).catch(e => console.error(e));
+    }
+
+    // ---------- Pan e zoom no canvas ----------
+    // ✅ CORREÇÃO CRÍTICA: TODOS os handlers (inclusive dblclick) ficam DENTRO
+    // desta função. Antes, o dblclick ficava fora e referenciava `wrap`, que
+    // só existe dentro do escopo da função -> ReferenceError quebrava o módulo
+    // inteiro e desabilitava zoom/pan/notas/conectar.
+    function configurarInteracaoMapa() {
+        const wrap = document.getElementById('mapa-canvas-wrap');
+        if (!wrap || wrap.dataset.interacaoPronta === '1') return;
+        wrap.dataset.interacaoPronta = '1';
+
+        wrap.addEventListener('wheel', (ev) => {
+            ev.preventDefault();
+            const rect = wrap.getBoundingClientRect();
+            const cx = ev.clientX - rect.left;
+            const cy = ev.clientY - rect.top;
+            const direcao = ev.deltaY < 0 ? 1 : -1;
+            aplicarZoomEmPonto(direcao, cx, cy);
+        }, { passive: false });
+
+        wrap.addEventListener('mousedown', (ev) => {
+            if (ev.button !== 0 && ev.button !== 1) return;
+
+            if (modoColocarNota) {
+                ev.preventDefault();
+                ev.stopPropagation();
+                criarNotaEm(ev.clientX, ev.clientY);
+                return;
+            }
+
+            const alvo = ev.target;
+            if (alvo.closest && alvo.closest('.mapa-item, .mapa-nota')) return;
+
+            ev.preventDefault();
+            mapaPanning = {
+                startX: ev.clientX,
+                startY: ev.clientY,
+                panIniX: mapaViewport.panX,
+                panIniY: mapaViewport.panY
+            };
+            wrap.classList.add('panning');
+            document.addEventListener('mousemove', moverPanMapa);
+            document.addEventListener('mouseup', soltarPanMapa);
+        });
+
+        // duplo-clique no fundo cria nota (fica DENTRO da função pra ter acesso a `wrap`)
+        wrap.addEventListener('dblclick', (ev) => {
+            if (ev.target.closest && ev.target.closest('.mapa-item, .mapa-nota')) return;
+            if (modoConexao || modoColocarNota) return;
+            ev.preventDefault();
+            criarNotaEm(ev.clientX, ev.clientY);
+        });
+    }
+
+    function moverPanMapa(ev) {
+        if (!mapaPanning) return;
+        mapaViewport.panX = mapaPanning.panIniX + (ev.clientX - mapaPanning.startX);
+        mapaViewport.panY = mapaPanning.panIniY + (ev.clientY - mapaPanning.startY);
+        aplicarViewport();
+    }
+
+    function soltarPanMapa() {
+        if (!mapaPanning) return;
+        document.removeEventListener('mousemove', moverPanMapa);
+        document.removeEventListener('mouseup', soltarPanMapa);
+        const wrap = document.getElementById('mapa-canvas-wrap');
+        if (wrap) wrap.classList.remove('panning');
+        mapaPanning = null;
+        salvarViewportLocal();
+    }
+
 function iniciarListeners() {
-    // Referência de iniciativa por campanha
     iniciativaDocRef = doc(db, "mesa", campanhaAtiva + "__iniciativa");
 
     // LOGS
-    onSnapshot(query(collection(db, "logs_rolagens"), limit(150)),
+    onSnapshot(
+        query(collection(db, "logs_rolagens"), where("campanhaId", "==", campanhaAtiva)),
         (snap) => {
             const b = document.getElementById('bandeja-dados');
             if (!b) return;
             const logs = snap.docs
                 .map(d => ({ id: d.id, ...d.data() }))
-                .filter(l => l.campanhaId === campanhaAtiva)
                 .sort((a, b) => {
                     const ta = a.timestamp?.seconds || 0;
                     const tb = b.timestamp?.seconds || 0;
@@ -3880,6 +5600,10 @@ function iniciarListeners() {
             return;
         }
         grid.innerHTML = npcsCache.map(n => `<div id="npc-card-wrap-${n.id}">${renderNpcCardFull(n.id, n)}</div>`).join('');
+
+        // cards de fala usam foto/nome do NPC — re-renderiza se necessário
+        renderCardsGrid();
+        renderMapaItens();
     });
 
     // INICIATIVA
@@ -3889,6 +5613,10 @@ function iniciarListeners() {
             : { ordem: [], turnoAtual: 0, rodada: 1 };
         renderIniciativaLista();
     });
+
+    iniciarCardsListener();
+    iniciarMapaListener();
+    iniciarConexoesListener();
 }
 </script>
 </body>
